@@ -43,47 +43,17 @@ Same setup, different wallpapers — everything recolors automatically:
 
 ## Stack
 
-| Component | Program |
-|---|---|
-| Window manager | [Hyprland](https://hyprland.org/) 0.55+ (**Lua** config) |
-| Bar | Waybar ([waybar-cava](https://aur.archlinux.org/packages/waybar-cava) — with built-in cava) |
-| Terminal | Kitty + Starship + Fastfetch |
-| Launcher / menus | Rofi (launcher, power menu, wallpaper picker, emoji) |
-| Notifications | SwayNC |
-| Lock screen | Hyprlock + Hypridle |
-| Night light | Hyprsunset |
-| Wallpapers | awww (smooth transitions) + Waypaper |
-| Colors from wallpaper | **Matugen + Wallust + Pywal** — three generators chained together |
-| Audio visualizer | Cava (in the terminal and in Waybar) |
-| Widgets | Eww |
-| Spotify | spotify-launcher + Spicetify (matugen-driven theme) |
-| Login screen | SDDM + winter theme (video background) |
-| File managers | Thunar, Yazi |
-| Monitoring | btop (themed too) |
+**Hyprland 0.55+** (Lua) · Waybar · Kitty · Rofi · SwayNC · Hyprlock · Hyprsunset · awww · Eww · Cava · Starship · Fastfetch · btop · Yazi · Thunar · SDDM (winter) · Spicetify
 
 ## How the theming works
 
-```
-Super+W (pick wallpaper) or Super+Alt+W (random)
-        │
-        ▼
-theme-apply <wallpaper>
-        │
-        ├── awww img …          → smooth wallpaper transition
-        ├── matugen image …     → Material You palette:
-        │     waybar/colors.css, kitty, rofi, swaync, gtk, btop,
-        │     cava, eww, starship, spicetify, hyprland (Lua)
-        ├── wallust run …       → second palette:
-        │     waybar/colors-waybar.css, kitty, rofi, vscode, zen
-        ├── wal -i …            → pywal cache (for compatibility)
-        │
-        ├── rebuild waybar/style.css (colors + selected style preset)
-        ├── hyprctl reload, restart waybar/swaync
-        └── wallpaper copy → hyprlock background
-```
+`Super+W` opens the wallpaper picker → `theme-apply` sets it via awww, while **matugen + wallust + pywal**
+generate palettes from the image and render them into the templates of every program
+(waybar, kitty, rofi, swaync, gtk, btop, cava, starship, spicetify, hyprland).
+The bar and notifications restart — the whole desktop is recolored in a couple of seconds.
+Waybar styles (5 presets) switch independently: `Super+Shift+W`.
 
-Waybar style presets switch independently of colors: `Super+Shift+W` opens a menu
-of presets (`flat-minimal`, `glass`, `neon-glow`, `solid-bold`, `mainStyle`) and bar configs.
+The detailed chain diagram is in [docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt), section 14.
 
 ## Installation
 

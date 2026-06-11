@@ -43,47 +43,17 @@
 
 ## Стек
 
-| Компонент | Программа |
-|---|---|
-| Оконный менеджер | [Hyprland](https://hyprland.org/) 0.55+ (конфиг на **Lua**) |
-| Панель | Waybar ([waybar-cava](https://aur.archlinux.org/packages/waybar-cava) — со встроенной cava) |
-| Терминал | Kitty + Starship + Fastfetch |
-| Launcher / меню | Rofi (launcher, power menu, выбор обоев, эмодзи) |
-| Уведомления | SwayNC |
-| Блокировка | Hyprlock + Hypridle |
-| Ночной режим | Hyprsunset |
-| Обои | awww (плавная смена) + Waypaper |
-| Цвета из обоев | **Matugen + Wallust + Pywal** — три генератора в одной цепочке |
-| Аудио-визуализатор | Cava (в терминале и в Waybar) |
-| Виджеты | Eww |
-| Spotify | spotify-launcher + Spicetify (тема из matugen) |
-| Экран входа | SDDM + тема winter (видео-фон) |
-| Файловые менеджеры | Thunar, Yazi |
-| Мониторинг | btop (тоже темизирован) |
+**Hyprland 0.55+** (Lua) · Waybar · Kitty · Rofi · SwayNC · Hyprlock · Hyprsunset · awww · Eww · Cava · Starship · Fastfetch · btop · Yazi · Thunar · SDDM (winter) · Spicetify
 
 ## Как работает темизация
 
-```
-Super+W (выбор обоев) или Super+Alt+W (случайные)
-        │
-        ▼
-theme-apply <обои>
-        │
-        ├── awww img …          → плавная смена обоев
-        ├── matugen image …     → Material You палитра:
-        │     waybar/colors.css, kitty, rofi, swaync, gtk, btop,
-        │     cava, eww, starship, spicetify, hyprland (Lua)
-        ├── wallust run …       → вторая палитра:
-        │     waybar/colors-waybar.css, kitty, rofi, vscode, zen
-        ├── wal -i …            → pywal-кэш (для совместимости)
-        │
-        ├── пересборка waybar/style.css (цвета + выбранный стиль)
-        ├── hyprctl reload, перезапуск waybar/swaync
-        └── копия обоев → фон hyprlock
-```
+`Super+W` открывает выбор обоев → `theme-apply` ставит их через awww, а **matugen + wallust + pywal**
+генерируют из картинки палитры и раскладывают их по шаблонам всех программ
+(waybar, kitty, rofi, swaync, gtk, btop, cava, starship, spicetify, hyprland).
+Панель и уведомления перезапускаются — весь рабочий стол перекрашен за пару секунд.
+Стили Waybar (5 пресетов) переключаются отдельно: `Super+Shift+W`.
 
-Стили Waybar переключаются отдельно от цветов: `Super+Shift+W` — меню пресетов
-(`flat-minimal`, `glass`, `neon-glow`, `solid-bold`, `mainStyle`) и конфигов панели.
+Подробная схема цепочки — в [docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt), раздел 14.
 
 ## Установка
 
