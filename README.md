@@ -41,6 +41,9 @@ Same setup, different wallpapers — everything recolors automatically:
 **Power menu** (`Super+Shift+M`)
 ![Power menu](screenshots/powermenu.png)
 
+**Spotify music widget** (Eww + mpris in Waybar, `Super+P`)
+![Music widget](screenshots/music-widget.png)
+
 **Yazi file manager**
 ![Yazi](screenshots/yazi.png)
 
@@ -156,6 +159,7 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 | `Super + L` | lock screen (hyprlock) |
 | `Super + S` | night light (hyprsunset) |
 | `Super + B / C / V / E` | Firefox / Telegram / VS Code / Thunar |
+| `Super + P` | Spotify (Spicetify theme + Eww music widget) |
 | `Super + D` | lazydocker (Docker TUI; the daemon starts on demand) |
 | `Super + Shift + M` | power menu |
 | `Super + 1–0` | workspaces |

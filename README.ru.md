@@ -41,6 +41,9 @@
 **Меню питания** (`Super+Shift+M`)
 ![Power menu](screenshots/powermenu.png)
 
+**Музыкальный виджет Spotify** (Eww + mpris в Waybar, `Super+P`)
+![Music widget](screenshots/music-widget.png)
+
 **Файловый менеджер Yazi**
 ![Yazi](screenshots/yazi.png)
 
@@ -156,6 +159,7 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 | `Super + L` | блокировка (hyprlock) |
 | `Super + S` | ночной режим (hyprsunset) |
 | `Super + B / C / V / E` | Firefox / Telegram / VS Code / Thunar |
+| `Super + P` | Spotify (тема Spicetify + музыкальный виджет Eww) |
 | `Super + D` | lazydocker (TUI для Docker; демон поднимается сам) |
 | `Super + Shift + M` | меню питания |
 | `Super + 1–0` | воркспейсы |
