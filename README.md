@@ -7,6 +7,11 @@ changing the wallpaper automatically recolors the **entire** environment (Waybar
 
 ![Desktop](screenshots/desktop.png)
 
+Same setup, different wallpapers — everything recolors automatically:
+
+| ![Green theme](screenshots/theme-green.png) | ![Orange theme](screenshots/theme-orange.png) |
+|---|---|
+
 <details>
 <summary>More screenshots</summary>
 
@@ -141,7 +146,7 @@ config/          configs for ~/.config (hypr, waybar, kitty, cava, rofi, swaync,
 bin/             scripts for ~/.local/bin (theme-apply, waybar-set, wallset, …)
 sddm/            login screen theme (winter, video background) + /etc/sddm.conf.d config
 wallpapers/      wallpaper collection (31)
-docs/            FULL-GUIDE.txt — in-depth documentation (Russian)
+docs/            FULL-GUIDE.en.txt / FULL-GUIDE.ru.txt — in-depth documentation
 packages-*.txt   package lists (pacman / AUR)
 install.sh       installer
 ```
@@ -180,9 +185,9 @@ install.sh       installer
 | `Super + 1–0` | workspaces |
 | `Print` / `Ctrl+Print` / `Alt+Print` | screenshot: screen / area / area→Swappy |
 
-Full list — [docs/FULL-GUIDE.txt](docs/FULL-GUIDE.txt) (section 13, Russian).
+Full list — [docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt) (section 13).
 
 ## Documentation
 
 A detailed description of every component, every script, and the whole theming chain —
-[docs/FULL-GUIDE.txt](docs/FULL-GUIDE.txt) (Russian).
+[docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt) ([русская версия](docs/FULL-GUIDE.ru.txt)).

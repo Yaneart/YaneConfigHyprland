@@ -1,0 +1,588 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  DESKTOP ENVIRONMENT CONFIGURATION GUIDE                       ║
+║                      yaneart @ Arch Linux + Hyprland                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TABLE OF CONTENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Overall architecture
+  2. Hyprland — window manager
+  3. Theme and color scheme (matugen / wallust / pywal)
+  4. Status bar — Waybar
+  5. Terminal — Kitty
+  6. Launcher and menus — Rofi
+  7. Notifications — SwayNC
+  8. Screen locking — Hyprlock + Hypridle
+  9. Screen temperature — Hyprsunset
+  10. Wallpapers — awww + waypaper
+  11. Scripts in ~/.local/bin
+  12. Other programs
+  13. Keybindings (full list)
+  14. The theme-switch chain (how everything is connected)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. OVERALL ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  This is a Wayland desktop based on Hyprland with dynamic theming.
+  The key idea: changing the wallpaper automatically recolors the ENTIRE
+  environment.
+
+  Stack:
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Hyprland (WM)  ←→  Waybar (bar)  ←→  Rofi (menus)          │
+  │       ↕                  ↕                                  │
+  │  Kitty (terminal)   SwayNC (notifications)                  │
+  │       ↕                                                     │
+  │  Fastfetch (dashboard)  Starship (prompt)  Cava (visualizer)│
+  │                                                             │
+  │  Matugen + Wallust + PyWal — colors generated from wallpaper│
+  │  awww-daemon — smooth wallpaper transitions (Wayland)       │
+  └─────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  2. HYPRLAND — WINDOW MANAGER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Config: ~/.config/hypr/
+  Version: Hyprland 0.55+ with a Lua config (not .conf, but .lua)
+
+  Main file: hyprland.lua
+  It loads the modules one by one. If a module fails to load, a notification
+  is shown and the rest keeps working.
+
+  Modules (load order):
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  modules/colors.lua       — window border colors                  │
+  │  modules/monitors.lua     — monitor setup (eDP-1, 1080p)          │
+  │  modules/autostart.lua    — programs started with the session     │
+  │  modules/input.lua        — keyboard, mouse, touchpad, env vars   │
+  │  modules/layout.lua       — gaps, blur, shadows, animations       │
+  │  modules/rules.lua        — window rules (rofi, waybar, Android)  │
+  │  modules/bindings.lua     — all keybindings                       │
+  └──────────────────────────────────────────────────────────────────┘
+
+  — Layout: dwindle (spiral splitting)
+  — Borders: border_size = 0 (no frames), rounded corners rounding = 18
+  — Active window opacity: 0.95 / inactive: 0.86
+  — Background blur behind windows enabled (blur passes = 3)
+  — Window shadows enabled
+  — XWayland force_zero_scaling = true (for HiDPI compatibility)
+
+  Animations (Bezier curves):
+  — MySmooth: smooth slide for opening/closing windows (speed 4.0)
+  — smooth: window movement
+  — overshoot: with a slight overshoot past the edge
+  — workspaces: slidefade transition between workspaces
+
+  Monitor:
+  — eDP-1 (built-in laptop screen) 1920×1080 @ 60Hz, scale 1.0
+  — Workspaces 1–10 — all assigned to eDP-1
+
+  Window rules:
+  — rofi: background blur behind the UI
+  — waybar: blur enabled
+  — swaync: "slide right" animation (slides in from the right)
+  — Android Studio helper windows: floating, no focus
+  — DesktopEditors (OnlyOffice): float, centered
+
+  Keyboard:
+  — Layouts: us, ru — toggled with Alt+Shift
+  — Compose key: right Alt (for special characters)
+
+  Touchpad gestures:
+  — 3-finger horizontal swipe = workspace switch
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  3. THEME AND COLOR SCHEME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Three tools run SIMULTANEOUSLY when theme-apply is invoked:
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                    theme-apply <wallpaper>                           │
+  │                           │                                          │
+  │         ┌─────────────────┼──────────────────┐                       │
+  │         ↓                 ↓                  ↓                       │
+  │      pywal             wallust             matugen                   │
+  │  (the old standard) (modern wal)       (Material You)                │
+  │         │                 │                  │                       │
+  │    ~/.cache/wal/    ~/.cache/wallust/   ~/.config/hypr/              │
+  │    colors.json      colors-kitty.conf  modules/generated_colors.lua  │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  Matugen generates:
+  — ~/.config/hypr/modules/generated_colors.lua  → Hyprland borders
+  — ~/.config/kitty/colors/colors.conf            → Kitty colors
+  — ~/.config/rofi/colors/colors-matugen.rasi     → Rofi colors
+  — ~/.config/waybar/colors.css                   → Waybar colors
+  — ~/.config/swaync/colors-swaync.css            → SwayNC colors
+  — ~/.config/btop/themes/matugen.theme           → btop theme
+  — ~/.config/starship.toml                       → prompt colors
+  — ~/.config/gtk-3.0/colors.css                  → GTK3 apps
+  — ~/.config/gtk-4.0/colors.css                  → GTK4 apps
+  — ~/.config/cava/config                         → visualizer colors
+  — Zen Browser                                   → browser theme via pywalfox
+
+  Wallust generates:
+  — ~/.cache/wallust/colors-kitty.conf  → the PRIMARY source of Kitty colors
+  — ~/.config/waybar/colors-waybar.css  → additional Waybar colors
+  — ~/.config/rofi/colors/colors-wallust.rasi
+  — ~/.config/swaync/colors.css
+
+  Pywal generates:
+  — ~/.cache/wal/colors.json  → compatibility with older software
+
+  Fallback colors (if matugen did not run):
+  — Catppuccin Macchiato (blue tones) — hardcoded in colors.lua
+
+  IMPORTANT: Kitty takes its colors from wallust
+  (~/.cache/wallust/colors-kitty.conf), NOT from matugen/kitty, even though
+  matugen also generates a file for Kitty.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  4. STATUS BAR — WAYBAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Config: ~/.config/waybar/config.jsonc
+  Style: ~/.config/waybar/style.css
+  Colors: ~/.config/waybar/colors.css (matugen) + colors-waybar.css (wallust)
+
+  Left side:
+  — Clock (right-click = toggle format, tooltip = calendar)
+  — Network (Wi-Fi/Ethernet, tooltip = details)
+  — Screen temperature (hyprsunset, scroll = adjust)
+  — Gamma brightness (hyprsunset, scroll = adjust)
+  — Bluetooth
+
+  Center:
+  — Hyprland workspaces (6 persistent per monitor)
+
+  Right side:
+  — Cava (audio visualizer, 20 bars, hides when silent)
+  — Screen brightness (click = +10%, right-click = -10%, scroll = ±1%)
+  — PulseAudio volume (click = pavucontrol)
+  — Battery
+  — SwayNC button (open notifications)
+  — System tray
+
+  waybar-light-controls scripts:
+  — temperature_control.sh  — changes the screen color temperature
+  — light_control.sh        — changes gamma (brightness via hyprsunset)
+  — show_temperature.sh     — shows the current temperature in the bar
+  — show_light.sh           — shows the current gamma in the bar
+  Default values: ~/.config/waybar/scripts/.../default_values/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  5. TERMINAL — KITTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Config: ~/.config/kitty/kitty.conf
+  Font: JetBrainsMono Nerd Font, size 14
+  Background opacity: 0.9
+  No window decorations (hide_window_decorations = yes)
+  Inner padding: 20px on all sides
+  Scrollback: 2000 lines
+  Blinking cursor, cursor trail enabled (cursor_trail)
+
+  Colors: loaded from ~/.cache/wallust/colors-kitty.conf
+  Color reload: SIGUSR1 signal (pkill -USR1 kitty)
+
+  kitty-dashboard (Super+Shift+Enter):
+  — Opens Kitty titled "System Dashboard"
+  — Runs fastfetch with a custom config, then drops into the shell
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  6. LAUNCHER AND MENUS — ROFI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Configs: ~/.config/rofi/
+  Colors: colors/ (colors-matugen.rasi + colors-wallust.rasi)
+
+  Menus:
+  — launcher.rasi       — application launcher (drun, with icons)
+  — wallset.rasi        — wallpaper picker (with preview icons)
+  — powermenu.rasi      — shutdown / reboot / logout
+  — waybar-menu.rasi    — Waybar style switcher
+  — mainStyle.rasi      — base styles
+
+  Applets: ~/.config/rofi/applets/bin/
+  — powermenu.sh — power menu script
+
+  Rofimoji (Super+Shift+E): search and copy emoji/symbols
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  7. NOTIFICATIONS — SWAYNC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Config: ~/.config/swaync/config.json
+  Style: ~/.config/swaync/style.css
+  Colors: colors-swaync.css (matugen) + colors.css (wallust)
+
+  Position: top-right corner
+  Width: 400px, panel height: 860px
+
+  Control Center widgets (opened via the Waybar button):
+  — buttons-grid: buttons (mute mic/speaker, WiFi, Bluetooth, OBS, Lock,
+                  Reboot, Shutdown, Airplane Mode)
+  — volume: volume control
+  — backlight: brightness control (device: amdgpu_bl2)
+  — mpris: media player (cover art + controls)
+  — title + dnd (Do Not Disturb)
+  — notifications: the notification list
+
+  Timeouts: normal = 4s, low priority = 2s, critical = 6s
+  Animation: slides in from the right (set up in Hyprland's rules.lua)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  8. SCREEN LOCKING — HYPRLOCK + HYPRIDLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Configs: ~/.config/hypr/hypridle.conf + hyprlock.conf
+
+  Idle timeouts (hypridle):
+  — 2.5 min  → brightness drops to 10%
+  — 5 min    → screen locks (loginctl lock-session → hyprlock)
+  — 5.5 min  → screen turns off (dpms off)
+  — 30 min   → system suspends (systemctl suspend)
+  On activity: the screen turns on, brightness is restored.
+  On resume from sleep: dpms on (so you don't have to press twice).
+
+  Hyprlock appearance:
+  — Background: ~/.config/background (copy of the current wallpaper, blur 3)
+  — Center: semi-transparent panel (520×220)
+  — Large clock (92pt JetBrainsMono Nerd Font)
+  — Date below the clock (updates every minute)
+  — Username highlighted with the accent color
+  — Password field (340×56, dots, Caps Lock = red)
+  — Cursor hidden
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  9. SCREEN TEMPERATURE — HYPRSUNSET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Hyprsunset is a Redshift/f.lux analogue for Wayland/Hyprland.
+  A blue light filter (warm screen at night).
+
+  Startup: hyprsunset_init.sh on Hyprland start
+  — Starts the hyprsunset daemon
+  — Applies saved gamma and temperature values from:
+      ~/.config/waybar/scripts/.../default_values/default_light.conf
+      ~/.config/waybar/scripts/.../default_values/default_temperature.conf
+
+  Controls:
+  — Super+S             — toggle hyprsunset on/off
+  — Super+Ctrl+Up/Down  — temperature adjustment (via Hyprland)
+  — Super+Alt+Up/Down   — gamma adjustment (brightness via hyprsunset)
+  — Scroll on the temperature widget in Waybar
+  — Scroll on the gamma widget in Waybar
+
+  toggle-hyprsunset:
+  — If running → kill
+  — If not running → start with temperature 3500K, gamma 75%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  10. WALLPAPERS — awww + waypaper
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Wallpapers are stored in: ~/.config/wallpapers/
+  Current wallpaper (state): ~/.local/state/theme/current_wallpaper
+  Lock screen copy: ~/.config/background
+
+  awww-daemon — a daemon for smooth wallpaper transitions on Wayland.
+  Switch command: awww img <file> --transition-type any --duration 1.2 --fps 60
+
+  Startup: awww-daemon is started in autostart.lua,
+  then theme-restore applies the last wallpaper.
+
+  Waypaper (~/.config/waypaper/config.ini) — a GUI wallpaper picker.
+  The main tool, however, is wallset (a Rofi menu with previews).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  11. SCRIPTS IN ~/.local/bin
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Main theming scripts:
+
+  theme-apply <file>
+    — The main script. Takes a wallpaper path.
+    — Sets the wallpaper via awww
+    — Copies the wallpaper to ~/.config/background (for hyprlock)
+    — Runs pywal, wallust and matugen to generate colors
+    — Restarts waybar, swaync, kitty, cava
+    --colors-only: colors only, without changing the wallpaper
+
+  theme-restore
+    — Reads ~/.local/state/theme/current_wallpaper
+    — Calls theme-apply with the last wallpaper
+    — Invoked on Hyprland start (autostart.lua)
+
+  theme-random
+    — Picks a random wallpaper from ~/.config/wallpapers/
+    — Calls theme-apply
+
+  colorscheme-set
+    — Regenerates colors from the current wallpaper (theme-apply --colors-only)
+
+  wallset
+    — Rofi menu with wallpaper previews from ~/.config/wallpapers/
+    — After selection → theme-apply
+
+  launcher
+    — Rofi drun launcher with icons
+
+  waybar-menu / waybar-set
+    — Switch the Waybar style/config via Rofi
+
+  kitty-dashboard
+    — Opens Kitty → fastfetch (system info) → shell
+
+  toggle-hyprsunset
+    — Toggles hyprsunset on/off
+
+  close-window
+    — Gracefully closes the active window (Super+Q), with a SIGTERM follow-up
+
+  close_all_windows
+    — Closes all windows on the current workspace (Super+A)
+
+  killall
+    — Kills all windows (emergency exit, Super+Shift+Q)
+
+  pywal_cava
+    — pywal colors for cava
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  12. OTHER PROGRAMS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Cava (~/.config/cava/config)
+  — Audio visualizer, shown in Waybar (20 bars, 60fps)
+  — Hides when silent
+  — Colors generated by matugen
+
+  Btop (~/.config/btop/btop.conf)
+  — System monitor
+  — Theme: matugen.theme (generated by matugen)
+
+  Fastfetch (~/.config/fastfetch/config.jsonc)
+  — System info on dashboard start
+  — Custom ASCII logo: ~/.config/fastfetch/noros/yaneart.txt
+  — Shows: user, hostname, uptime, OS, kernel, WM, font, colors
+
+  Starship (~/.config/starship.toml)
+  — Shell prompt (hooked into bash via ~/.bashrc)
+  — Rounded "pill" segments (Nerd Font glyphs U+E0B6/U+E0B4)
+  — Color palette generated by matugen (Material You pairs:
+    primary/on_primary, secondary/on_secondary, tertiary/on_tertiary)
+  — Shows: user, directory, git branch/status, Node/Rust/Go/PHP/Python,
+    duration of long commands (>2s)
+
+  GTK themes (gtk-3.0, gtk-4.0)
+  — Colors generated by matugen
+  — Theme: adw-gtk3 (adapts to dark/light mode via gsettings)
+
+  Qt themes (qt5ct, qt6ct)
+  — Settings: ~/.config/qt5ct/qt5ct.conf, qt6ct/qt6ct.conf
+  — Env: QT_QPA_PLATFORMTHEME=qt6ct (set in input.lua)
+
+  SDDM (login screen)
+  — Theme: winter (video background), set via /etc/sddm.conf.d/theme.conf
+  — In the repo: sddm/ (installed by install.sh)
+
+  Thunar — file manager (Super+E)
+  Yazi — terminal file manager (Super+Y)
+  — Theme: ~/.config/yazi/theme.toml
+
+  nm-applet — NetworkManager tray applet
+  polkit-kde — authorization agent (KDE)
+  gnome-keyring-daemon — password storage
+
+  Happ (~/.config/Happ/) — personal app (Super+H)
+
+  Firefox / Zen Browser
+  — Theme via pywalfox (matugen generates json colors → pywalfox update)
+  — Custom colors: ~/.zen/.../chrome/colors.css
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  13. KEYBINDINGS (Super = Windows/Meta)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  WINDOWS AND WORKSPACES
+  ─────────────────────────────────────────────────────────────
+  Super + Enter          Open the Kitty terminal
+  Super + Shift + Enter  Open the Kitty Dashboard (fastfetch)
+  Super + Q              Close the current window
+  Super + T              Toggle float
+  Super + F              Toggle fullscreen
+  Super + J              Swap the split (dwindle swapsplit)
+  Super + A              Close all windows on the workspace
+  Super + Shift + Q      Kill all windows (emergency)
+
+  Super + Shift + H/J/K/L      Focus left/down/up/right
+  Super + Alt + H/J/K/L        Swap windows
+
+  Super + 1-9,0           Switch to workspace 1-10
+  Super + Shift + 1-9,0   Move window to workspace 1-10
+  Super + Shift + Left/Right   Previous/next workspace
+  Super + Mouse Scroll         Workspace switching
+  Super + LMB (hold)           Drag a window
+
+  APPLICATIONS
+  ─────────────────────────────────────────────────────────────
+  Super + Space          Launcher (Rofi, all apps)
+  Super + B              Firefox
+  Super + C              Telegram
+  Super + V              VS Code
+  Super + E              Thunar (file manager)
+  Super + Y              Yazi (terminal file manager)
+  Super + H              Happ
+  Super + Shift + E      Rofimoji (emoji/symbol search)
+  Super + Shift + M      Power menu (shutdown, reboot)
+
+  THEME AND APPEARANCE
+  ─────────────────────────────────────────────────────────────
+  Super + W              Wallpaper picker (Rofi menu with previews)
+  Super + Alt + W        Random wallpaper + theme change
+  Super + Shift + R      Restore the theme (theme-restore)
+  Super + R              Restart Waybar
+  Super + Shift + C      Regenerate colors (without changing wallpaper)
+  Super + Shift + W      Waybar style menu
+
+  SCREEN AND LIGHT
+  ─────────────────────────────────────────────────────────────
+  Super + L              Lock the screen (hyprlock)
+  Super + S              Toggle hyprsunset (night mode)
+  Super + Ctrl + Up/Down     Screen temperature +/-
+  Super + Alt + Up/Down      Gamma (hyprsunset brightness) +/-
+  XF86MonBrightnessUp/Down   Screen brightness ±5% (brightnessctl)
+
+  AUDIO
+  ─────────────────────────────────────────────────────────────
+  XF86AudioRaiseVolume   Volume +5% (pamixer)
+  XF86AudioLowerVolume   Volume -5%
+  XF86AudioMute          Mute/Unmute
+
+  SCREENSHOTS
+  ─────────────────────────────────────────────────────────────
+  Print                  Full screen shot (grim → ~/Pictures/)
+  Ctrl + Print           Region shot (slurp → ~/Pictures/)
+  Alt + Print            Region shot → open in Swappy for editing
+
+  DEBUGGING
+  ─────────────────────────────────────────────────────────────
+  Super + F1             Dump the layer list to /tmp/hypr_layers.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  14. THE THEME-SWITCH CHAIN (HOW EVERYTHING IS CONNECTED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  When Super+W or Super+Alt+W is pressed:
+
+  1. wallset → Rofi shows wallpaper previews
+  2. The user picks a wallpaper
+  3. theme-apply ~/.config/wallpapers/chosen.jpg
+     │
+     ├─ awww img <file>                → smooth wallpaper transition
+     ├─ cp <file> ~/.config/background → update the hyprlock background
+     │
+     ├─ wal -i <file>                  → pywal generates ~/.cache/wal/
+     ├─ wallust run <file>             → wallust generates ~/.cache/wallust/
+     ├─ matugen image <file>           → matugen renders all templates:
+     │    ├─ generated_colors.lua      → Hyprland borders
+     │    ├─ colors.css (waybar)       → Waybar
+     │    ├─ colors-swaync.css         → SwayNC
+     │    ├─ colors.conf (kitty)       → Kitty (matugen variant)
+     │    ├─ rofi-colors.rasi          → Rofi
+     │    ├─ starship.toml             → prompt
+     │    ├─ gtk-colors.css (gtk3/4)   → GTK apps
+     │    ├─ cava.conf                 → Cava visualizer
+     │    └─ pywalfox → Zen browser    → update the browser theme
+     │
+     ├─ pkill waybar && waybar &       → restart the bar (new colors)
+     ├─ swaync-client --reload-css     → reload the notification style
+     ├─ pkill -USR1 kitty              → hot-reload kitty colors
+     └─ pkill cava                     → restart the visualizer
+
+  4. echo <file> > ~/.local/state/theme/current_wallpaper  (save state)
+  5. notify-send "Theme updated" (notification)
+
+  On the next Hyprland start (autostart.lua):
+  → theme-restore reads current_wallpaper → theme-apply → everything restored
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FILE STRUCTURE (reference)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ~/.config/
+  ├─ hypr/                    Hyprland config (Lua)
+  │   ├─ hyprland.lua         Entry point, loads the modules
+  │   ├─ hypridle.conf        Idle timeouts
+  │   ├─ hyprlock.conf        Lock screen appearance
+  │   ├─ hyprsunset.conf      hyprsunset config (empty, everything via CLI)
+  │   ├─ modules/             Config modules
+  │   │   ├─ autostart.lua    Autostarted programs
+  │   │   ├─ bindings.lua     Keybindings
+  │   │   ├─ colors.lua       Color loading (matugen or fallback)
+  │   │   ├─ generated_colors.lua  Generated by matugen
+  │   │   ├─ input.lua        Input, env variables
+  │   │   ├─ layout.lua       Decorations, animations, gaps
+  │   │   ├─ monitors.lua     Monitors and workspaces
+  │   │   └─ rules.lua        Window/layer rules
+  │   └─ scripts/             hyprsunset scripts
+  ├─ waybar/                  Status bar
+  │   ├─ config.jsonc         Modules and settings
+  │   ├─ style.css            Styles
+  │   ├─ colors.css           Colors (matugen)
+  │   ├─ colors-waybar.css    Colors (wallust)
+  │   └─ scripts/             Custom widget scripts
+  ├─ rofi/                    Launcher and menus
+  ├─ swaync/                  Notifications
+  ├─ kitty/                   Terminal
+  ├─ matugen/                 Color generator (Material You)
+  │   ├─ config.toml          Templates to render
+  │   └─ templates/           .lua/.css/.toml/.rasi templates
+  ├─ wallust/                 The second color generator
+  │   └─ templates/           Templates
+  ├─ wallpapers/              All wallpapers (jpg/png)
+  ├─ background               Copy of the current wallpaper (for hyprlock)
+  ├─ btop/                    System monitor
+  ├─ cava/                    Audio visualizer
+  ├─ fastfetch/               System info
+  ├─ nvim/                    Neovim (LazyVim)
+  ├─ starship.toml            Prompt (generated by matugen)
+  ├─ gtk-3.0/ gtk-4.0/        GTK themes
+  ├─ qt5ct/ qt6ct/            Qt themes
+  └─ yazi/                    File manager (TUI)
+
+  ~/.local/bin/               User scripts
+  ~/.local/state/theme/       Theme state (current_wallpaper)
+  ~/.cache/wal/               pywal cache
+  ~/.cache/wallust/           wallust cache
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  QUICK START / TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Something wrong with the theme?
+  → Super+Shift+R  (theme-restore, full theme reload)
+
+  Colors broke but the wallpaper is fine?
+  → Super+Shift+C  (colorscheme-set, color regeneration only)
+
+  Waybar froze or didn't update?
+  → Super+R  (pkill waybar && waybar)
+
+  Hyprland didn't start — which module is broken?
+  → The notification will say "Failed to load modules/XXX: ..."
+
+  Find out the current wallpaper:
+  → cat ~/.local/state/theme/current_wallpaper
+
+  Check the monitors:
+  → hyprctl monitors
+
+  Hyprland layer list:
+  → Super+F1  (saves to /tmp/hypr_layers.txt)

@@ -346,8 +346,14 @@
   killall
     — Убивает все окна (аварийный выход, Super+Shift+Q)
 
-  colorscheme-backend, wallset-backend, wallset-backend-startup
-    — Вспомогательные скрипты для пайплайна темизации
+  close-window
+    — Мягко закрывает активное окно (Super+Q), с добиванием SIGTERM
+
+  waybar-set
+    — Применяет стиль/конфиг waybar (вызывается из waybar-menu)
+
+  pywal_cava
+    — Цвета pywal для cava
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   12. ДРУГИЕ ПРОГРАММЫ
@@ -368,9 +374,12 @@
   — Показывает: юзер, hostname, uptime, OS, kernel, WM, шрифт, цвета
 
   Starship (~/.config/starship.toml)
-  — Промпт для bash/zsh/fish
-  — Цветовая палитра генерируется matugen (matugen-color*)
-  — Показывает: git ветку/статус, директорию, Node/Rust/Go/PHP/Conda
+  — Промпт шелла (подключён в bash через ~/.bashrc)
+  — Скруглённые «капсулы» (глифы Nerd Font U+E0B6/U+E0B4)
+  — Палитра генерируется matugen (Material You пары:
+    primary/on_primary, secondary/on_secondary, tertiary/on_tertiary)
+  — Показывает: юзер, директорию, git ветку/статус, Node/Rust/Go/PHP/Python,
+    время выполнения долгих команд (>2с)
 
   GTK темы (gtk-3.0, gtk-4.0)
   — Цвета генерирует matugen
@@ -381,8 +390,8 @@
   — Env: QT_QPA_PLATFORMTHEME=qt6ct (задаётся в input.lua)
 
   SDDM (экран входа)
-  — Конфиг: ~/.config/sddm/
-  — Настроен через setup-sddm-login скрипт
+  — Тема: winter (видео-фон), задаётся в /etc/sddm.conf.d/theme.conf
+  — В репозитории: sddm/ (ставится через install.sh)
 
   Thunar — файловый менеджер (Super+E)
   Yazi — файловый менеджер в терминале (Super+Y)

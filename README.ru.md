@@ -7,6 +7,11 @@
 
 ![Desktop](screenshots/desktop.png)
 
+Тот же сетап, другие обои — всё перекрашивается автоматически:
+
+| ![Green theme](screenshots/theme-green.png) | ![Orange theme](screenshots/theme-orange.png) |
+|---|---|
+
 <details>
 <summary>Больше скриншотов</summary>
 
@@ -141,7 +146,7 @@ config/          конфиги для ~/.config (hypr, waybar, kitty, cava, rof
 bin/             скрипты для ~/.local/bin (theme-apply, waybar-set, wallset, …)
 sddm/            тема экрана входа (winter, видео-фон) + конфиг для /etc/sddm.conf.d
 wallpapers/      коллекция обоев (31 шт.)
-docs/            FULL-GUIDE.txt — подробная документация по всему окружению
+docs/            FULL-GUIDE.ru.txt / FULL-GUIDE.en.txt — подробная документация
 packages-*.txt   списки пакетов (pacman / AUR)
 install.sh       установщик
 ```
@@ -180,9 +185,9 @@ install.sh       установщик
 | `Super + 1–0` | воркспейсы |
 | `Print` / `Ctrl+Print` / `Alt+Print` | скриншот: экран / область / область→Swappy |
 
-Полный список — в [docs/FULL-GUIDE.txt](docs/FULL-GUIDE.txt) (раздел 13).
+Полный список — в [docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt) (раздел 13).
 
 ## Документация
 
 Подробное описание каждого компонента, всех скриптов и всей цепочки темизации —
-[docs/FULL-GUIDE.txt](docs/FULL-GUIDE.txt).
+[docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt) ([english version](docs/FULL-GUIDE.en.txt)).
