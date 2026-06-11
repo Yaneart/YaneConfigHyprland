@@ -1,0 +1,361 @@
+/***
+ *    ┏┓┏┓┳┓┏┳┓┳┓┏┓┓   ┏┓┏┓┳┓┏┳┓┏┓┳┓
+ *    ┃ ┃┃┃┃ ┃ ┣┫┃┃┃ ━━┃ ┣ ┃┃ ┃ ┣ ┣┫
+ *    ┗┛┗┛┛┗ ┻ ┛┗┗┛┗┛  ┗┛┗┛┛┗ ┻ ┗┛┛┗
+ *
+ *  frosted glass
+ */
+
+* {
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 13px;
+  color: @on_surface;
+  transition: 180ms ease;
+}
+
+.blank-window {
+  background: transparent;
+}
+
+/* ── Hide scrollbar ──────────────────────────────────────── */
+
+scrollbar,
+scrollbar slider {
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+}
+
+/* ── Panel ───────────────────────────────────────────────── */
+
+.control-center {
+  background: alpha(@surface, 0.78);
+  border: 1px solid alpha(@outline_variant, 0.22);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.55),
+              inset 0 1px 0 alpha(@on_surface, 0.06);
+  margin: 10px 6px;
+  padding: 12px;
+}
+
+/* ── Header label (YANEART) ──────────────────────────────── */
+
+.widget-label {
+  color: @primary;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 5px;
+  margin: 4px 4px 10px 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid alpha(@outline_variant, 0.18);
+}
+
+/* ── Quick-action buttons ────────────────────────────────── */
+
+.widget-buttons-grid {
+  background: alpha(@surface_container, 0.40);
+  border: 1px solid alpha(@outline_variant, 0.10);
+  border-radius: 16px;
+  margin: 4px 4px 6px 4px;
+  padding: 4px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  background: alpha(@surface_container_high, 0.55);
+  border: 1px solid alpha(@outline_variant, 0.15);
+  border-radius: 14px;
+  color: @on_surface_variant;
+  margin: 4px;
+  padding: 16px 20px;
+  min-width: 52px;
+  min-height: 52px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button > label {
+  font-size: 22px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: alpha(@primary_container, 0.55);
+  border-color: alpha(@primary, 0.30);
+  color: @on_surface;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked {
+  background: alpha(@primary_container, 0.70);
+  border-color: alpha(@primary, 0.45);
+  color: @on_primary_container;
+}
+
+/* ── Volume & Backlight ──────────────────────────────────── */
+
+.widget-volume,
+.widget-backlight {
+  background: transparent;
+  color: @on_surface;
+  margin: 2px 4px;
+  padding: 2px 8px;
+}
+
+progressbar,
+progress,
+trough {
+  border-radius: 20px;
+  background: transparent;
+}
+
+trough {
+  background: alpha(@on_surface, 0.20);
+  border-radius: 20px;
+  min-height: 6px;
+}
+
+trough highlight {
+  background: alpha(@primary, 0.65);
+  border-radius: 20px;
+}
+
+trough slider {
+  background: @on_primary_container;
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.50);
+  min-height: 14px;
+  min-width: 14px;
+}
+
+trough slider:hover {
+  background: @primary;
+}
+
+/* ── MPRIS ───────────────────────────────────────────────── */
+
+.widget-mpris {
+  background: transparent;
+  margin: 4px 4px 6px 4px;
+  padding: 0;
+}
+
+.widget-mpris-player {
+  background: alpha(@surface_container_high, 0.92);
+  border: 1px solid alpha(@outline_variant, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.50);
+  margin: 2px;
+  padding: 0 0 10px 0;
+}
+
+.widget-mpris-album-art {
+  border-radius: 16px 16px 0 0;
+  min-height: 108px;
+  max-height: 108px;
+}
+
+.widget-mpris-title {
+  font-weight: 800;
+  font-size: 0.96rem;
+  color: @on_surface;
+  padding: 8px 12px 2px 12px;
+}
+
+.widget-mpris-subtitle {
+  font-size: 0.78rem;
+  color: @on_surface_variant;
+  padding: 0 12px 6px 12px;
+}
+
+.widget-mpris button {
+  background: alpha(@surface_container_highest, 0.65);
+  border: 1px solid alpha(@outline_variant, 0.20);
+  border-radius: 999px;
+  color: @on_surface_variant;
+  margin: 4px 4px 0 4px;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 4px 12px;
+}
+
+.widget-mpris button:hover {
+  background: alpha(@primary_container, 0.65);
+  border-color: alpha(@primary, 0.35);
+  color: @on_surface;
+}
+
+.widget-mpris button:active {
+  background: @primary;
+  color: @on_primary;
+  border-color: @primary;
+}
+
+/* ── Title row ───────────────────────────────────────────── */
+
+.widget-title {
+  color: @on_surface_variant;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 6px 4px 2px 4px;
+}
+
+.widget-title button {
+  background: alpha(@surface_container_high, 0.40);
+  border: 1px solid alpha(@outline_variant, 0.20);
+  border-radius: 999px;
+  color: @on_surface_variant;
+  font-size: 0.80rem;
+  padding: 1px 10px;
+}
+
+.widget-title button:hover {
+  background: alpha(@primary, 0.18);
+  color: @primary;
+  border-color: alpha(@primary, 0.28);
+}
+
+.widget-title button:active {
+  background: @primary;
+  color: @on_primary;
+}
+
+/* ── Do Not Disturb ──────────────────────────────────────── */
+
+.widget-dnd {
+  color: @on_surface_variant;
+  font-size: 0.82rem;
+  margin: 2px 4px 6px 4px;
+}
+
+.widget-dnd > switch {
+  background: alpha(@surface_container_high, 0.55);
+  border: 1px solid alpha(@outline, 0.14);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.widget-dnd > switch:hover {
+  background: alpha(@primary_container, 0.30);
+}
+
+.widget-dnd > switch:checked {
+  background: alpha(@primary, 0.78);
+  border-color: @primary;
+}
+
+.widget-dnd > switch slider {
+  background: @on_surface_variant;
+  border-radius: 999px;
+  min-height: 15px;
+  min-width: 15px;
+}
+
+.widget-dnd > switch:checked slider {
+  background: @on_primary;
+}
+
+/* ── Notifications in panel ──────────────────────────────── */
+
+.control-center .notification-row .notification-background {
+  background: alpha(@surface_container_high, 0.88);
+  border: 1px solid alpha(@outline_variant, 0.18);
+  border-radius: 14px;
+  margin: 3px 0;
+  padding: 3px;
+}
+
+.control-center .notification-row .notification-background .notification.critical {
+  border-color: @error;
+}
+
+.control-center .notification-row .notification-background .notification .notification-content {
+  margin: 6px;
+  padding: 2px;
+}
+
+.control-center .notification-row .notification-background .notification > *:last-child > * {
+  min-height: 2.8em;
+}
+
+.control-center .notification-row .notification-background .notification > *:last-child > * .notification-action {
+  background: alpha(@primary_container, 0.32);
+  border-radius: 10px;
+  color: @on_primary_container;
+  margin: 4px 6px;
+}
+
+.control-center .notification-row .notification-background .notification > *:last-child > * .notification-action:hover {
+  background: alpha(@primary, 0.22);
+}
+
+.control-center .notification-row .notification-background .notification > *:last-child > * .notification-action:active {
+  background: @primary;
+  color: @on_primary;
+}
+
+.control-center .notification-row .notification-background .close-button {
+  background: transparent;
+  border-radius: 8px;
+  color: @on_surface_variant;
+  margin: 2px;
+  padding: 3px 6px;
+}
+
+.control-center .notification-row .notification-background .close-button:hover {
+  background: alpha(@primary, 0.16);
+  color: @primary;
+}
+
+.control-center .notification-row .notification-background .close-button:active {
+  background: @primary;
+  color: @on_primary;
+}
+
+/* ── Summary / body (in panel) ───────────────────────────── */
+
+.summary {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: @on_surface;
+}
+
+.body {
+  font-size: 0.78rem;
+  color: @on_surface_variant;
+}
+
+.image {
+  margin: 6px 12px 6px 4px;
+  border-radius: 10px;
+}
+
+/* ── Notification groups ─────────────────────────────────── */
+
+.notification-group {
+  margin: 2px 6px;
+}
+
+.notification-group-headers {
+  color: @primary;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.notification-group-icon {
+  color: @on_surface_variant;
+}
+
+.notification-group-collapse-button,
+.notification-group-close-all-button {
+  background: transparent;
+  border-radius: 8px;
+  color: @on_surface_variant;
+  margin: 2px;
+  padding: 3px 8px;
+}
+
+.notification-group-collapse-button:hover,
+.notification-group-close-all-button:hover {
+  background: alpha(@primary_container, 0.38);
+  color: @on_surface;
+}

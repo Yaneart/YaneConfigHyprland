@@ -1,0 +1,149 @@
+/* Solid bold — filled high-contrast pills */
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-family: "JetBrainsMono Nerd Font", "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: transparent;
+    color: @on_surface;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 6px 10px;
+}
+
+tooltip {
+    background: @surface;
+    border: 1px solid alpha(@on_secondary, 0.6);
+    border-radius: 8px;
+}
+
+tooltip label {
+    color: @on_surface;
+    padding: 2px 6px;
+}
+
+#clock,
+#battery,
+#pulseaudio,
+#network,
+#bluetooth,
+#backlight,
+#custom-swaync,
+#custom-temperature,
+#custom-light,
+#cava,
+#tray,
+#cpu,
+#temperature,
+#memory,
+#disk,
+#language {
+    background: @surface_container;
+    color: @on_surface;
+    border-radius: 8px;
+    margin: 0 2px;
+    padding: 0 8px;
+    min-height: 28px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#clock {
+    background: @primary;
+    color: @on_primary;
+}
+
+#clock:hover,
+#battery:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover,
+#backlight:hover,
+#custom-swaync:hover,
+#custom-temperature:hover,
+#custom-light:hover,
+#cava:hover,
+#cpu:hover,
+#temperature:hover,
+#memory:hover,
+#disk:hover,
+#language:hover {
+    background: @primary;
+    color: @on_primary;
+}
+
+#workspaces {
+    background: transparent;
+    margin: 0 4px;
+}
+
+#workspaces button {
+    background: @surface_container;
+    color: @on_surface;
+    margin: 0 2px;
+    padding: 0 9px;
+    border-radius: 8px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#workspaces button:hover {
+    background: alpha(@primary, 0.4);
+    color: @on_primary;
+}
+
+#workspaces button.active {
+    background: @primary;
+    color: @on_primary;
+}
+
+#workspaces button.urgent {
+    background: @error;
+    color: @on_primary;
+}
+
+#network,
+#bluetooth {
+    color: @primary;
+}
+
+#network.disconnected,
+#bluetooth.disabled,
+#bluetooth.off {
+    color: alpha(@on_surface, 0.40);
+}
+
+#battery.charging {
+    background: @primary;
+    color: @on_primary;
+}
+
+#battery.warning:not(.charging),
+#battery.critical:not(.charging),
+#temperature.critical {
+    background: @error;
+    color: @on_primary;
+}
+
+#pulseaudio.muted {
+    color: alpha(@on_surface, 0.45);
+}
+
+#cava {
+    color: @primary;
+}
+
+#tray > widget {
+    margin: 0 3px;
+}

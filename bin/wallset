@@ -1,0 +1,26 @@
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+theme="$HOME/.config/rofi/wallset.rasi"
+WALL_DIR="$HOME/.config/wallpapers"
+CWD="$(pwd)"
+
+IFS=$'\n'
+cd "$WALL_DIR" || exit
+
+chosen=$(
+  find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) \
+    -printf '%P\n' \
+    | sort \
+    | while read -r file; do
+        printf '%s\0icon\x1f%s\n' "$file" "$file"
+      done \
+    | rofi -dmenu -p "Select Wallpaper" -theme "$theme"
+)
+
+if [ -n "$chosen" ]; then
+    "$HOME/.local/bin/theme-apply" "$WALL_DIR/$chosen"
+fi
+
+cd "$CWD" || exit

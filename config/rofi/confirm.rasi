@@ -1,0 +1,64 @@
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration { show-icons: false; }
+
+window {
+    width:            420px;
+    height:           150px;
+    border-radius:    28px;
+    background-color: @surface-container-50;
+}
+
+mainbox {
+    spacing:  0px;
+    padding:  0px;
+    children: [ "message", "listview" ];
+}
+
+message {
+    padding:          20px;
+    border:           0px;
+    background-color: transparent;
+    text-color:       @primary;
+}
+
+textbox {
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+    text-color:       @primary;
+    font:             "JetBrainsMono Nerd Font Bold 16";
+}
+
+listview {
+    columns:          2;
+    lines:            1;
+    spacing:          12px;
+    padding:          0px 20px 20px 20px;
+    fixed-height:     true;
+    fixed-columns:    true;
+    scrollbar:        false;
+    background-color: transparent;
+}
+
+element {
+    padding:          0px;
+    border-radius:    999px;
+    background-color: @surface-container-highest-75;
+    text-color:       @on-surface-variant;
+    orientation:      horizontal;
+}
+
+element-text {
+    padding:          14px 20px;
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+    background-color: transparent;
+    text-color:       inherit;
+    font:             "JetBrainsMono Nerd Font 15";
+}
+
+element normal.normal   { background-color: @surface-container-highest-75; text-color: @on-surface-variant; }
+element selected.normal {
+    background-color: @primary-container-75;
+    text-color:       @on-primary-container;
+}

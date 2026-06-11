@@ -1,0 +1,13 @@
+#!/bin/bash
+DEFAULTS="$HOME/.config/waybar/scripts/waybar-light-controls/default_values"
+
+PID=$(pgrep -x hyprsunset)
+if [ -z "$PID" ]; then
+    hyprsunset &
+    sleep 0.5
+    hyprctl hyprsunset gamma "$(cat "$DEFAULTS/default_light.conf")"
+    hyprctl hyprsunset temperature "$(cat "$DEFAULTS/default_temperature.conf")"
+else
+    kill "$PID"
+fi
+

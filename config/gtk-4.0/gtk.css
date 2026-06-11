@@ -1,0 +1,70 @@
+@import url("colors.css");
+
+/* Global GTK4 override so GTK4 apps stay aligned with the generated palette. */
+* {
+  background-image: none;
+}
+
+window,
+dialog,
+.background {
+  background-color: @window_bg_color;
+  color: @window_fg_color;
+}
+
+headerbar,
+.titlebar {
+  background-color: @headerbar_bg_color;
+  color: @headerbar_fg_color;
+}
+
+view,
+listview,
+columnview,
+gridview,
+scrolledwindow,
+viewport {
+  background-color: @view_bg_color;
+  color: @view_fg_color;
+}
+
+thunar,
+thunar window,
+thunar scrolledwindow,
+thunar viewport,
+thunar paned,
+thunar notebook,
+thunar toolbar,
+thunar button,
+thunar entry,
+thunar list,
+thunar row,
+thunar iconview,
+thunar treeview.view,
+thunar treeview,
+thunar .view {
+  background-color: @window_bg_color;
+  color: @window_fg_color;
+}
+
+row:selected,
+selection {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+thunar row:selected,
+thunar iconview.view:selected,
+thunar treeview.view:selected,
+thunar .view:selected {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+button,
+entry,
+combobox,
+spinbutton,
+switch {
+  border-radius: 10px;
+}

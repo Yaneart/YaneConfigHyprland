@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+theme="$HOME/.config/rofi/waybar-menu.rasi"
+WAYBAR_DIR="$HOME/.config/waybar"
+STYLE_DIR="$WAYBAR_DIR/custom styles"
+CONFIG_DIR="$WAYBAR_DIR/configs"
+CWD="$(pwd)"
+
+mkdir -p "$CONFIG_DIR"
+
+if [ -f "$WAYBAR_DIR/backup/config.jsonc" ]; then
+    cp "$WAYBAR_DIR/backup/config.jsonc" "$CONFIG_DIR/original.jsonc"
+fi
+
+choose_mode() {
+    printf 'Style\nFull config\n' | rofi -dmenu -mesg "Waybar Mode" -theme "$theme"
+}
+
+choose_file() {
+    local mode="$1"
+    local target_dir="$2"
+    local pattern="$3"
+    local prompt="$4"
+    local files=()
+    local chosen=""
+
+    shopt -s nullglob
+    files=("$target_dir"/$pattern)
+    shopt -u nullglob
+
+    if [ "${#files[@]}" -eq 0 ]; then
+        notify-send "Waybar" "No files found in $target_dir"
+        return 1
+    fi
+
+    chosen=$(printf '%s\n' "${files[@]##*/}" | rofi -dmenu -mesg "$prompt" -theme "$theme")
+
+    if [ -n "${chosen:-}" ]; then
+        "$HOME/.local/bin/waybar-set" "$mode" "$target_dir/$chosen"
+    fi
+}
+
+mode="$(choose_mode || true)"
+
+case "$mode" in
+    Style)
+        choose_file style "$STYLE_DIR" '*.css' "Select Waybar Style"
+        ;;
+    "Full config")
+        choose_file config "$CONFIG_DIR" '*.jsonc' "Select Waybar Config"
+        ;;
+esac
+
+cd "$CWD" || exit

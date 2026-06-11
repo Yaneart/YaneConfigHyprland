@@ -1,0 +1,11 @@
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration { show-icons: true; }
+
+window { width: 860px; height: 560px; }
+
+prompt { text-color: transparent; }
+entry  { placeholder: "Search applications…"; }
+
+element-icon { size: 2.2em; padding: 8px 4px 8px 14px; }
+element-text { padding: 10px 16px 10px 8px; font: "JetBrainsMono Nerd Font 14"; }

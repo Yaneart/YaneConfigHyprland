@@ -1,0 +1,580 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              ИНСТРУКЦИЯ ПО КОНФИГУРАЦИИ РАБОЧЕГО ОКРУЖЕНИЯ                  ║
+║                      yaneart @ Arch Linux + Hyprland                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ОГЛАВЛЕНИЕ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Общая архитектура
+  2. Hyprland — оконный менеджер
+  3. Тема и цветовая схема (matugen / wallust / pywal)
+  4. Панель задач — Waybar
+  5. Терминал — Kitty
+  6. Launcher и меню — Rofi
+  7. Уведомления — SwayNC
+  8. Блокировка экрана — Hyprlock + Hypridle
+  9. Температура экрана — Hyprsunset
+  10. Обои — awww + waypaper
+  11. Скрипты ~/.local/bin
+  12. Другие программы
+  13. Горячие клавиши (полный список)
+  14. Цепочка смены темы (как всё связано)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. ОБЩАЯ АРХИТЕКТУРА
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Это Wayland-рабочий стол на базе Hyprland с динамической темизацией.
+  Ключевая идея: смена обоев автоматически меняет цвета ВСЕГО окружения.
+
+  Стек:
+  ┌─────────────────────────────────────────────────────────────┐
+  │  Hyprland (WM)  ←→  Waybar (панель)  ←→  Rofi (меню)      │
+  │       ↕                    ↕                                │
+  │  Kitty (терминал)    SwayNC (уведомления)                   │
+  │       ↕                                                     │
+  │  Fastfetch (dashboard)  Starship (промпт)  Cava (визуализ.) │
+  │                                                             │
+  │  Matugen + Wallust + PyWal — генерация цветов из обоев      │
+  │  awww-daemon — плавная смена обоев (Wayland)                │
+  └─────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  2. HYPRLAND — ОКОННЫЙ МЕНЕДЖЕР
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиг: ~/.config/hypr/
+  Версия: Hyprland 0.55+ с Lua-конфигом (не .conf, а .lua)
+
+  Главный файл: hyprland.lua
+  Он подгружает модули по очереди. Если модуль не загрузился — показывается
+  уведомление, остальное продолжает работать.
+
+  Модули (порядок загрузки):
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  modules/colors.lua       — цвета для бордюров окон              │
+  │  modules/monitors.lua     — настройка мониторов (eDP-1, 1080p)   │
+  │  modules/autostart.lua    — программы при старте сессии           │
+  │  modules/input.lua        — клавиатура, мышь, тачпад, env vars   │
+  │  modules/layout.lua       — отступы, размытие, тени, анимации     │
+  │  modules/rules.lua        — правила окон (rofi, waybar, Android)  │
+  │  modules/bindings.lua     — все горячие клавиши                   │
+  └──────────────────────────────────────────────────────────────────┘
+
+  — Раскладка LAYOUT: dwindle (спиральное деление)
+  — Бордюры: border_size = 0 (без рамок), скруглённые углы rounding = 18
+  — Прозрачность активного окна: 0.95 / неактивного: 0.86
+  — Размытие фона за окнами включено (blur passes = 3)
+  — Тени от окон включены
+  — XWayland force_zero_scaling = true (для HiDPI совместимости)
+
+  Анимации (кривые Безье):
+  — MySmooth: плавный слайд для открытия/закрытия окон (speed 4.0)
+  — smooth: перемещение окон
+  — overshoot: с небольшим выходом за границу
+  — workspaces: slidefade переход между рабочими пространствами
+
+  Монитор:
+  — eDP-1 (встроенный экран ноутбука) 1920×1080 @ 60Hz, scale 1.0
+  — Рабочие пространства 1–10 — все назначены на eDP-1
+
+  Правила окон:
+  — rofi: размытие фона за интерфейсом
+  — waybar: размытие включено
+  — swaync: анимация "slide right" (выезжает справа)
+  — Android Studio helper-окна: плавают (float), без фокуса
+  — DesktopEditors (OnlyOffice): float, центр экрана
+
+  Клавиатура:
+  — Раскладки: us, ru — переключение Alt+Shift
+  — Compose-клавиша: правый Alt (для спецсимволов)
+
+  Жесты тачпада:
+  — 3 пальца по горизонтали = переключение воркспейса
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  3. ТЕМА И ЦВЕТОВАЯ СХЕМА
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Три инструмента работают ОДНОВРЕМЕННО при вызове theme-apply:
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                    theme-apply <wallpaper>                           │
+  │                           │                                         │
+  │         ┌─────────────────┼──────────────────┐                     │
+  │         ↓                 ↓                  ↓                     │
+  │      pywal             wallust             matugen                  │
+  │  (старый стандарт)  (современный wal)  (Material You)              │
+  │         │                 │                  │                     │
+  │    ~/.cache/wal/    ~/.cache/wallust/   ~/.config/hypr/             │
+  │    colors.json       colors-kitty.conf  modules/generated_colors.lua│
+  └─────────────────────────────────────────────────────────────────────┘
+
+  Matugen генерирует:
+  — ~/.config/hypr/modules/generated_colors.lua  → бордюры Hyprland
+  — ~/.config/kitty/colors/colors.conf            → цвета Kitty
+  — ~/.config/rofi/colors/colors-matugen.rasi     → цвета Rofi
+  — ~/.config/waybar/colors.css                   → цвета Waybar
+  — ~/.config/swaync/colors-swaync.css            → цвета SwayNC
+  — ~/.config/btop/themes/matugen.theme           → тема btop
+  — ~/.config/starship.toml                       → цвета промпта
+  — ~/.config/gtk-3.0/colors.css                  → GTK3 приложения
+  — ~/.config/gtk-4.0/colors.css                  → GTK4 приложения
+  — ~/.config/cava/config                         → цвета визуализатора
+  — Zen Browser                                   → тема браузера через pywalfox
+
+  Wallust генерирует:
+  — ~/.cache/wallust/colors-kitty.conf  → ОСНОВНОЙ источник цветов Kitty
+  — ~/.config/waybar/colors-waybar.css  → дополнительные цвета Waybar
+  — ~/.config/rofi/colors/colors-wallust.rasi
+  — ~/.config/swaync/colors.css
+
+  Pywal генерирует:
+  — ~/.cache/wal/colors.json  → совместимость со старым ПО
+
+  Резервные цвета (если matugen не отработал):
+  — Catppuccin Macchiato (синие тона) — захардкожены в colors.lua
+
+  ВАЖНО: Kitty берёт цвета из wallust (~/.cache/wallust/colors-kitty.conf),
+  а НЕ из matugen/kitty, хотя matugen тоже генерирует файл для Kitty.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  4. ПАНЕЛЬ ЗАДАЧ — WAYBAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиг: ~/.config/waybar/config.jsonc
+  Стиль: ~/.config/waybar/style.css
+  Цвета: ~/.config/waybar/colors.css (matugen) + colors-waybar.css (wallust)
+
+  Левая часть:
+  — Часы (клик ПКМ = переключение формата, тултип = календарь)
+  — Сеть (Wi-Fi/Ethernet, тултип = подробности)
+  — Температура экрана (hyprsunset, скролл = регулировка)
+  — Яркость гаммы (hyprsunset, скролл = регулировка)
+  — Bluetooth
+
+  Центр:
+  — Рабочие пространства Hyprland (6 постоянных на каждом мониторе)
+
+  Правая часть:
+  — Cava (визуализатор аудио, 20 баров, скрывается в тишине)
+  — Яркость экрана (клик = +10%, ПКМ = -10%, скролл = ±1%)
+  — Громкость PulseAudio (клик = pavucontrol)
+  — Батарея
+  — Кнопка SwayNC (открыть уведомления)
+  — Системный трей
+
+  Скрипты waybar-light-controls:
+  — temperature_control.sh  — меняет цветовую температуру экрана
+  — light_control.sh        — меняет гамму (яркость через hyprsunset)
+  — show_temperature.sh     — показывает текущую температуру в панели
+  — show_light.sh           — показывает текущую гамму в панели
+  Дефолтные значения: ~/.config/waybar/scripts/.../default_values/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  5. ТЕРМИНАЛ — KITTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиг: ~/.config/kitty/kitty.conf
+  Шрифт: JetBrainsMono Nerd Font, размер 14
+  Прозрачность фона: 0.9
+  Без декораций окна (hide_window_decorations = yes)
+  Отступ внутри: 20px со всех сторон
+  Scrollback: 2000 строк
+  Курсор мигает, след за курсором включён (cursor_trail)
+
+  Цвета: загружаются из ~/.cache/wallust/colors-kitty.conf
+  Перезагрузка цветов: SIGUSR1 сигнал (pkill -USR1 kitty)
+
+  kitty-dashboard (Super+Shift+Enter):
+  — Открывает Kitty с заголовком "System Dashboard"
+  — Запускает fastfetch с кастомным конфигом, затем шелл
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  6. LAUNCHER И МЕНЮ — ROFI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиги: ~/.config/rofi/
+  Цвета: colors/ (colors-matugen.rasi + colors-wallust.rasi)
+
+  Меню:
+  — launcher.rasi       — запуск приложений (drun, с иконками)
+  — wallset.rasi        — выбор обоев (с превью иконок)
+  — powermenu.rasi      — выключение / перезагрузка / выход
+  — waybar-menu.rasi    — переключение стиля Waybar
+  — mainStyle.rasi      — базовые стили
+
+  Applets: ~/.config/rofi/applets/bin/
+  — powermenu.sh — скрипт меню питания
+
+  Rofimoji (Super+Shift+E): поиск и копирование эмодзи/символов
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  7. УВЕДОМЛЕНИЯ — SWAYNC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиг: ~/.config/swaync/config.json
+  Стиль: ~/.config/swaync/style.css
+  Цвета: colors-swaync.css (matugen) + colors.css (wallust)
+
+  Позиция: правый верхний угол
+  Ширина: 400px, высота панели: 860px
+
+  Виджеты в Control Center (открывается кнопкой в Waybar или Super+?):
+  — buttons-grid: кнопки (mute mic/speaker, WiFi, Bluetooth, OBS, Lock,
+                  Reboot, Shutdown, Airplane Mode)
+  — volume: регулировка громкости
+  — backlight: регулировка яркости (устройство: amdgpu_bl2)
+  — mpris: медиаплеер (обложка + управление)
+  — title + dnd (Do Not Disturb)
+  — notifications: список уведомлений
+
+  Тайминги: обычные = 4с, низкий приоритет = 2с, критичные = 6с
+  Анимация: выезжает справа (настроено в rules.lua Hyprland)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  8. БЛОКИРОВКА ЭКРАНА — HYPRLOCK + HYPRIDLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Конфиги: ~/.config/hypr/hypridle.conf + hyprlock.conf
+
+  Тайм-аут бездействия (hypridle):
+  — 2.5 мин  → яркость снижается до 10%
+  — 5 мин    → экран блокируется (loginctl lock-session → hyprlock)
+  — 5.5 мин  → экран выключается (dpms off)
+  — 30 мин   → система уходит в suspend (systemctl suspend)
+  При активности: экран включается, яркость восстанавливается.
+  При выходе из сна: dpms on (чтобы не нажимать дважды).
+
+  Внешний вид Hyprlock:
+  — Фон: ~/.config/background (копия текущих обоев, размытие pass 3)
+  — Центр: полупрозрачная панель (520×220)
+  — Время крупным шрифтом (92pt JetBrainsMono Nerd Font)
+  — Дата под часами (обновляется каждую минуту)
+  — Имя пользователя выделено акцентным цветом
+  — Поле ввода пароля (340×56, с точками, Caps Lock = красный)
+  — Курсор скрыт
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  9. ТЕМПЕРАТУРА ЭКРАНА — HYPRSUNSET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Hyprsunset — аналог Redshift/f.lux для Wayland/Hyprland.
+  Фильтр синего света (тёплый экран ночью).
+
+  Запуск: hyprsunset_init.sh при старте Hyprland
+  — Стартует демон hyprsunset
+  — Применяет сохранённые значения гаммы и температуры из:
+      ~/.config/waybar/scripts/.../default_values/default_light.conf
+      ~/.config/waybar/scripts/.../default_values/default_temperature.conf
+
+  Управление:
+  — Super+S           — включить/выключить hyprsunset (toggle)
+  — Super+Ctrl+Up/Down  — регулировка температуры (через Hyprland)
+  — Super+Alt+Up/Down   — регулировка гаммы (яркости через hyprsunset)
+  — Скролл на виджете температуры в Waybar
+  — Скролл на виджете гаммы в Waybar
+
+  toggle-hyprsunset:
+  — Если запущен → kill
+  — Если не запущен → запуск с температурой 3500K, гамма 75%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  10. ОБОИ — awww + waypaper
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Обои хранятся в: ~/.config/wallpapers/
+  Текущие обои (состояние): ~/.local/state/theme/current_wallpaper
+  Копия для экрана блокировки: ~/.config/background
+
+  awww-daemon — демон для плавной смены обоев на Wayland.
+  Команда смены: awww img <файл> --transition-type any --duration 1.2 --fps 60
+
+  Запуск при старте: awww-daemon стартует в autostart.lua,
+  затем theme-restore применяет последнюю обою.
+
+  Waypaper (~/.config/waypaper/config.ini) — GUI для выбора обоев.
+  Но основной инструмент — wallset (Rofi меню с превью).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  11. СКРИПТЫ ~/.local/bin
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Основные скрипты темизации:
+
+  theme-apply <файл>
+    — Главный скрипт. Принимает путь к обое.
+    — Устанавливает обои через awww
+    — Копирует обою в ~/.config/background (для hyprlock)
+    — Запускает pywal, wallust, matugen для генерации цветов
+    — Перезапускает waybar, swaync, kitty, cava
+    --colors-only: только цвета, без смены обоев
+
+  theme-restore
+    — Читает ~/.local/state/theme/current_wallpaper
+    — Вызывает theme-apply с последней обоей
+    — Вызывается при старте Hyprland (autostart.lua)
+
+  theme-random
+    — Выбирает случайную обою из ~/.config/wallpapers/
+    — Вызывает theme-apply
+
+  colorscheme-set
+    — Перегенерирует цвета из текущей обои (theme-apply --colors-only)
+
+  wallset
+    — Rofi меню с превью обоев из ~/.config/wallpapers/
+    — После выбора → theme-apply
+
+  launcher
+    — Rofi drun launcher с иконками
+
+  waybar-menu
+    — Переключение стиля/конфига waybar через Rofi
+
+  kitty-dashboard
+    — Открывает Kitty → fastfetch (системная инфа) → шелл
+
+  toggle-hyprsunset
+    — Переключает hyprsunset вкл/выкл
+
+  close_all_windows
+    — Закрывает все окна на текущем воркспейсе (Super+A)
+
+  killall
+    — Убивает все окна (аварийный выход, Super+Shift+Q)
+
+  colorscheme-backend, wallset-backend, wallset-backend-startup
+    — Вспомогательные скрипты для пайплайна темизации
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  12. ДРУГИЕ ПРОГРАММЫ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Cava (~/.config/cava/config)
+  — Аудио визуализатор, отображается в Waybar (20 баров, 60fps)
+  — Скрывается в тишине
+  — Цвета генерирует matugen
+
+  Btop (~/.config/btop/btop.conf)
+  — Системный монитор
+  — Тема: matugen.theme (генерируется matugen)
+
+  Fastfetch (~/.config/fastfetch/config.jsonc)
+  — Системная информация при старте дашборда
+  — Кастомное ASCII лого: ~/.config/fastfetch/noros/yaneart.txt
+  — Показывает: юзер, hostname, uptime, OS, kernel, WM, шрифт, цвета
+
+  Starship (~/.config/starship.toml)
+  — Промпт для bash/zsh/fish
+  — Цветовая палитра генерируется matugen (matugen-color*)
+  — Показывает: git ветку/статус, директорию, Node/Rust/Go/PHP/Conda
+
+  GTK темы (gtk-3.0, gtk-4.0)
+  — Цвета генерирует matugen
+  — Тема: adw-gtk3 (адаптируется к тёмному/светлому режиму через gsettings)
+
+  Qt темы (qt5ct, qt6ct)
+  — Настройки: ~/.config/qt5ct/qt5ct.conf, qt6ct/qt6ct.conf
+  — Env: QT_QPA_PLATFORMTHEME=qt6ct (задаётся в input.lua)
+
+  SDDM (экран входа)
+  — Конфиг: ~/.config/sddm/
+  — Настроен через setup-sddm-login скрипт
+
+  Thunar — файловый менеджер (Super+E)
+  Yazi — файловый менеджер в терминале (Super+Y)
+  — Тема: ~/.config/yazi/theme.toml
+
+  nm-applet — апплет NetworkManager в трее
+  polkit-kde — агент авторизации (KDE)
+  gnome-keyring-daemon — хранилище паролей
+
+  Happ (~/.config/Happ/) — персональное приложение (Super+H)
+
+  Firefox / Zen Browser
+  — Тема через pywalfox (matugen генерирует json-цвета → pywalfox update)
+  — Пользовательские цвета: ~/.zen/.../chrome/colors.css
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  13. ГОРЯЧИЕ КЛАВИШИ (Super = Windows/Meta)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ОКНА И ВОРКСПЕЙСЫ
+  ─────────────────────────────────────────────────────────────
+  Super + Enter          Открыть терминал Kitty
+  Super + Shift + Enter  Открыть Kitty Dashboard (fastfetch)
+  Super + Q              Закрыть текущее окно
+  Super + T              Переключить float (окно свободного размещения)
+  Super + F              Переключить fullscreen
+  Super + J              Поменять сплит (dwindle swapsplit)
+  Super + A              Закрыть все окна на воркспейсе
+  Super + Shift + Q      Убить все окна (аварийный)
+
+  Super + Shift + H/J/K/L      Фокус влево/вниз/вверх/вправо
+  Super + Alt + H/J/K/L        Поменять окна местами
+
+  Super + 1-9,0           Переключиться на воркспейс 1-10
+  Super + Shift + 1-9,0   Переместить окно на воркспейс 1-10
+  Super + Shift + Left/Right   Предыдущий/следующий воркспейс
+  Super + Mouse Scroll         Переключение воркспейсов
+  Super + ЛКМ (зажать)         Перетащить окно
+
+  ПРИЛОЖЕНИЯ
+  ─────────────────────────────────────────────────────────────
+  Super + Space          Launcher (Rofi, все приложения)
+  Super + B              Firefox
+  Super + C              Telegram
+  Super + V              VS Code
+  Super + E              Thunar (файловый менеджер)
+  Super + Y              Yazi (файловый менеджер в терминале)
+  Super + H              Happ
+  Super + Shift + E      Rofimoji (поиск эмодзи/символов)
+  Super + Shift + M      Меню питания (выключение, перезагрузка)
+
+  ТЕМА И ВНЕШНИЙ ВИД
+  ─────────────────────────────────────────────────────────────
+  Super + W              Выбор обоев (Rofi меню с превью)
+  Super + Alt + W        Случайные обои + смена темы
+  Super + Shift + R      Восстановить тему (theme-restore)
+  Super + R              Перезапустить Waybar
+  Super + Shift + C      Перегенерировать цвета (без смены обоев)
+  Super + Shift + W      Меню стилей Waybar
+
+  ЭКРАН И СВЕТ
+  ─────────────────────────────────────────────────────────────
+  Super + L              Заблокировать экран (hyprlock)
+  Super + S              Включить/выключить hyprsunset (ночной режим)
+  Super + Ctrl + Up/Down     Температура экрана +/-
+  Super + Alt + Up/Down      Гамма (яркость hyprsunset) +/-
+  XF86MonBrightnessUp/Down   Яркость экрана ±5% (brightnessctl)
+
+  АУДИО
+  ─────────────────────────────────────────────────────────────
+  XF86AudioRaiseVolume   Громкость +5% (pamixer)
+  XF86AudioLowerVolume   Громкость -5%
+  XF86AudioMute          Mute/Unmute
+
+  СКРИНШОТЫ
+  ─────────────────────────────────────────────────────────────
+  Print                  Снимок всего экрана (grim → ~/Pictures/)
+  Ctrl + Print           Снимок выделенной области (slurp → ~/Pictures/)
+  Alt + Print            Снимок области → открыть в Swappy для редактирования
+
+  ОТЛАДКА
+  ─────────────────────────────────────────────────────────────
+  Super + F1             Сохранить список слоёв в /tmp/hypr_layers.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  14. ЦЕПОЧКА СМЕНЫ ТЕМЫ (КАК ВСЁ СВЯЗАНО)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  При нажатии Super+W или Super+Alt+W:
+
+  1. wallset → Rofi показывает превью обоев
+  2. Пользователь выбирает обою
+  3. theme-apply ~/.config/wallpapers/chosen.jpg
+     │
+     ├─ awww img <файл>               → плавная анимация смены обоев
+     ├─ cp <файл> ~/.config/background → обновить фон для hyprlock
+     │
+     ├─ wal -i <файл>                 → pywal генерирует ~/.cache/wal/
+     ├─ wallust run <файл>            → wallust генерирует ~/.cache/wallust/
+     ├─ matugen image <файл>          → matugen генерирует все шаблоны:
+     │    ├─ generated_colors.lua     → Hyprland borders
+     │    ├─ colors.css (waybar)      → Waybar
+     │    ├─ colors-swaync.css        → SwayNC
+     │    ├─ colors.conf (kitty)      → Kitty (matugen вариант)
+     │    ├─ rofi-colors.rasi         → Rofi
+     │    ├─ starship.toml            → Промпт
+     │    ├─ gtk-colors.css (gtk3/4)  → GTK приложения
+     │    ├─ cava.conf                → Cava визуализатор
+     │    └─ pywalfox → браузер Zen  → обновить тему браузера
+     │
+     ├─ pkill waybar && waybar &      → перезапуск панели (новые цвета)
+     ├─ swaync-client --reload-css    → перезагрузить стиль уведомлений
+     ├─ pkill -USR1 kitty             → горячая перезагрузка цветов kitty
+     └─ pkill cava                    → перезапуск визуализатора
+
+  4. echo <файл> > ~/.local/state/theme/current_wallpaper  (сохранить)
+  5. notify-send "Theme updated" (уведомление)
+
+  При следующем старте Hyprland (autostart.lua):
+  → theme-restore читает current_wallpaper → theme-apply → всё восстановлено
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  СТРУКТУРА ФАЙЛОВ (справочник)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ~/.config/
+  ├─ hypr/                    Hyprland конфиг (Lua)
+  │   ├─ hyprland.lua         Точка входа, подгружает модули
+  │   ├─ hypridle.conf        Тайм-ауты бездействия
+  │   ├─ hyprlock.conf        Внешний вид экрана блокировки
+  │   ├─ hyprsunset.conf      Конфиг hyprsunset (пустой, всё через CLI)
+  │   ├─ modules/             Модули конфига
+  │   │   ├─ autostart.lua    Автозапуск программ
+  │   │   ├─ bindings.lua     Горячие клавиши
+  │   │   ├─ colors.lua       Загрузка цветов (matugen или fallback)
+  │   │   ├─ generated_colors.lua  Генерируется matugen
+  │   │   ├─ input.lua        Ввод, env переменные
+  │   │   ├─ layout.lua       Декорации, анимации, отступы
+  │   │   ├─ monitors.lua     Мониторы и воркспейсы
+  │   │   └─ rules.lua        Правила окон/слоёв
+  │   └─ scripts/             Скрипты для hyprsunset
+  ├─ waybar/                  Панель задач
+  │   ├─ config.jsonc         Модули и настройки
+  │   ├─ style.css            Стили
+  │   ├─ colors.css           Цвета (matugen)
+  │   ├─ colors-waybar.css    Цвета (wallust)
+  │   └─ scripts/             Скрипты для кастомных виджетов
+  ├─ rofi/                    Launcher и меню
+  ├─ swaync/                  Уведомления
+  ├─ kitty/                   Терминал
+  ├─ matugen/                 Генератор цветов (Material You)
+  │   ├─ config.toml          Шаблоны для генерации
+  │   └─ templates/           .lua/.css/.toml/.rasi шаблоны
+  ├─ wallust/                 Второй генератор цветов
+  │   └─ templates/           Шаблоны
+  ├─ wallpapers/              Все обои (jpg/png)
+  ├─ background               Копия текущей обои (для hyprlock)
+  ├─ btop/                    Системный монитор
+  ├─ cava/                    Аудио визуализатор
+  ├─ fastfetch/               Системная инфо
+  ├─ nvim/                    Neovim (LazyVim)
+  ├─ starship.toml            Промпт (генерируется matugen)
+  ├─ gtk-3.0/ gtk-4.0/        GTK темы
+  ├─ qt5ct/ qt6ct/            Qt темы
+  └─ yazi/                    Файловый менеджер (TUI)
+
+  ~/.local/bin/               Пользовательские скрипты
+  ~/.local/state/theme/       Состояние темы (current_wallpaper)
+  ~/.cache/wal/               Кэш pywal
+  ~/.cache/wallust/           Кэш wallust
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  БЫСТРЫЙ СТАРТ / ДИАГНОСТИКА
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Что-то не так с темой?
+  → Super+Shift+R  (theme-restore, полная перезагрузка темы)
+
+  Цвета слетели, обои на месте?
+  → Super+Shift+C  (colorscheme-set, только регенерация цветов)
+
+  Waybar завис или не обновился?
+  → Super+R  (pkill waybar && waybar)
+
+  Hyprland не запустился — какой модуль сломан?
+  → В уведомлении будет написано "Failed to load modules/XXX: ..."
+
+  Узнать текущую обою:
+  → cat ~/.local/state/theme/current_wallpaper
+
+  Проверить мониторы:
+  → hyprctl monitors
+
+  Список слоёв Hyprland:
+  → Super+F1  (сохраняет в /tmp/hypr_layers.txt)

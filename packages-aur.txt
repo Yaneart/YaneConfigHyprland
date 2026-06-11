@@ -1,0 +1,24 @@
+# Waybar с встроенным модулем cava (заменяет обычный waybar)
+waybar-cava
+
+# Генерация цветов из обоев (вторая часть цепочки)
+wallust
+
+# Виджеты
+eww
+
+# GUI для выбора обоев
+waypaper
+
+# Тема экрана входа SDDM
+sddm-silent-theme
+
+# Темизация Spotify
+spicetify-cli
+
+# Шрифты Red Hat
+redhat-fonts
+
+# Приложения с биндами (Super+H, Super+V)
+happ-desktop-bin
+visual-studio-code-bin

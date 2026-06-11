@@ -1,0 +1,5 @@
+# Кэши и мусор
+*.log
+*.tmp
+__pycache__/
+.DS_Store

@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# YaneConfigHyprland — установщик
+# Arch Linux + Hyprland rice от yaneart
+set -euo pipefail
+
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
+STATE_DIR="$HOME/.local/state/theme"
+
+# Конфиги, которые будут установлены в ~/.config
+CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal eww
+             spicetify fastfetch btop waypaper yazi sddm nvim gtk-3.0 gtk-4.0)
+
+msg()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
+ask()  { read -rp "$1 [y/N] " a; [[ "${a,,}" == y* ]]; }
+
+if [[ ! -f /etc/arch-release ]]; then
+  echo "Этот скрипт рассчитан на Arch Linux (pacman + AUR)." >&2
+  exit 1
+fi
+
+msg "YaneConfigHyprland installer"
+echo "Репозиторий: $REPO_DIR"
+echo "Бэкап старых конфигов: $BACKUP_DIR"
+echo
+
+# ── 1. Пакеты ────────────────────────────────────────────────────────────
+if ask "Установить пакеты из официальных репозиториев (pacman)?"; then
+  grep -vE '^\s*(#|$)' "$REPO_DIR/packages-pacman.txt" | sudo pacman -S --needed -
+fi
+
+if ask "Установить пакеты из AUR (через yay)?"; then
+  if ! command -v yay >/dev/null; then
+    msg "yay не найден — устанавливаю"
+    sudo pacman -S --needed --noconfirm git base-devel
+    tmp="$(mktemp -d)"
+    git clone https://aur.archlinux.org/yay.git "$tmp/yay"
+    (cd "$tmp/yay" && makepkg -si --noconfirm)
+    rm -rf "$tmp"
+  fi
+  grep -vE '^\s*(#|$)' "$REPO_DIR/packages-aur.txt" | yay -S --needed -
+fi
+
+# ── 2. Бэкап существующих конфигов ───────────────────────────────────────
+msg "Бэкап существующих конфигов в $BACKUP_DIR"
+mkdir -p "$BACKUP_DIR"
+for d in "${CONFIG_DIRS[@]}"; do
+  [[ -e "$HOME/.config/$d" ]] && cp -a "$HOME/.config/$d" "$BACKUP_DIR/"
+done
+[[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$BACKUP_DIR/"
+
+# ── 3. Установка конфигов ────────────────────────────────────────────────
+msg "Копирую конфиги в ~/.config"
+mkdir -p "$HOME/.config"
+for d in "${CONFIG_DIRS[@]}"; do
+  rm -rf "${HOME:?}/.config/$d"
+  cp -a "$REPO_DIR/config/$d" "$HOME/.config/"
+done
+cp "$REPO_DIR/config/starship.toml" "$HOME/.config/"
+
+msg "Копирую скрипты в ~/.local/bin"
+mkdir -p "$HOME/.local/bin"
+cp -a "$REPO_DIR/bin/." "$HOME/.local/bin/"
+chmod +x "$HOME/.local/bin/"*
+
+msg "Копирую обои в ~/.config/wallpapers"
+mkdir -p "$HOME/.config/wallpapers"
+cp -a "$REPO_DIR/wallpapers/." "$HOME/.config/wallpapers/"
+
+# ── 4. Замена захардкоженных путей ───────────────────────────────────────
+msg "Подставляю \$HOME вместо /home/yaneart в конфигах"
+grep -rl '/home/yaneart' "$HOME/.config"/{hypr,waybar,waypaper,matugen,spicetify} 2>/dev/null \
+  | while read -r f; do sed -i "s|/home/yaneart|$HOME|g" "$f"; done
+
+# ── 5. Начальное состояние темы ──────────────────────────────────────────
+msg "Инициализирую состояние темы"
+mkdir -p "$STATE_DIR"
+default_wall="$HOME/.config/wallpapers/arch-blue-waves.png"
+[[ -f "$default_wall" ]] || default_wall="$(find "$HOME/.config/wallpapers" -type f | head -1)"
+echo "$default_wall" > "$STATE_DIR/current_wallpaper"
+echo "$HOME/.config/waybar/custom styles/mainStyle.css" > "$STATE_DIR/current_waybar_style"
+
+# ── 6. Сервисы ───────────────────────────────────────────────────────────
+if ask "Включить сервисы (NetworkManager, bluetooth, sddm)?"; then
+  sudo systemctl enable NetworkManager bluetooth
+  sudo systemctl enable sddm
+fi
+
+# ── 7. Spicetify (опционально) ───────────────────────────────────────────
+if command -v spicetify >/dev/null && ask "Настроить Spicetify (тема Spotify)? Spotify должен быть запущен хотя бы раз."; then
+  spotify_prefs="$HOME/.config/spotify/prefs"
+  if [[ -f "$spotify_prefs" ]]; then
+    spicetify config spotify_path "$HOME/.local/share/spotify-launcher/install/usr/share/spotify" || true
+    spicetify config prefs_path "$spotify_prefs" || true
+    spicetify backup apply || true
+  else
+    echo "Spotify ещё не запускался — пропускаю. Позже: spicetify backup apply"
+  fi
+fi
+
+# ── 8. Применить тему ────────────────────────────────────────────────────
+if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+  msg "Применяю тему"
+  "$HOME/.local/bin/theme-apply" "$default_wall" || true
+else
+  echo "Сейчас не Hyprland-сессия — тема применится при первом входе (theme-restore в автостарте)."
+fi
+
+echo
+msg "Готово!"
+echo "  • Старые конфиги: $BACKUP_DIR"
+echo "  • Войди в сессию Hyprland (через SDDM) — тема подтянется автоматически."
+echo "  • Смена обоев + темы: Super+W, случайная: Super+Alt+W"
+echo "  • Стили Waybar: Super+Shift+W"

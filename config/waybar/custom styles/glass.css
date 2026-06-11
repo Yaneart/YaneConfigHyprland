@@ -1,0 +1,140 @@
+/* Glass — translucent capsules, soft shadows (GTK has no real backdrop blur) */
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-family: "JetBrainsMono Nerd Font", "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: transparent;
+    color: @on_surface;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 6px 10px;
+}
+
+tooltip {
+    background: alpha(@surface, 0.9);
+    border: 1px solid alpha(@on_surface, 0.18);
+    border-radius: 12px;
+}
+
+tooltip label {
+    color: @on_surface;
+    padding: 2px 6px;
+}
+
+#clock,
+#battery,
+#pulseaudio,
+#network,
+#bluetooth,
+#backlight,
+#custom-swaync,
+#custom-temperature,
+#custom-light,
+#cava,
+#tray,
+#cpu,
+#temperature,
+#memory,
+#disk,
+#language {
+    background: alpha(@on_surface, 0.08);
+    color: @on_surface;
+    border: 1px solid alpha(@on_surface, 0.12);
+    border-radius: 999px;
+    margin: 0 3px;
+    padding: 0 8px;
+    min-height: 26px;
+    box-shadow: 0 2px 10px alpha(@background, 0.5);
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#clock:hover,
+#battery:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover,
+#backlight:hover,
+#custom-swaync:hover,
+#custom-temperature:hover,
+#custom-light:hover,
+#cava:hover,
+#cpu:hover,
+#temperature:hover,
+#memory:hover,
+#disk:hover,
+#language:hover {
+    background: alpha(@primary, 0.20);
+    color: @primary;
+}
+
+#workspaces {
+    background: alpha(@on_surface, 0.08);
+    border: 1px solid alpha(@on_surface, 0.12);
+    border-radius: 999px;
+    padding: 3px 5px;
+    margin: 0 4px;
+    box-shadow: 0 2px 10px alpha(@background, 0.5);
+}
+
+#workspaces button {
+    color: alpha(@on_surface, 0.55);
+    padding: 0 9px;
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#workspaces button:hover {
+    background: alpha(@on_surface, 0.14);
+    color: @on_surface;
+}
+
+#workspaces button.active {
+    background: alpha(@primary, 0.32);
+    color: @primary;
+}
+
+#workspaces button.urgent {
+    background: alpha(@error, 0.4);
+    color: @on_surface;
+}
+
+#network.disconnected,
+#bluetooth.disabled,
+#bluetooth.off {
+    color: alpha(@on_surface, 0.40);
+}
+
+#battery.charging {
+    color: @primary;
+}
+
+#battery.warning:not(.charging),
+#battery.critical:not(.charging),
+#temperature.critical {
+    color: @error;
+}
+
+#pulseaudio.muted {
+    color: alpha(@on_surface, 0.45);
+}
+
+#cava {
+    color: @primary;
+}
+
+#tray > widget {
+    margin: 0 3px;
+}

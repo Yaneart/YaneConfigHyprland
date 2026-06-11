@@ -1,0 +1,25 @@
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration { show-icons: false; }
+
+window { width: 460px; height: 320px; }
+
+mainbox {
+    spacing:  0px;
+    padding:  0px;
+    children: [ "message", "listview" ];
+}
+
+listview {
+    lines:         6;
+    spacing:       4px;
+    padding:       10px;
+    border-radius: 0px 0px 28px 28px;
+    fixed-height:  false;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    padding:          14px 20px;
+    font:             "JetBrainsMono Nerd Font 14";
+}

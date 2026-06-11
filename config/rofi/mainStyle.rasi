@@ -1,0 +1,142 @@
+@import "~/.config/rofi/colors/colors-matugen.rasi"
+@import "~/.config/rofi/colors/colors-wallust.rasi"
+
+* {
+    font:             "JetBrainsMono Nerd Font 14, Noto Sans Symbols 2 14, Noto Color Emoji 14";
+    background-color: transparent;
+    text-color:       @on-surface;
+    margin:           0;
+    padding:          0;
+    spacing:          0;
+}
+
+window {
+    transparency:     "real";
+    location:         center;
+    anchor:           center;
+    fullscreen:       false;
+    width:            860px;
+    height:           560px;
+    border:           1px solid;
+    border-radius:    28px;
+    border-color:     @outline-variant-25;
+    background-color: @surface-container-50;
+    cursor:           "default";
+}
+
+mainbox {
+    spacing:          0px;
+    padding:          0px;
+    background-color: transparent;
+    children:         [ "inputbar", "listview" ];
+}
+
+inputbar {
+    spacing:          10px;
+    padding:          18px 22px;
+    border:           0px 0px 1px 0px solid;
+    border-radius:    28px 28px 0px 0px;
+    border-color:     @outline-variant-25;
+    background-color: @surface-container-highest-75;
+    children:         [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    expand:           false;
+    str:              " ";
+    padding:          0 6px 0 0;
+    background-color: transparent;
+    text-color:       @primary;
+    font:             "JetBrainsMono Nerd Font 20";
+}
+
+prompt {
+    background-color: transparent;
+    text-color:       @primary;
+}
+
+entry {
+    background-color:  transparent;
+    text-color:        @on-surface;
+    cursor:            text;
+    placeholder:       "Search…";
+    placeholder-color: @outline;
+    font:              "JetBrainsMono Nerd Font 16";
+}
+
+message {
+    padding:          12px 20px;
+    border:           0px 0px 1px 0px solid;
+    border-color:     @outline-variant-25;
+    background-color: @surface-container-highest-75;
+    text-color:       @primary;
+    font:             "JetBrainsMono Nerd Font Bold 14";
+}
+
+textbox {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+    horizontal-align: 0.0;
+}
+
+listview {
+    columns:          1;
+    lines:            8;
+    cycle:            true;
+    dynamic:          true;
+    scrollbar:        false;
+    layout:           vertical;
+    fixed-height:     true;
+    fixed-columns:    true;
+    spacing:          4px;
+    padding:          10px;
+    border-radius:    0px 0px 28px 28px;
+    background-color: transparent;
+    cursor:           "default";
+}
+
+element {
+    spacing:          0px;
+    padding:          0px;
+    border:           0px solid;
+    border-radius:    999px;
+    background-color: transparent;
+    text-color:       @on-surface-variant;
+    orientation:      horizontal;
+    cursor:           pointer;
+}
+
+element normal.normal { background-color: transparent;           text-color: @on-surface-variant;   }
+element normal.active { background-color: @primary-container-10; text-color: @on-primary-container; }
+element normal.urgent { background-color: @error-container-10;   text-color: @on-error-container;   }
+
+element selected.normal {
+    background-color: @primary-container-75;
+    text-color:       @on-primary-container;
+}
+element selected.active {
+    background-color: @primary-container-75;
+    text-color:       @on-primary-container;
+}
+element selected.urgent {
+    background-color: @error-container-75;
+    text-color:       @on-error-container;
+}
+
+element-icon {
+    size:             2.0em;
+    vertical-align:   0.5;
+    background-color: inherit;
+    text-color:       inherit;
+    padding:          8px 4px 8px 12px;
+}
+
+element-text {
+    vertical-align:   0.5;
+    horizontal-align: 0.0;
+    background-color: inherit;
+    text-color:       inherit;
+    highlight:        inherit;
+    padding:          10px 14px 10px 6px;
+}

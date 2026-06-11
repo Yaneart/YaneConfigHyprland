@@ -1,0 +1,257 @@
+/* Main Waybar style: smoother spacing and cleaner capsule shapes. */
+
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-family: "JetBrainsMono Nerd Font", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+}
+
+window#waybar {
+    background-color: alpha(@surface_container, 0.0);
+    transition-property: background-color, opacity;
+    transition-duration: 0.25s;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 6px 8px;
+}
+
+tooltip {
+    background: @surface;
+    border: 1px solid alpha(@on_secondary, 0.85);
+    border-radius: 12px;
+}
+
+tooltip label {
+    color: @on_surface;
+    padding: 2px 6px;
+}
+
+#workspaces {
+    background: alpha(@surface_container, 1);
+    color: @on_primary_fixed;
+    border-radius: 18px;
+    padding: 4px 6px;
+    margin: 0 4px;
+    border: 1px solid alpha(@on_secondary, 0.85);
+}
+
+#workspaces button {
+    min-width: 26px;
+    padding: 0 12px;
+    margin: 2px;
+    border-radius: 999px;
+    color: @on_surface;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+#workspaces button:hover {
+    background: alpha(@on_primary_fixed_variant, 0.9);
+    color: @primary;
+    box-shadow: inset 0 -2px @primary;
+}
+
+#workspaces button.active {
+    background: @color6;
+    color: @on_primary_fixed;
+    box-shadow: inset 0 -2px alpha(@on_primary_fixed, 0.55);
+}
+
+#workspaces button.urgent {
+    background: alpha(@error, 0.9);
+    color: @on_primary_fixed;
+}
+
+#clock,
+#battery,
+#pulseaudio,
+#backlight,
+#custom-swaync,
+#tray,
+#custom-temperature,
+#custom-light,
+#cpu,
+#temperature,
+#memory,
+#disk,
+#language,
+#cava {
+    background-color: alpha(@surface_container, 1);
+    color: @color7;
+    border-radius: 999px;
+    margin: 0 4px;
+    padding: 0 10px;
+    min-height: 28px;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+#clock:hover,
+#battery:hover,
+#pulseaudio:hover,
+#backlight:hover,
+#custom-swaync:hover,
+#tray:hover,
+#custom-temperature:hover,
+#custom-light:hover,
+#cpu:hover,
+#temperature:hover,
+#memory:hover,
+#disk:hover,
+#language:hover,
+#cava:hover {
+    color: @primary;
+    box-shadow: inset 0 -2px @primary;
+}
+
+#clock,
+#battery,
+#custom-swaync,
+#tray {
+    border: 1px solid alpha(@on_secondary, 0.85);
+}
+
+/* Wi-Fi + Bluetooth: accent pair, no capsule */
+#network,
+#bluetooth {
+    background: transparent;
+    border: none;
+    color: @primary;
+    font-weight: 600;
+    font-size: 16px;
+    min-height: 28px;
+    padding: 0 4px;
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+#network {
+    margin-left: 10px;
+    padding-right: 10px;
+}
+
+#bluetooth {
+    padding-left: 10px;
+    margin-right: 6px;
+}
+
+#network:hover,
+#bluetooth:hover {
+    color: @color6;
+}
+
+#network.disconnected,
+#bluetooth.disabled,
+#bluetooth.off {
+    color: alpha(@on_surface, 0.40);
+    font-weight: 500;
+}
+
+#backlight,
+#pulseaudio {
+    border-top: 1px solid alpha(@on_secondary, 0.85);
+    border-bottom: 1px solid alpha(@on_secondary, 0.85);
+}
+
+#backlight {
+    margin-right: 0;
+    border-left: 1px solid alpha(@on_secondary, 0.85);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#pulseaudio {
+    margin-left: 0;
+    border-right: 1px solid alpha(@on_secondary, 0.85);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#custom-temperature,
+#custom-light {
+    border-top: 1px solid alpha(@on_secondary, 0.85);
+    border-bottom: 1px solid alpha(@on_secondary, 0.85);
+}
+
+#custom-temperature {
+    margin-right: 0;
+    border-left: 1px solid alpha(@on_secondary, 0.85);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#custom-light {
+    margin-left: 0;
+    border-right: 1px solid alpha(@on_secondary, 0.85);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#custom-temperature,
+#custom-light {
+    font-weight: 600;
+}
+
+#battery.charging {
+    color: @primary;
+}
+
+#battery.warning:not(.charging) {
+    color: @error;
+}
+
+#battery.critical:not(.charging) {
+    color: @error;
+}
+
+#temperature.critical {
+    color: @error;
+}
+
+#pulseaudio.muted {
+    color: alpha(@color7, 0.55);
+}
+
+#cava {
+    margin-left: 4px;
+    padding: 0 10px;
+    color: @primary;
+}
+
+/* Spotify / MPRIS now-playing capsule */
+#mpris {
+    background-color: alpha(@surface_container, 1);
+    color: @color7;
+    border-radius: 999px;
+    border: 1px solid alpha(@on_secondary, 0.85);
+    margin: 0 4px;
+    padding: 0 12px;
+    min-height: 28px;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#mpris:hover {
+    color: @primary;
+    box-shadow: inset 0 -2px @primary;
+}
+
+#mpris.playing {
+    color: @primary;
+}
+
+#mpris.paused {
+    color: alpha(@color7, 0.65);
+    font-style: italic;
+}
+
+#tray > widget {
+    margin: 0 2px;
+}
+

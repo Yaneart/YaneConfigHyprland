@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+FASTFETCH_CONFIG="$HOME/.config/fastfetch/config.jsonc"
+
+kitty --title "System Dashboard" sh -lc "fastfetch --config '$FASTFETCH_CONFIG'; exec \$SHELL"

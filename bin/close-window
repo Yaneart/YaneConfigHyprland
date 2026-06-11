@@ -1,0 +1,24 @@
+#!/bin/bash
+# Закрыть активное окно. Если приложение свернулось в трей (окно исчезло,
+# но процесс жив и больше окон у него нет) — добить его SIGTERM.
+# Многооконные приложения не трогаем: пока есть хотя бы одно окно процесса — оставляем.
+
+pid=$(hyprctl activewindow -j | jq -r '.pid')
+
+# вежливый запрос на закрытие активного окна (как крестик / xdg_toplevel.close).
+# ВАЖНО: в Hyprland 0.55+ `hyprctl dispatch` интерпретирует Lua, а легаси
+# `hyprctl dispatch killactive` молча падает с Lua-ошибкой и НИЧЕГО не закрывает.
+# Рабочий диспетчер — hl.dsp.window.close() (действует на сфокусированное окно).
+hyprctl dispatch 'hl.dsp.window.close()'
+
+[ -z "$pid" ] || [ "$pid" = "null" ] && exit 0
+
+(
+  sleep 1
+  # процесс уже умер сам? тогда ничего не делаем
+  kill -0 "$pid" 2>/dev/null || exit 0
+  # сколько окон осталось у этого PID в Hyprland
+  remaining=$(hyprctl clients -j | jq --arg p "$pid" '[.[] | select(.pid == ($p|tonumber))] | length')
+  # окон не осталось, но процесс жив => свернулся в трей => закрываем
+  [ "$remaining" -eq 0 ] && kill "$pid"
+) &

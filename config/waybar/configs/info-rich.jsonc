@@ -1,0 +1,251 @@
+{
+    "layer": "top",
+    // "height": 10,
+    "font": "JetBrainsMono Nerd Font 10",
+    "reload_style_on_change": true,
+    "modules-left": [
+        "clock",
+        "cpu",
+        "temperature",
+        "memory",
+        "disk"
+    ],
+
+    "modules-center": [
+        "hyprland/workspaces"
+    ],
+    "modules-right": [
+        "cava",
+        "network",
+        "bluetooth",
+        "backlight",
+        "pulseaudio",
+        "battery",
+        "hyprland/language",
+        "custom/swaync",
+        "tray"
+    ],
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "interval": 30,
+        "tooltip-format": "{timeTo}\n{power:0.1f} W",
+        "format": "{capacity}% {icon}",
+        "format-icons": [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ],
+        "format-charging": "{capacity}% {icon} ",
+    }, "clock": {
+        "format": "{:%H:%M}  ",
+        "format-alt": "{:%A, %B %d, %Y (%R)}  ",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "calendar": {
+                    "mode"          : "year",
+                    "mode-mon-col"  : 3,
+                    "weeks-pos"     : "right",
+                    "on-scroll"     : 1,
+                    "format": {
+                              "months":     "<span color='#ffead3'><b>{}</b></span>",
+                              "days":       "<span color='#ecc6d9'><b>{}</b></span>",
+                              "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
+                              "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
+                              "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
+                              }
+                    },
+        "actions":  {
+                    "on-click-right": "mode",
+                    "on-scroll-up": "shift_up",
+                    "on-scroll-down": "shift_down"
+                    }
+    },
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "persistent-workspaces": {
+            "*": 6, // 5 workspaces by default on every monitor
+            "HDMI-A-1": 3 // but only three on HDMI-A-1
+        }
+    },
+    "hyprland/window": {
+        "format": "{}",
+        "separate-outputs": true
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "phone-muted": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                ""
+            ]
+        },
+        "scroll-step": 1,
+        "max-volume": 100,
+        "on-click": "pavucontrol",
+        "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "ignored-sinks": [
+            "Easy Effects Sink"
+        ]
+    },
+    "bluetooth": {
+        "on-click": "blueman-manager",
+        "format": "bluetooth {icon}",
+        "format-icons": {
+            "enabled": "",
+            "disabled": ""
+        },
+        "tooltip-format": "{device_alias}"
+    },
+
+    "network": {
+        "interface": "wlp3s0",
+        "on-click": "nm-connection-editor",
+        "format": "{ifname}",
+        "format-wifi": "",
+        "format-ethernet": "{ipaddr}/{cidr} 󰊗",
+        "format-disconnected": "", //An empty format will hide the module.
+        "tooltip-format": "{ifname} via {gwaddr} 󰊗",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+        "tooltip-format-ethernet": "{ifname} ",
+        "tooltip-format-disconnected": "Disconnected",
+        "max-length": 16
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{percent}% {icon}",
+        "format-icons": [
+            "",
+            ""
+        ],
+        "format-alt": "{percent}% {icon}",
+        "on-click": "brightnessctl set +10%",
+        "on-click-right": "brightnessctl set 10%-",
+        "on-scroll-up": "brightnessctl set +1%",
+        "on-scroll-down": "brightnessctl set 1%-",
+        "scroll-step": 1,
+        "tooltip": false
+    },
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10,
+        "icons": {
+            "blueman": "bluetooth",
+            "TelegramDesktop": "$HOME/.local/share/icons/hicolor/16x16/apps/telegram.png"
+        }
+    },
+    "cava": {
+        "framerate": 30,
+
+        // "autosens": ,
+        "sensitivity": 1,
+        "bars": 12,
+        "lower_cutoff_freq": 50,
+        "higher_cutoff_freq": 10000,
+        "hide_on_silence": true,
+        // через 5с тишины модуль засыпает (почти нулевой CPU), при звуке просыпается
+        "sleep_timer": 5,
+        // "format_silent": "quiet",
+        "method": "pulse",
+        "source": "auto",
+        "stereo": true,
+        "reverse": true,
+        "bar_delimiter": 0,
+        "monstercat": false,
+        "waves": true,
+        "noise_reduction": 0.77,
+        "input_delay": 2,
+        "format-icons": ["⠀", "▂", "▃", "▄", "▅", "▆", "▇", "█" ],
+        "actions": {
+                   "on-click-right": "mode"
+                   }
+        
+    },
+    "custom/swaync": {
+        "tooltip": true,
+        "format": "{icon} {text}",
+        "format-icons": {
+            "notification": "󰂚",
+            "none": "󰂜",
+            "dnd-notification": "󰂛",
+            "dnd-none": "󰂛",
+            "inhibited-notification": "󰂚",
+            "inhibited-none": "󰂜",
+            "dnd-inhibited-notification": "󰂛",
+            "dnd-inhibited-none": "󰂛"
+        },
+        "return-type": "json",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
+    "custom/temperature":{
+        "exec": "bash ~/.config/waybar/scripts/waybar-light-controls/show_temperature.sh",
+        "interval": 2,
+        "format": "󰔄 {}",
+        "tooltip": false,
+        "on-scroll-up": "bash ~/.config/waybar/scripts/waybar-light-controls/temperature_control.sh up",
+        "on-scroll-down": "bash ~/.config/waybar/scripts/waybar-light-controls/temperature_control.sh down",
+},
+
+"custom/light":{
+        "exec": "bash ~/.config/waybar/scripts/waybar-light-controls/show_light.sh",
+        "interval": 2,
+        "format": "󰃟 {}",
+        "tooltip": false,
+        "on-scroll-up": "bash ~/.config/waybar/scripts/waybar-light-controls/light_control.sh up",
+        "on-scroll-down": "bash ~/.config/waybar/scripts/waybar-light-controls/light_control.sh down",
+},
+
+
+
+
+
+
+
+
+    "cpu": {
+        "interval": 2,
+        "format": " {usage}%",
+        "tooltip": false,
+        "on-click": "kitty -e btop"
+    },
+    "temperature": {
+        "thermal-zone": 6,
+        "critical-threshold": 85,
+        "interval": 2,
+        "format": "{icon} {temperatureC}°",
+        "format-critical": "{icon} {temperatureC}°",
+        "format-icons": ["", "", "", "", ""],
+        "tooltip": false
+    },
+    "memory": {
+        "interval": 3,
+        "format": "󰍛 {percentage}%",
+        "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
+        "on-click": "kitty -e btop"
+    },
+    "disk": {
+        "interval": 30,
+        "path": "/",
+        "format": "󰋊 {percentage_used}%",
+        "tooltip-format": "{used} / {total}"
+    },
+    "hyprland/language": {
+        "format": "󰌌 {short}",
+        "on-click": "hyprctl switchxkblayout current next"
+    },
+}

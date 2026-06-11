@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# deflisten source for the eww music popup.
+# On every Spotify metadata/status change emits one JSON line and prepares
+# two artworks via ImageMagick: a rounded cover and a blurred backdrop.
+# Files are named per-track so eww's image widget reloads when the track changes.
+set -u
+
+PLAYER="spotify"
+DIR="/tmp/eww-music"
+mkdir -p "$DIR"
+last_url=""
+cover=""
+blur=""
+prev_status=""
+
+process_art() {
+  local url="$1" raw hash
+  hash="$(printf '%s' "$url" | md5sum | cut -c1-12)"
+  cover="$DIR/cover_$hash.png"
+  blur="$DIR/blur_$hash.png"
+
+  if [ ! -f "$cover" ] || [ ! -f "$blur" ]; then
+    raw="$DIR/raw_$hash"
+    case "$url" in
+      http*)    curl -sfL "$url" -o "$raw" 2>/dev/null || { cover=""; blur=""; return; } ;;
+      file://*) cp "${url#file://}" "$raw" 2>/dev/null || { cover=""; blur=""; return; } ;;
+      *)        cover=""; blur=""; return ;;
+    esac
+
+    # Rounded square cover (240x240, radius 28)
+    magick "$raw" -resize 240x240^ -gravity center -extent 240x240 \
+      \( -size 240x240 xc:none -fill white -draw 'roundrectangle 0,0,239,239,28,28' \) \
+      -alpha set -compose DstIn -composite "PNG32:$cover" 2>/dev/null
+
+    # Blurred, darkened backdrop (340x480, radius 30) - the "now playing" look.
+    # Blur via downscale->blur->upscale: same look as -blur 0x22 on full size,
+    # but ~0.16s instead of ~0.43s
+    magick "$raw" -resize 34x48^ -gravity center -extent 34x48 -blur 0x3 -modulate 60 \
+      -resize '340x480!' \
+      \( -size 340x480 xc:none -fill white -draw 'roundrectangle 0,0,339,479,30,30' \) \
+      -alpha set -compose DstIn -composite "PNG32:$blur" 2>/dev/null
+
+    rm -f "$raw"
+    [ -f "$cover" ] || cover=""
+    [ -f "$blur" ]  || blur=""
+
+    # Drop artworks from previous tracks (keep the loading placeholder:
+    # eww may still be showing it for a moment)
+    find "$DIR" -maxdepth 1 -type f ! -name "*_$hash.png" ! -name "loading.png" -delete 2>/dev/null
+  fi
+}
+
+print_json() {
+  jq -nc \
+    --arg status "$status" \
+    --arg title  "$title" \
+    --arg artist "$artist" \
+    --arg cover  "$cover" \
+    --arg blur   "$blur" \
+    '{status:$status, title:$title, artist:$artist, cover:$cover, blur:$blur}'
+}
+
+emit() {
+  local status title artist arturl
+  status="$(playerctl -p "$PLAYER" status 2>/dev/null)"
+  if [ -z "$status" ]; then
+    echo '{"status":"Stopped","title":"Ничего не играет","artist":"","cover":"","blur":""}'
+    # The player just vanished (Spotify closed) - the popup would be stuck open
+    # with dead controls and no waybar mpris button left to toggle it, so close it.
+    # prev_status guard: don't slam the window shut when opened with no player at all.
+    if [ -n "$prev_status" ]; then
+      eww close music 2>/dev/null
+    fi
+    prev_status=""
+    return
+  fi
+  prev_status="$status"
+  title="$(playerctl -p "$PLAYER" metadata title 2>/dev/null)"
+  artist="$(playerctl -p "$PLAYER" metadata artist 2>/dev/null)"
+  arturl="$(playerctl -p "$PLAYER" metadata mpris:artUrl 2>/dev/null)"
+
+  if [ -n "$arturl" ] && [ "$arturl" != "$last_url" ]; then
+    # Two-phase update: the download off Spotify's CDN takes ~1s, so first push
+    # the new title/artist right away, with the PREVIOUS cover blurred as a
+    # "loading" placeholder (the new art doesn't exist locally yet). The real
+    # cover replaces it in a second emit below once process_art is done.
+    if [ -f "$cover" ]; then
+      magick "$cover" -blur 0x6 "PNG32:$DIR/loading.png" 2>/dev/null && cover="$DIR/loading.png"
+    fi
+    print_json
+    process_art "$arturl"
+    last_url="$arturl"
+  fi
+
+  print_json
+}
+
+emit
+# --follow fires on metadata/status changes, event-driven, near-zero idle CPU.
+# playerctl deduplicates: it prints only when the FORMATTED string changes, so the
+# format must include trackid and artUrl - with bare '{{status}}' a track change
+# while playing produced no event at all and the cover/title stayed stale.
+# artUrl is there because Spotify sometimes delivers it a beat later than the
+# title; its arrival then fires one more event that picks up the new cover.
+playerctl -p "$PLAYER" --follow metadata --format '{{status}}|{{mpris:trackid}}|{{mpris:artUrl}}' 2>/dev/null | while read -r _; do
+  emit
+done

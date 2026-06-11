@@ -1,0 +1,12 @@
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration { show-icons: true; }
+
+window { width: 1000px; height: 640px; }
+
+entry { placeholder: "Search wallpapers…"; }
+
+listview { lines: 7; spacing: 6px; }
+
+element-icon { size: 3.0em; padding: 8px 6px 8px 14px; }
+element-text { padding: 10px 16px 10px 8px; }

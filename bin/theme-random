@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WALLPAPER_DIR="$HOME/.config/wallpapers"
+STATE_FILE="$HOME/.local/state/theme/current_wallpaper"
+
+mapfile -t files < <(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
+
+if [[ ${#files[@]} -eq 0 ]]; then
+  notify-send "Wallpaper not changed" "No images found in $WALLPAPER_DIR"
+  exit 1
+fi
+
+current=""
+if [[ -f "$STATE_FILE" ]]; then
+  current="$(<"$STATE_FILE")"
+fi
+
+selected="$current"
+if [[ ${#files[@]} -eq 1 ]]; then
+  selected="${files[0]}"
+else
+  while [[ "$selected" == "$current" ]]; do
+    selected="${files[RANDOM % ${#files[@]}]}"
+  done
+fi
+
+exec "$HOME/.local/bin/theme-apply" "$selected"

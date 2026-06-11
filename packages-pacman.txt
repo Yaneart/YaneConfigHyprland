@@ -1,0 +1,73 @@
+# Базовое окружение Hyprland
+hyprland
+hypridle
+hyprlock
+hyprsunset
+xdg-desktop-portal-hyprland
+polkit-kde-agent
+
+# Терминал, шелл, утилиты
+kitty
+starship
+fastfetch
+btop
+yazi
+jq
+
+# Меню и уведомления
+rofi
+rofimoji
+swaync
+
+# Генерация цветов из обоев
+matugen
+python-pywal
+
+# Обои
+awww
+
+# Утилиты, которые дёргают скрипты
+libnotify
+imagemagick
+curl
+
+# Скриншоты и буфер обмена
+grim
+slurp
+swappy
+wl-clipboard
+
+# Звук, яркость, медиа
+pamixer
+pavucontrol
+playerctl
+brightnessctl
+cava
+
+# Сеть и Bluetooth
+networkmanager
+network-manager-applet
+blueman
+bluez
+bluez-utils
+
+# Файловый менеджер
+thunar
+
+# Дисплей-менеджер
+sddm
+
+# Qt-темизация
+qt5ct
+qt6ct
+
+# Шрифты и GTK-тема
+noto-fonts
+noto-fonts-emoji
+ttf-jetbrains-mono-nerd
+adw-gtk-theme
+
+# Приложения
+firefox
+spotify-launcher
+telegram-desktop
