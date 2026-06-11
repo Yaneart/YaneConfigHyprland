@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 # YaneConfigHyprland — установщик
 # Arch Linux + Hyprland rice от yaneart
+#
+# Использование: ./install.sh [--yes]
+#   --yes  неинтерактивный режим: «да» на все вопросы, pacman/yay с --noconfirm
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="$HOME/.config-backup-$(date +%Y%m%d-%H%M%S)"
 STATE_DIR="$HOME/.local/state/theme"
+
+NOCONFIRM=""
+for arg in "$@"; do
+  case "$arg" in
+    --yes|-y) NOCONFIRM="--noconfirm" ;;
+    *) echo "Неизвестный аргумент: $arg (доступен только --yes)" >&2; exit 1 ;;
+  esac
+done
 
 # Конфиги, которые будут установлены в ~/.config
 CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal eww
@@ -13,7 +24,8 @@ CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal eww
              qt5ct qt6ct)
 
 msg()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
-ask()  { read -rp "$1 [y/N] " a; [[ "${a,,}" == y* ]]; }
+ask()  { if [[ -n "$NOCONFIRM" ]]; then echo "$1 [auto-yes]"; return 0; fi
+         read -rp "$1 [y/N] " a; [[ "${a,,}" == y* ]]; }
 
 if [[ ! -f /etc/arch-release ]]; then
   echo "Этот скрипт рассчитан на Arch Linux (pacman + AUR)." >&2
@@ -30,7 +42,7 @@ echo
 # через stdin, их интерактивные вопросы ("Proceed? [Y/n]") ломаются.
 if ask "Установить пакеты из официальных репозиториев (pacman)?"; then
   mapfile -t pkgs < <(grep -vE '^\s*(#|$)' "$REPO_DIR/packages-pacman.txt")
-  sudo pacman -S --needed "${pkgs[@]}"
+  sudo pacman -S --needed $NOCONFIRM "${pkgs[@]}"
 fi
 
 if ask "Установить пакеты из AUR (через yay)?"; then
@@ -43,7 +55,17 @@ if ask "Установить пакеты из AUR (через yay)?"; then
     rm -rf "$tmp"
   fi
   mapfile -t aur_pkgs < <(grep -vE '^\s*(#|$)' "$REPO_DIR/packages-aur.txt")
-  yay -S --needed "${aur_pkgs[@]}"
+  # Сборка из AUR может упасть из-за разового сетевого сбоя (crates.io и т.п.) —
+  # одна автоматическая повторная попытка чинит большинство таких случаев.
+  if ! yay -S --needed $NOCONFIRM "${aur_pkgs[@]}"; then
+    msg "Не все AUR-пакеты установились — повторная попытка"
+    if ! yay -S --needed $NOCONFIRM "${aur_pkgs[@]}"; then
+      echo >&2
+      echo "AUR-пакеты не установились. Это не страшно: запусти ./install.sh ещё раз —" >&2
+      echo "он продолжит с места сбоя, уже установленное пропустится (--needed)." >&2
+      exit 1
+    fi
+  fi
 fi
 
 # ── 2. Бэкап существующих конфигов ───────────────────────────────────────

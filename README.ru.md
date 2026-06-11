@@ -91,6 +91,8 @@ cd YaneConfigHyprland
 ./install.sh
 ```
 
+Установка без вопросов: `./install.sh --yes` — отвечает «да» на всё, pacman/yay идут с `--noconfirm`.
+
 Скрипт спросит подтверждение на каждый шаг:
 1. Пакеты из официальных репозиториев (`packages-pacman.txt`)
 2. Пакеты из AUR через yay (`packages-aur.txt`) — поставит yay, если его нет

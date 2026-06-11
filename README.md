@@ -91,6 +91,8 @@ cd YaneConfigHyprland
 ./install.sh
 ```
 
+Unattended install: `./install.sh --yes` — answers "yes" to everything and runs pacman/yay with `--noconfirm`.
+
 The script asks for confirmation at every step:
 1. Packages from the official repos (`packages-pacman.txt`)
 2. AUR packages via yay (`packages-aur.txt`) — installs yay itself if missing
