@@ -1,9 +1,17 @@
-# YaneConfigHyprland
+<div align="center">
+
+# ❄️ YaneConfigHyprland
+
+**Arch Linux + Hyprland** rice with full dynamic theming —
+change the wallpaper and *everything* recolors itself.
+
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=for-the-badge&logo=archlinux&logoColor=white)
+![Hyprland](https://img.shields.io/badge/Hyprland-0.55+-58E1FF?style=for-the-badge&logo=hyprland&logoColor=white)
+![Lua](https://img.shields.io/badge/config-Lua-2C2D72?style=for-the-badge&logo=lua&logoColor=white)
 
 **English** | [Русский](README.ru.md)
 
-My complete desktop environment config: **Arch Linux + Hyprland** with dynamic theming —
-changing the wallpaper automatically recolors the **entire** environment (Waybar, Kitty, Rofi, SwayNC, GTK, Spotify, btop, the shell prompt, and more).
+</div>
 
 ![Desktop](screenshots/desktop.png)
 
@@ -13,7 +21,7 @@ Same setup, different wallpapers — everything recolors automatically:
 |---|---|
 
 <details>
-<summary>More screenshots</summary>
+<summary>📸 More screenshots</summary>
 
 **Rofi launcher** (`Super+Space`)
 ![Rofi launcher](screenshots/rofi.png)
@@ -43,17 +51,34 @@ Same setup, different wallpapers — everything recolors automatically:
 
 ## Stack
 
-**Hyprland 0.55+** (Lua) · Waybar · Kitty · Rofi · SwayNC · Hyprlock · Hyprsunset · awww · Eww · Cava · Starship · Fastfetch · btop · Yazi · Thunar · SDDM (winter) · Spicetify
+| | |
+|---|---|
+| 🪟 **WM** | [Hyprland](https://hypr.land) 0.55+ — Lua config (`hyprland.lua` + modules) |
+| 📊 **Bar** | Waybar (5 switchable styles) + Eww music widget |
+| 🖥️ **Terminal** | Kitty · Starship prompt · Fastfetch |
+| 🚀 **Launcher & menus** | Rofi (launcher, power menu, wallpaper picker) |
+| 🔔 **Notifications** | SwayNC control center |
+| 🔒 **Lock & login** | Hyprlock · SDDM (winter theme with video background) |
+| 🎨 **Theming** | matugen + wallust + pywal → templates for every app |
+| 🖼️ **Wallpapers** | awww daemon · 31 wallpapers included |
+| 🌙 **Night light** | Hyprsunset |
+| 🎵 **Music** | Spotify + Spicetify (auto-themed) · Cava visualizer |
+| 📁 **Files & monitoring** | Yazi (TUI) · Thunar (GUI) · btop |
 
 ## How the theming works
 
-`Super+W` opens the wallpaper picker → `theme-apply` sets it via awww, while **matugen + wallust + pywal**
-generate palettes from the image and render them into the templates of every program
-(waybar, kitty, rofi, swaync, gtk, btop, cava, starship, spicetify, hyprland).
-The bar and notifications restart — the whole desktop is recolored in a couple of seconds.
-Waybar styles (5 presets) switch independently: `Super+Shift+W`.
+```mermaid
+flowchart LR
+    A["🖼️ Wallpaper<br/>Super+W"] --> B["theme-apply"]
+    B --> C["awww<br/>sets the wallpaper"]
+    B --> D["matugen · wallust · pywal<br/>palettes from the image"]
+    D --> E["templates<br/>rendered into configs"]
+    E --> F["Waybar · Kitty · Rofi · SwayNC<br/>GTK · btop · Cava · Starship<br/>Spicetify · Hyprland"]
+```
 
-The detailed chain diagram is in [docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt), section 14.
+One hotkey — and a couple of seconds later the bar, notifications, terminal, GTK apps and even Spotify
+match the new wallpaper. Waybar styles (5 presets) switch independently: `Super+Shift+W`.
+The detailed chain is in [docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt), section 14.
 
 ## Installation
 
@@ -79,6 +104,15 @@ The script asks for confirmation at every step:
 
 After installation, log into the **Hyprland** session via SDDM.
 
+**Worth knowing during install:**
+- **Hyprland 0.55+ is required** — the config is Lua, the legacy `.conf` format is not used.
+- **Package conflicts are normal**: `waybar-cava` replaces plain `waybar`,
+  `pipewire-pulse` replaces `pulseaudio` — answer "yes" when pacman asks.
+- **Spotify** must be launched at least once before configuring Spicetify
+  (the installer detects this and tells you).
+- **Bash only**: Starship is hooked into `~/.bashrc`; for zsh/fish add the
+  equivalent init line yourself. Everything else works regardless of shell.
+
 ### Manual installation
 
 ```bash
@@ -91,7 +125,8 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 ~/.local/bin/theme-apply ~/.config/wallpapers/arch-blue-waves.png
 ```
 
-## Good to know (quirks)
+<details>
+<summary>⚙️ Hardware notes & quirks</summary>
 
 - **Hardware.** Made for a ThinkPad T480 (1920×1080, Intel graphics). On other resolutions
   Hyprland adapts by itself; monitor settings live in `config/hypr/modules/monitors.lua`.
@@ -99,43 +134,10 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
   `WLR_NO_HARDWARE_CURSORS=1` is already set.
 - **Keyboard layout** is hardcoded to `us,ru` with Alt+Shift toggle —
   change one line in `config/hypr/modules/input.lua` if you need something else.
-- **Bash only.** Starship is hooked into `~/.bashrc`; if you use zsh/fish, add
-  the equivalent init line yourself. Everything else works regardless of shell.
-- **Package conflicts** are normal: `waybar-cava` replaces plain `waybar`,
-  `pipewire-pulse` replaces `pulseaudio` — answer "yes" when pacman asks.
-- **Spotify** must be launched at least once before configuring Spicetify
-  (the installer detects this and tells you).
-- **Hyprland 0.55+ is required** — the config is Lua (`hyprland.lua` + modules),
-  the legacy `.conf` format is not used. `hyprctl dispatch` uses Lua syntax as well.
+- **`hyprctl dispatch`** uses Lua syntax as well (Hyprland 0.55+), e.g. window closing
+  goes through `hl.dsp.window.close()` — the scripts already account for this.
 
-## Repository layout
-
-```
-config/          configs for ~/.config (hypr, waybar, kitty, cava, rofi, swaync,
-                 matugen, wallust, eww, spicetify, fastfetch, btop, gtk, qt, …)
-bin/             scripts for ~/.local/bin (theme-apply, waybar-set, wallset, …)
-sddm/            login screen theme (winter, video background) + /etc/sddm.conf.d config
-wallpapers/      wallpaper collection (31)
-docs/            FULL-GUIDE.en.txt / FULL-GUIDE.ru.txt — in-depth documentation
-packages-*.txt   package lists (pacman / AUR)
-install.sh       installer
-```
-
-## Scripts (`bin/`)
-
-| Script | What it does |
-|---|---|
-| `theme-apply <img>` | wallpaper + full color regeneration for everything |
-| `theme-random` | random wallpaper + theme |
-| `theme-restore` | restore the last theme (runs on autostart) |
-| `wallset` | Rofi wallpaper picker with previews |
-| `waybar-set` / `waybar-menu` | switch Waybar styles and configs |
-| `colorscheme-set` | regenerate colors without changing the wallpaper |
-| `launcher` | Rofi launcher |
-| `close-window` / `close_all_windows` | graceful window closing (SIGTERM follow-up) |
-| `kitty-dashboard` | Kitty with the fastfetch dashboard |
-| `toggle-hyprsunset` | night light on/off |
-| `pywal_cava` | pywal colors for cava |
+</details>
 
 ## Keybindings (essentials)
 
@@ -157,7 +159,53 @@ install.sh       installer
 
 Full list — [docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt) (section 13).
 
-## Documentation
+## Under the hood
 
-A detailed description of every component, every script, and the whole theming chain —
-[docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt) ([русская версия](docs/FULL-GUIDE.ru.txt)).
+Main scripts: `theme-apply`, `theme-random`, `wallset`, `waybar-set`, `colorscheme-set` —
+the rest are below.
+
+<details>
+<summary>🧰 All scripts (<code>bin/</code>)</summary>
+
+| Script | What it does |
+|---|---|
+| `theme-apply <img>` | wallpaper + full color regeneration for everything |
+| `theme-random` | random wallpaper + theme |
+| `theme-restore` | restore the last theme (runs on autostart) |
+| `wallset` | Rofi wallpaper picker with previews |
+| `waybar-set` / `waybar-menu` | switch Waybar styles and configs |
+| `colorscheme-set` | regenerate colors without changing the wallpaper |
+| `launcher` | Rofi launcher |
+| `close-window` / `close_all_windows` | graceful window closing (SIGTERM follow-up) |
+| `kitty-dashboard` | Kitty with the fastfetch dashboard |
+| `toggle-hyprsunset` | night light on/off |
+| `pywal_cava` | pywal colors for cava |
+
+</details>
+
+<details>
+<summary>🗂️ Repository layout</summary>
+
+```
+config/          configs for ~/.config (hypr, waybar, kitty, cava, rofi, swaync,
+                 matugen, wallust, eww, spicetify, fastfetch, btop, gtk, qt, …)
+bin/             scripts for ~/.local/bin (theme-apply, waybar-set, wallset, …)
+sddm/            login screen theme (winter, video background) + /etc/sddm.conf.d config
+wallpapers/      wallpaper collection (31)
+docs/            FULL-GUIDE.en.txt / FULL-GUIDE.ru.txt — in-depth documentation
+packages-*.txt   package lists (pacman / AUR)
+install.sh       installer
+```
+
+</details>
+
+---
+
+<div align="center">
+
+Every component, every script and the whole theming chain explained in detail —
+**[docs/FULL-GUIDE.en.txt](docs/FULL-GUIDE.en.txt)** ([русская версия](docs/FULL-GUIDE.ru.txt))
+
+⭐ **Star the repo if you like the rice** ⭐
+
+</div>

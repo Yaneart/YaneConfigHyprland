@@ -1,9 +1,17 @@
-# YaneConfigHyprland
+<div align="center">
+
+# ❄️ YaneConfigHyprland
+
+Райс **Arch Linux + Hyprland** с полной динамической темизацией —
+меняешь обои, и *всё* окружение перекрашивается само.
+
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=for-the-badge&logo=archlinux&logoColor=white)
+![Hyprland](https://img.shields.io/badge/Hyprland-0.55+-58E1FF?style=for-the-badge&logo=hyprland&logoColor=white)
+![Lua](https://img.shields.io/badge/конфиг-Lua-2C2D72?style=for-the-badge&logo=lua&logoColor=white)
 
 [English](README.md) | **Русский**
 
-Мой полный конфиг рабочего окружения: **Arch Linux + Hyprland** с динамической темизацией —
-смена обоев автоматически перекрашивает **всё** окружение (Waybar, Kitty, Rofi, SwayNC, GTK, Spotify, btop, промпт в терминале и т.д.).
+</div>
 
 ![Desktop](screenshots/desktop.png)
 
@@ -13,7 +21,7 @@
 |---|---|
 
 <details>
-<summary>Больше скриншотов</summary>
+<summary>📸 Больше скриншотов</summary>
 
 **Rofi launcher** (`Super+Space`)
 ![Rofi launcher](screenshots/rofi.png)
@@ -43,16 +51,33 @@
 
 ## Стек
 
-**Hyprland 0.55+** (Lua) · Waybar · Kitty · Rofi · SwayNC · Hyprlock · Hyprsunset · awww · Eww · Cava · Starship · Fastfetch · btop · Yazi · Thunar · SDDM (winter) · Spicetify
+| | |
+|---|---|
+| 🪟 **WM** | [Hyprland](https://hypr.land) 0.55+ — конфиг на Lua (`hyprland.lua` + модули) |
+| 📊 **Панель** | Waybar (5 переключаемых стилей) + музыкальный виджет Eww |
+| 🖥️ **Терминал** | Kitty · промпт Starship · Fastfetch |
+| 🚀 **Launcher и меню** | Rofi (запуск, меню питания, выбор обоев) |
+| 🔔 **Уведомления** | центр уведомлений SwayNC |
+| 🔒 **Блокировка и вход** | Hyprlock · SDDM (тема winter с видео-фоном) |
+| 🎨 **Темизация** | matugen + wallust + pywal → шаблоны для каждой программы |
+| 🖼️ **Обои** | демон awww · 31 обоина в комплекте |
+| 🌙 **Ночной режим** | Hyprsunset |
+| 🎵 **Музыка** | Spotify + Spicetify (перекрашивается сам) · визуализатор Cava |
+| 📁 **Файлы и мониторинг** | Yazi (TUI) · Thunar (GUI) · btop |
 
 ## Как работает темизация
 
-`Super+W` открывает выбор обоев → `theme-apply` ставит их через awww, а **matugen + wallust + pywal**
-генерируют из картинки палитры и раскладывают их по шаблонам всех программ
-(waybar, kitty, rofi, swaync, gtk, btop, cava, starship, spicetify, hyprland).
-Панель и уведомления перезапускаются — весь рабочий стол перекрашен за пару секунд.
-Стили Waybar (5 пресетов) переключаются отдельно: `Super+Shift+W`.
+```mermaid
+flowchart LR
+    A["🖼️ Обои<br/>Super+W"] --> B["theme-apply"]
+    B --> C["awww<br/>ставит обои"]
+    B --> D["matugen · wallust · pywal<br/>палитры из картинки"]
+    D --> E["шаблоны<br/>рендерятся в конфиги"]
+    E --> F["Waybar · Kitty · Rofi · SwayNC<br/>GTK · btop · Cava · Starship<br/>Spicetify · Hyprland"]
+```
 
+Один хоткей — и через пару секунд панель, уведомления, терминал, GTK-приложения и даже Spotify
+подстроены под новые обои. Стили Waybar (5 пресетов) переключаются отдельно: `Super+Shift+W`.
 Подробная схема цепочки — в [docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt), раздел 14.
 
 ## Установка
@@ -79,6 +104,15 @@ cd YaneConfigHyprland
 
 После установки — войти в сессию **Hyprland** через SDDM.
 
+**Полезно знать при установке:**
+- **Hyprland 0.55+ обязателен** — конфиг на Lua, старый `.conf`-формат не используется.
+- **Конфликты пакетов — это нормально**: `waybar-cava` заменяет обычный `waybar`,
+  `pipewire-pulse` заменяет `pulseaudio` — отвечай «да», когда pacman спросит.
+- **Spotify** надо запустить хотя бы раз до настройки Spicetify
+  (установщик это понимает и подскажет).
+- **Только bash**: Starship подключается в `~/.bashrc`; для zsh/fish добавь
+  соответствующую init-строку сам. Всё остальное от шелла не зависит.
+
 ### Ручная установка
 
 ```bash
@@ -91,7 +125,8 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 ~/.local/bin/theme-apply ~/.config/wallpapers/arch-blue-waves.png
 ```
 
-## Тонкости
+<details>
+<summary>⚙️ Железо и тонкости</summary>
 
 - **Железо.** Делалось под ThinkPad T480 (1920×1080, графика Intel). На других разрешениях
   Hyprland подстроится сам; настройки мониторов — в `config/hypr/modules/monitors.lua`.
@@ -99,43 +134,10 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
   `WLR_NO_HARDWARE_CURSORS=1` уже стоит.
 - **Раскладка клавиатуры** захардкожена: `us,ru`, переключение Alt+Shift —
   меняется одной строчкой в `config/hypr/modules/input.lua`.
-- **Только bash.** Starship подключается в `~/.bashrc`; для zsh/fish добавь
-  соответствующую init-строку сам. Всё остальное от шелла не зависит.
-- **Конфликты пакетов** — это нормально: `waybar-cava` заменяет обычный `waybar`,
-  `pipewire-pulse` заменяет `pulseaudio` — отвечай «да», когда pacman спросит.
-- **Spotify** надо запустить хотя бы раз до настройки Spicetify
-  (установщик это понимает и подскажет).
-- **Hyprland 0.55+ обязателен** — конфиг на Lua (`hyprland.lua` + модули),
-  старый `.conf`-формат не используется. `hyprctl dispatch` тоже Lua-синтаксис.
+- **`hyprctl dispatch`** тоже на Lua-синтаксисе (Hyprland 0.55+), например закрытие окна —
+  через `hl.dsp.window.close()`; в скриптах это уже учтено.
 
-## Структура репозитория
-
-```
-config/          конфиги для ~/.config (hypr, waybar, kitty, cava, rofi, swaync,
-                 matugen, wallust, eww, spicetify, fastfetch, btop, gtk, qt, …)
-bin/             скрипты для ~/.local/bin (theme-apply, waybar-set, wallset, …)
-sddm/            тема экрана входа (winter, видео-фон) + конфиг для /etc/sddm.conf.d
-wallpapers/      коллекция обоев (31 шт.)
-docs/            FULL-GUIDE.ru.txt / FULL-GUIDE.en.txt — подробная документация
-packages-*.txt   списки пакетов (pacman / AUR)
-install.sh       установщик
-```
-
-## Скрипты (`bin/`)
-
-| Скрипт | Что делает |
-|---|---|
-| `theme-apply <img>` | обои + полная регенерация цветов всего окружения |
-| `theme-random` | случайные обои + тема |
-| `theme-restore` | восстановить последнюю тему (вызывается в автостарте) |
-| `wallset` | Rofi-меню выбора обоев с превью |
-| `waybar-set` / `waybar-menu` | переключение стилей и конфигов Waybar |
-| `colorscheme-set` | регенерация цветов без смены обоев |
-| `launcher` | Rofi launcher |
-| `close-window` / `close_all_windows` | мягкое закрытие окон (SIGTERM-добивание) |
-| `kitty-dashboard` | Kitty с fastfetch-дашбордом |
-| `toggle-hyprsunset` | ночной режим вкл/выкл |
-| `pywal_cava` | цвета pywal для cava |
+</details>
 
 ## Горячие клавиши (основные)
 
@@ -157,7 +159,53 @@ install.sh       установщик
 
 Полный список — в [docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt) (раздел 13).
 
-## Документация
+## Под капотом
 
-Подробное описание каждого компонента, всех скриптов и всей цепочки темизации —
-[docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt) ([english version](docs/FULL-GUIDE.en.txt)).
+Главные скрипты: `theme-apply`, `theme-random`, `wallset`, `waybar-set`, `colorscheme-set` —
+остальные ниже.
+
+<details>
+<summary>🧰 Все скрипты (<code>bin/</code>)</summary>
+
+| Скрипт | Что делает |
+|---|---|
+| `theme-apply <img>` | обои + полная регенерация цветов всего окружения |
+| `theme-random` | случайные обои + тема |
+| `theme-restore` | восстановить последнюю тему (вызывается в автостарте) |
+| `wallset` | Rofi-меню выбора обоев с превью |
+| `waybar-set` / `waybar-menu` | переключение стилей и конфигов Waybar |
+| `colorscheme-set` | регенерация цветов без смены обоев |
+| `launcher` | Rofi launcher |
+| `close-window` / `close_all_windows` | мягкое закрытие окон (SIGTERM-добивание) |
+| `kitty-dashboard` | Kitty с fastfetch-дашбордом |
+| `toggle-hyprsunset` | ночной режим вкл/выкл |
+| `pywal_cava` | цвета pywal для cava |
+
+</details>
+
+<details>
+<summary>🗂️ Структура репозитория</summary>
+
+```
+config/          конфиги для ~/.config (hypr, waybar, kitty, cava, rofi, swaync,
+                 matugen, wallust, eww, spicetify, fastfetch, btop, gtk, qt, …)
+bin/             скрипты для ~/.local/bin (theme-apply, waybar-set, wallset, …)
+sddm/            тема экрана входа (winter, видео-фон) + конфиг для /etc/sddm.conf.d
+wallpapers/      коллекция обоев (31 шт.)
+docs/            FULL-GUIDE.ru.txt / FULL-GUIDE.en.txt — подробная документация
+packages-*.txt   списки пакетов (pacman / AUR)
+install.sh       установщик
+```
+
+</details>
+
+---
+
+<div align="center">
+
+Каждый компонент, каждый скрипт и вся цепочка темизации подробно описаны в
+**[docs/FULL-GUIDE.ru.txt](docs/FULL-GUIDE.ru.txt)** ([english version](docs/FULL-GUIDE.en.txt))
+
+⭐ **Поставь звезду, если райс зашёл** ⭐
+
+</div>
