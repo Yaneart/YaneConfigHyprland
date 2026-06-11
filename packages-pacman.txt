@@ -37,6 +37,12 @@ slurp
 swappy
 wl-clipboard
 
+# Аудиостек (wpctl в waybar = wireplumber)
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+
 # Звук, яркость, медиа
 pamixer
 pavucontrol
@@ -57,9 +63,18 @@ thunar
 # Дисплей-менеджер
 sddm
 
-# Qt-темизация
+# Qt-темизация + библиотеки для SDDM-темы winter (видео-фон)
 qt5ct
 qt6ct
+qt6-5compat
+qt6-svg
+qt6-multimedia-ffmpeg
+qt6-declarative
+qt6-virtualkeyboard
+
+# Курсор (XCURSOR_THEME=breeze) и раскладка в автостарте
+breeze-icons
+xorg-setxkbmap
 
 # Шрифты и GTK-тема
 noto-fonts

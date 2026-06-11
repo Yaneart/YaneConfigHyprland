@@ -9,7 +9,8 @@ STATE_DIR="$HOME/.local/state/theme"
 
 # Конфиги, которые будут установлены в ~/.config
 CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal eww
-             spicetify fastfetch btop waypaper yazi sddm nvim gtk-3.0 gtk-4.0)
+             spicetify fastfetch btop waypaper yazi nvim gtk-3.0 gtk-4.0
+             qt5ct qt6ct)
 
 msg()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
 ask()  { read -rp "$1 [y/N] " a; [[ "${a,,}" == y* ]]; }
@@ -25,8 +26,11 @@ echo "Бэкап старых конфигов: $BACKUP_DIR"
 echo
 
 # ── 1. Пакеты ────────────────────────────────────────────────────────────
+# Списки читаем в массивы и передаём аргументами: если кормить pacman/yay
+# через stdin, их интерактивные вопросы ("Proceed? [Y/n]") ломаются.
 if ask "Установить пакеты из официальных репозиториев (pacman)?"; then
-  grep -vE '^\s*(#|$)' "$REPO_DIR/packages-pacman.txt" | sudo pacman -S --needed -
+  mapfile -t pkgs < <(grep -vE '^\s*(#|$)' "$REPO_DIR/packages-pacman.txt")
+  sudo pacman -S --needed "${pkgs[@]}"
 fi
 
 if ask "Установить пакеты из AUR (через yay)?"; then
@@ -38,7 +42,8 @@ if ask "Установить пакеты из AUR (через yay)?"; then
     (cd "$tmp/yay" && makepkg -si --noconfirm)
     rm -rf "$tmp"
   fi
-  grep -vE '^\s*(#|$)' "$REPO_DIR/packages-aur.txt" | yay -S --needed -
+  mapfile -t aur_pkgs < <(grep -vE '^\s*(#|$)' "$REPO_DIR/packages-aur.txt")
+  yay -S --needed "${aur_pkgs[@]}"
 fi
 
 # ── 2. Бэкап существующих конфигов ───────────────────────────────────────
@@ -80,13 +85,26 @@ default_wall="$HOME/.config/wallpapers/arch-blue-waves.png"
 echo "$default_wall" > "$STATE_DIR/current_wallpaper"
 echo "$HOME/.config/waybar/custom styles/mainStyle.css" > "$STATE_DIR/current_waybar_style"
 
-# ── 6. Сервисы ───────────────────────────────────────────────────────────
+# ── 6. Starship: промпт в bash ───────────────────────────────────────────
+if ! grep -q 'starship init bash' "$HOME/.bashrc" 2>/dev/null; then
+  msg "Подключаю starship в ~/.bashrc"
+  printf '\neval "$(starship init bash)"\n' >> "$HOME/.bashrc"
+fi
+
+# ── 7. SDDM: тема экрана входа ───────────────────────────────────────────
+if ask "Установить тему SDDM (winter, видео-фон)?"; then
+  sudo cp -a "$REPO_DIR/sddm/themes/winter" /usr/share/sddm/themes/
+  sudo mkdir -p /etc/sddm.conf.d
+  sudo cp "$REPO_DIR/sddm/theme.conf" /etc/sddm.conf.d/theme.conf
+fi
+
+# ── 8. Сервисы ───────────────────────────────────────────────────────────
 if ask "Включить сервисы (NetworkManager, bluetooth, sddm)?"; then
   sudo systemctl enable NetworkManager bluetooth
   sudo systemctl enable sddm
 fi
 
-# ── 7. Spicetify (опционально) ───────────────────────────────────────────
+# ── 9. Spicetify (опционально) ───────────────────────────────────────────
 if command -v spicetify >/dev/null && ask "Настроить Spicetify (тема Spotify)? Spotify должен быть запущен хотя бы раз."; then
   spotify_prefs="$HOME/.config/spotify/prefs"
   if [[ -f "$spotify_prefs" ]]; then
@@ -98,7 +116,7 @@ if command -v spicetify >/dev/null && ask "Настроить Spicetify (тем�
   fi
 fi
 
-# ── 8. Применить тему ────────────────────────────────────────────────────
+# ── 10. Применить тему ────────────────────────────────────────────────────
 if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
   msg "Применяю тему"
   "$HOME/.local/bin/theme-apply" "$default_wall" || true

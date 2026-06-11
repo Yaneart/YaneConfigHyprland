@@ -1,97 +1,87 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = '''
-[░▒▓](color3)[󰣇](fg:#090c0c bg:color3)$username[](bg:color1 fg:color3)$directory[](fg:color1 bg:color2)$git_branch$git_status[](fg:color2 bg:color2)$nodejs$rust$golang$php[](fg:color2 bg:color0)$conda[ ](fg:color0)$line_break$character'''
+[](primary)$os$username[](fg:primary) [](secondary)$directory[](fg:secondary)$git_branch$git_status$nodejs$rust$golang$php$python$cmd_duration
+$character'''
 
 palette = 'colors'
 
 [palettes.colors]
-mustard = '#af8700' # example
-matugen-color1 = '#ffb782'
-matugen-color2 = '#4f2500'
-matugen-color3 = '#d6c3b7'
-matugen-color4 = '#261e18'
-matugen-color5 = '#4f2500'
-matugen-color6 = '#4f2500'
-matugen-color7 = '#19120d'
-matugen-color8 = '#ffb782'
-matugen-color9 = '#c7ca95'
-matugen-color10 = '#301400'
-matugen-color11 = '#6d390a'
-matugen-color12 = '#422b1a'
-color0 = 'black'
-color1 = 'red'
-color2 = 'green'
-color3 = 'yellow'
-color4 = 'blue'
-color5 = 'magenta'
-color6 = 'cyan'
-color7 = 'white'
-color8 = '#8bd5b5'
-color9 = '#a6cce0'
-color10 = '#002115'
-color11 = '#00513a'
-color12 = '#1f352b'
+primary = '#aec6ff'
+on_primary = '#122f60'
+secondary = '#bfc6dc'
+on_secondary = '#293041'
+tertiary = '#dfbbde'
+on_tertiary = '#402843'
+surface_container = '#282a2f'
+on_surface = '#e2e2e9'
+err = '#ffb4ab'
 
+[os]
+disabled = false
+style = "fg:on_primary bg:primary"
+format = "[$symbol ]($style)"
+
+[os.symbols]
+Arch = "󰣇"
 
 [username]
 show_always = true
-style_user = "fg:#090c0c bg:color3 "
-style_root = "fg:#090c0c bg:color3 "
-format = "[ $user ]($style)"
-disabled = false
-
+style_user = "fg:on_primary bg:primary"
+style_root = "fg:on_primary bg:primary bold"
+format = "[$user]($style)"
 
 [directory]
-style = "fg:color7 bg:color1"
-format = "[ $path ]($style)"
+style = "fg:on_secondary bg:secondary"
+format = "[$path]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
 [directory.substitutions]
 "Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = " "
-"Pictures" = " "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
 
 [git_branch]
-symbol = ""
-style = "bg:color2"
-format = '[ $symbol $branch ](fg:matugen-color7 bg:color2)'
+symbol = ""
+style = "fg:on_tertiary bg:tertiary"
+format = ' [](fg:tertiary)[$symbol $branch]($style)'
 
 [git_status]
-style = "bg:color6"
-format = '[($all_status$ahead_behind )](fg:matugen-color7 bg:color2)'
+style = "fg:on_tertiary bg:tertiary"
+format = '[( $all_status$ahead_behind)]($style)[](fg:tertiary)'
 
 [nodejs]
-symbol = ""
-style = "bg:color11"
-format = '[[ $symbol ($version) ](fg:matugen-color7 bg:color2)]($style)'
+symbol = ""
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[$symbol ($version)]($style)[](fg:surface_container)'
 
 [rust]
-symbol = ""
-style = "bg:color11"
-format = '[[ $symbol ($version) ](fg:matugen-color7 bg:color2)]($style)'
+symbol = ""
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[$symbol ($version)]($style)[](fg:surface_container)'
 
 [golang]
-symbol = ""
-style = "bg:color11"
-format = '[[ $symbol ($version) ](fg:matugen-color7 bg:color2)]($style)'
+symbol = ""
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[$symbol ($version)]($style)[](fg:surface_container)'
 
 [php]
-symbol = ""
-style = "bg:color11"
-format = '[[ $symbol ($version) ](fg:matugen-color7 bg:color2)]($style)'
+symbol = ""
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[$symbol ($version)]($style)[](fg:surface_container)'
 
-[conda]
-symbol = " "
-style = "bg:color12"
-format = '[ $symbol$environment ](fg:#a0a9cb bg:color12)'
-ignore_base = false
+[python]
+symbol = ""
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[$symbol ($version)]($style)[](fg:surface_container)'
 
-[time]
-disabled = false
-time_format = "%R" # Hour:Minute Format
-style = "bg:color12"
-format = '[[  $time ](fg:#a0a9cb bg:color12)]($style)'
+[cmd_duration]
+min_time = 2000
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[󱎫 $duration]($style)[](fg:surface_container)'
 
+[character]
+success_symbol = '[❯](bold fg:primary)'
+error_symbol = '[❯](bold fg:err)'
