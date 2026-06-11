@@ -86,3 +86,8 @@ adw-gtk-theme
 firefox
 spotify-launcher
 telegram-desktop
+
+# Docker (Super+D — lazydocker, демон стартует по требованию через docker.socket)
+docker
+docker-compose
+lazydocker

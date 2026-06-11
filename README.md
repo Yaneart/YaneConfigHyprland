@@ -101,8 +101,9 @@ The script asks for confirmation at every step:
 5. Starship hook in `~/.bashrc`
 6. SDDM login theme
 7. Services (NetworkManager, bluetooth, SDDM)
-8. Spicetify (optional)
-9. Applying the theme
+8. Docker (socket activation — the daemon starts on first use, plus the `docker` group)
+9. Spicetify (optional)
+10. Applying the theme
 
 After installation, log into the **Hyprland** session via SDDM.
 
@@ -155,6 +156,7 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 | `Super + L` | lock screen (hyprlock) |
 | `Super + S` | night light (hyprsunset) |
 | `Super + B / C / V / E` | Firefox / Telegram / VS Code / Thunar |
+| `Super + D` | lazydocker (Docker TUI; the daemon starts on demand) |
 | `Super + Shift + M` | power menu |
 | `Super + 1–0` | workspaces |
 | `Print` / `Ctrl+Print` / `Alt+Print` | screenshot: screen / area / area→Swappy |

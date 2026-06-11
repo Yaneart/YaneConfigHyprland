@@ -126,6 +126,13 @@ if ask "Включить сервисы (NetworkManager, bluetooth, sddm)?"; the
   sudo systemctl enable sddm
 fi
 
+# Docker: демон НЕ автозапускается — docker.socket поднимает его при первом
+# обращении (Super+D / lazydocker). Группа docker = работа без sudo (нужен релогин).
+if command -v dockerd >/dev/null && ask "Настроить Docker (socket-активация + группа docker)?"; then
+  sudo systemctl enable docker.socket
+  sudo usermod -aG docker "$USER"
+fi
+
 # ── 9. Spicetify (опционально) ───────────────────────────────────────────
 if command -v spicetify >/dev/null && ask "Настроить Spicetify (тема Spotify)? Spotify должен быть запущен хотя бы раз."; then
   spotify_prefs="$HOME/.config/spotify/prefs"

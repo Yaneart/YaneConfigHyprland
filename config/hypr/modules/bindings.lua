@@ -27,6 +27,7 @@ bind(mainMod .. " + B", hl.dsp.exec_cmd("firefox"))
 bind(mainMod .. " + V", hl.dsp.exec_cmd("code"))
 bind(mainMod .. " + H", hl.dsp.exec_cmd("happ"))
 bind(mainMod .. " + P", hl.dsp.exec_cmd("spotify-launcher"))
+bind(mainMod .. " + D", hl.dsp.exec_cmd("kitty -e lazydocker"))
 bind(mainMod .. " + A", hl.dsp.window.close())
 bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(localBin .. "/killall"))
 

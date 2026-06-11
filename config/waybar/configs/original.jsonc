@@ -15,7 +15,8 @@
         "hyprland/workspaces"
     ],
     "modules-right": [
-        "cava",
+        "mpris",
+        // "cava",
         "backlight",
         "pulseaudio",
         "battery",
@@ -29,7 +30,7 @@
             "critical": 15
         },
         "interval": 30,
-        "tooltip-format": "{timeTo}\n{power} W",
+        "tooltip-format": "{timeTo}\n{power:0.1f} W",
         "format": "{capacity}% {icon}",
         "format-icons": [
             "",
@@ -114,7 +115,7 @@
         "format": "{ifname}",
         "format-wifi": "{essid} ",
         "format-ethernet": "{ipaddr}/{cidr} 󰊗",
-        "format-disconnected": "", //An empty format will hide the module.
+        "format-disconnected": "wifi 󰖪",
         "tooltip-format": "{ifname} via {gwaddr} 󰊗",
         "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
         "tooltip-format-ethernet": "{ifname} ",
@@ -143,6 +144,30 @@
             "blueman": "bluetooth",
             "TelegramDesktop": "$HOME/.local/share/icons/hicolor/16x16/apps/telegram.png"
         }
+    },
+    "mpris": {
+        "player": "spotify",
+        "format": "{player_icon} {dynamic}",
+        "format-paused": "{status_icon} <i>{dynamic}</i>",
+        "player-icons": {
+            "default": "",
+            "spotify": ""
+        },
+        "status-icons": {
+            "playing": "",
+            "paused": ""
+        },
+        "dynamic-order": ["title", "artist"],
+        "dynamic-len": 28,
+        "dynamic-separator": "  ·  ",
+        "tooltip-format": "{title}\n{artist}\n{album}",
+        "max-length": 42,
+        "interval": 5,
+        "on-click": "eww open --toggle music",
+        "on-click-right": "playerctl -p spotify play-pause",
+        "on-click-middle": "spotify-launcher",
+        "on-scroll-up": "playerctl -p spotify next",
+        "on-scroll-down": "playerctl -p spotify previous"
     },
     "cava": {
         "framerate": 30,

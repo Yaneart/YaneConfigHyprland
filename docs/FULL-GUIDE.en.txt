@@ -439,6 +439,9 @@
   Super + E              Thunar (file manager)
   Super + Y              Yazi (terminal file manager)
   Super + H              Happ
+  Super + P              Spotify (spotify-launcher, Spicetify theme)
+  Super + D              lazydocker (Docker TUI; the daemon starts on demand
+                         via docker.socket — no sudo needed)
   Super + Shift + E      Rofimoji (emoji/symbol search)
   Super + Shift + M      Power menu (shutdown, reboot)
 

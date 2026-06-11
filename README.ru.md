@@ -101,8 +101,9 @@ cd YaneConfigHyprland
 5. Подключение starship в `~/.bashrc`
 6. Тема SDDM
 7. Сервисы (NetworkManager, bluetooth, SDDM)
-8. Spicetify (опционально)
-9. Применение темы
+8. Docker (socket-активация — демон стартует при первом обращении, + группа docker)
+9. Spicetify (опционально)
+10. Применение темы
 
 После установки — войти в сессию **Hyprland** через SDDM.
 
@@ -155,6 +156,7 @@ echo 'eval "$(starship init bash)"' >> ~/.bashrc
 | `Super + L` | блокировка (hyprlock) |
 | `Super + S` | ночной режим (hyprsunset) |
 | `Super + B / C / V / E` | Firefox / Telegram / VS Code / Thunar |
+| `Super + D` | lazydocker (TUI для Docker; демон поднимается сам) |
 | `Super + Shift + M` | меню питания |
 | `Super + 1–0` | воркспейсы |
 | `Print` / `Ctrl+Print` / `Alt+Print` | скриншот: экран / область / область→Swappy |

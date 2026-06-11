@@ -440,6 +440,9 @@
   Super + E              Thunar (файловый менеджер)
   Super + Y              Yazi (файловый менеджер в терминале)
   Super + H              Happ
+  Super + P              Spotify (spotify-launcher, тема Spicetify)
+  Super + D              lazydocker (TUI для Docker; демон стартует сам
+                         через docker.socket — sudo не нужен)
   Super + Shift + E      Rofimoji (поиск эмодзи/символов)
   Super + Shift + M      Меню питания (выключение, перезагрузка)
 
