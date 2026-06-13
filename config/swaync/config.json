@@ -84,11 +84,11 @@
         },
         {
           "label": "󰤨",
-          "command": "nm-connection-editor"
+          "command": "swaync-client -cc && $HOME/.local/bin/rofi-wifi"
         },
         {
           "label": "󰂯",
-          "command": "blueman-manager"
+          "command": "swaync-client -cc && $HOME/.local/bin/rofi-bluetooth"
         },
         {
           "label": "󰻂",

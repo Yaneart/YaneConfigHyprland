@@ -27,6 +27,14 @@ arguments = ["img", "--transition-type", "center"]
 input_path = '~/.config/matugen/templates/hyprland-colors.lua'
 output_path = '~/.config/hypr/modules/generated_colors.lua'
 
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hyprlock-colors.conf'
+output_path = '~/.config/hypr/hyprlock-colors.conf'
+
+[templates.obs]
+input_path = '~/.config/matugen/templates/obs-theme.ovt'
+output_path = '~/.config/obs-studio/themes/Yami_Matugen.ovt'
+
 [templates.kitty]
 input_path = '~/.config/matugen/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors/colors.conf'
@@ -99,23 +107,10 @@ input_path  = '~/.config/matugen/templates/cava.conf'
 output_path = '~/.config/cava/config'
 
 
-# Spotify (Spicetify) — recolor the client to match the wallpaper.
-# Re-applies in the background only if spicetify is installed; if Spotify is
-# open it reloads in place, otherwise the patched files wait for next launch.
-# eww music popup colors
-[templates.eww]
-input_path  = '~/.config/matugen/templates/eww-colors.scss'
-output_path = '~/.config/eww/colors.scss'
-post_hook   = '''
-bash -c '
-{
-  if command -v eww >/dev/null 2>&1 && eww ping >/dev/null 2>&1; then
-    eww reload
-  fi
-} >/dev/null 2>&1 </dev/null & disown
-'
-'''
-
+# Spotify (Spicetify) — перекраска под обои БЕЗ перезапуска клиента:
+# `spicetify refresh` обновляет css/цвета в патче (для следующих запусков),
+# а spotify-recolor через CDP (порт 9222 из spotify-launcher.conf) плавно
+# вживляет новые цвета в работающий Spotify с CSS-переходом ~0.6с.
 [templates.spicetify]
 input_path  = '~/.config/matugen/templates/spicetify-color.ini'
 output_path = '~/.config/spicetify/Themes/matugen/color.ini'
@@ -124,10 +119,9 @@ bash -c '
 {
   if command -v spicetify >/dev/null 2>&1; then
     if pgrep -x spotify >/dev/null 2>&1; then
-      spicetify -q apply       # Spotify открыт -> перезагрузить с новой темой
-    else
-      spicetify -q -n apply    # Spotify закрыт -> только пропатчить, НЕ запускать
+      "$HOME/.local/bin/spotify-recolor"   # сперва живая перекраска — мгновенно
     fi
+    spicetify -q refresh       # потом файлы темы (для следующих запусков)
   fi
 } >/dev/null 2>&1 </dev/null & disown
 '

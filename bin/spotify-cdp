@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+// Мост к работающему Spotify через Chrome DevTools Protocol (порт 9222).
+// Использование:
+//   spotify-cdp eval '<js>'        — выполнить JS в странице xpui, напечатать результат
+//   spotify-cdp screenshot <file>  — скриншот страницы в PNG
+//   spotify-cdp reload             — перезагрузить страницу (подхватить новый CSS)
+// Spotify должен быть запущен с --remote-debugging-port=9222 (spotify-launcher.conf).
+
+const PORT = 9222;
+
+async function pageTarget() {
+  const res = await fetch(`http://127.0.0.1:${PORT}/json/list`);
+  const targets = await res.json();
+  const page = targets.find(
+    (t) => t.type === "page" && !/^devtools/.test(t.url) && !/login/.test(t.url)
+  );
+  if (!page) throw new Error("xpui-страница не найдена среди CDP-целей");
+  return page.webSocketDebuggerUrl;
+}
+
+function cdp(wsUrl) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(wsUrl);
+    let id = 0;
+    const pending = new Map();
+    ws.onopen = () =>
+      resolve({
+        send: (method, params = {}) =>
+          new Promise((res, rej) => {
+            const mid = ++id;
+            pending.set(mid, { res, rej });
+            ws.send(JSON.stringify({ id: mid, method, params }));
+          }),
+        close: () => ws.close(),
+      });
+    ws.onerror = (e) => reject(new Error("WebSocket error"));
+    ws.onmessage = (m) => {
+      const msg = JSON.parse(m.data);
+      if (msg.id && pending.has(msg.id)) {
+        const { res, rej } = pending.get(msg.id);
+        pending.delete(msg.id);
+        msg.error ? rej(new Error(msg.error.message)) : res(msg.result);
+      }
+    };
+  });
+}
+
+(async () => {
+  const [cmd, arg] = process.argv.slice(2);
+  const c = await cdp(await pageTarget());
+  try {
+    if (cmd === "eval") {
+      const r = await c.send("Runtime.evaluate", {
+        expression: arg,
+        returnByValue: true,
+        awaitPromise: true,
+      });
+      if (r.exceptionDetails)
+        throw new Error(r.exceptionDetails.exception?.description || "JS error");
+      console.log(JSON.stringify(r.result.value, null, 2));
+    } else if (cmd === "screenshot") {
+      const r = await c.send("Page.captureScreenshot", { format: "png" });
+      require("fs").writeFileSync(arg, Buffer.from(r.data, "base64"));
+      console.log(arg);
+    } else if (cmd === "reload") {
+      await c.send("Page.reload", { ignoreCache: true });
+      console.log("reloaded");
+    } else {
+      console.error("команды: eval | screenshot | reload");
+      process.exit(1);
+    }
+  } finally {
+    c.close();
+  }
+})().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

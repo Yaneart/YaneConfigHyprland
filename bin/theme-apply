@@ -96,14 +96,13 @@ if ! $colors_only; then
   cp "$file" "$LOCK_BACKGROUND"
 fi
 
-wal --saturate 0.5 -a 0.8 -i "$file" >/dev/null &
+# Два генератора: wallust (терминальная палитра kitty + переменные
+# waybar/rofi, ~0.04с) и matugen (Material You для всего остального,
+# ~1.5с). pywal удалён 2026-06-13: его вывод никто не читал, а запись
+# в ~/.cache/wal/colors.json гонялась с matugen-симлинком для pywalfox.
 wallust run "$file" >/dev/null &
 matugen image "$file" --prefer darkness >/dev/null &
 wait
-
-if command -v pywal_cava >/dev/null 2>&1; then
-  pywal_cava >/dev/null 2>&1 || true
-fi
 
 echo "$file" > "$STATE_FILE"
 

@@ -1,0 +1,35 @@
+// Меню-список для rofi-wifi / rofi-bluetooth.
+// Наследует палитру из mainStyle.rasi (-> colors-matugen.rasi).
+// Без inputbar (это меню, не поиск). Шрифт принудительно только
+// JetBrainsMono Nerd Font — иначе цифры подхватывает emoji-фоллбэк и они
+// разъезжаются.
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration {
+    // клик мимо окна закрывает меню (помимо Esc)
+    click-to-exit: true;
+}
+
+* {
+    font: "JetBrainsMono Nerd Font 13";
+}
+
+window {
+    width:         460px;
+    height:        inherit;
+    border-radius: 28px;
+}
+
+mainbox {
+    children: [ "listview" ];
+}
+
+listview {
+    lines:         12;
+    dynamic:       true;
+    fixed-height:  false;
+    scrollbar:     false;
+    spacing:       4px;
+    padding:       14px;
+    border-radius: 28px;
+}

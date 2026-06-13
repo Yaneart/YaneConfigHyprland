@@ -1,0 +1,27 @@
+// Однострочный ввод (пароль WiFi) для rofi-wifi.
+// Только inputbar, наследует палитру matugen из mainStyle.rasi.
+@import "~/.config/rofi/mainStyle.rasi"
+
+configuration {
+    click-to-exit: true;
+}
+
+* {
+    font: "JetBrainsMono Nerd Font 13";
+}
+
+window {
+    width:         460px;
+    height:        72px;
+    border-radius: 28px;
+}
+
+mainbox {
+    children: [ "inputbar" ];
+}
+
+inputbar {
+    border:        0px;
+    border-radius: 28px;
+    padding:       20px 24px;
+}

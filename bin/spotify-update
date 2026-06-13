@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Ручное обновление Spotify + переустановка spicetify-патча.
+# Нужен, потому что обычный запуск идёт с --skip-update: автообновление
+# Spotify молча сносит патч spicetify (тема/adblock пропадают).
+set -euo pipefail
+
+pkill -x spotify 2>/dev/null && sleep 2 || true
+
+echo ":: Обновляю Spotify..."
+spotify-launcher --check-update --no-exec
+
+echo ":: Перепатчиваю spicetify..."
+spicetify clear
+spicetify backup apply -n
+
+echo ":: Готово. Запускаю Spotify..."
+exec spotify-launcher --skip-update

@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# rofi-wifi — меню WiFi на nmcli + rofi (тема menu-list.rasi, цвета matugen).
+set -uo pipefail
+
+theme="$HOME/.config/rofi/menu-list.rasi"
+input="$HOME/.config/rofi/menu-input.rasi"
+menu()   { rofi -dmenu -i -theme "$theme"; }
+ask_pw() { rofi -dmenu -password -theme "$input" -p "$1"; }
+notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a WiFi "$@"; }
+
+wifi_dev="$(nmcli -t -f DEVICE,TYPE device 2>/dev/null | awk -F: '$2=="wifi"{print $1; exit}')"
+
+signal_icon() {
+    local s="$1"
+    if   [ "$s" -ge 80 ]; then echo "󰤨"
+    elif [ "$s" -ge 55 ]; then echo "󰤥"
+    elif [ "$s" -ge 35 ]; then echo "󰤢"
+    elif [ "$s" -ge 15 ]; then echo "󰤟"
+    else                       echo "󰤯"
+    fi
+}
+
+# WiFi выключен → единственное действие: включить.
+if [ "$(nmcli radio wifi)" != "enabled" ]; then
+    [ -n "$(printf '󰖩  Включить WiFi' | menu)" ] && nmcli radio wifi on && notify "WiFi включён"
+    exit 0
+fi
+
+declare -A SSID_OF
+items="󰑐  Обновить"$'\n'"󰖪  Выключить WiFi"
+current=""
+
+while IFS= read -r line; do
+    active="${line%%:*}";  rest="${line#*:}"
+    signal="${rest%%:*}";  rest="${rest#*:}"
+    security="${rest%%:*}"; ssid="${rest#*:}"
+    ssid="${ssid//\\:/:}"
+    [ -z "$ssid" ] && continue
+    [ -n "${SSID_OF[$ssid]+x}" ] && continue          # дедуп по SSID
+
+    icon="$(signal_icon "${signal:-0}")"
+    if [ "$active" = "yes" ]; then
+        disp="$icon  $ssid  󰄬"; current="$ssid"
+    else
+        disp="$icon  $ssid"
+    fi
+    SSID_OF["$disp"]="$ssid"
+    items+=$'\n'"$disp"
+done < <(nmcli --terse --fields ACTIVE,SIGNAL,SECURITY,SSID device wifi list 2>/dev/null)
+
+chosen="$(printf '%s' "$items" | menu)"
+[ -z "$chosen" ] && exit 0
+
+case "$chosen" in
+    *"Выключить WiFi"*) nmcli radio wifi off && notify "WiFi выключен"; exit 0 ;;
+    *"Обновить"*)       nmcli device wifi rescan >/dev/null 2>&1; exec "$0" ;;
+esac
+
+ssid="${SSID_OF[$chosen]:-}"
+[ -z "$ssid" ] && exit 0
+
+# Клик по активной сети → отключиться.
+if [ "$ssid" = "$current" ]; then
+    nmcli device disconnect "$wifi_dev" >/dev/null 2>&1 && notify "Отключено: $ssid"
+    exit 0
+fi
+
+# Сохранённое соединение → поднять без пароля.
+if nmcli -t -f NAME connection show 2>/dev/null | grep -Fxq "$ssid"; then
+    nmcli connection up id "$ssid" >/dev/null 2>&1 \
+        && notify "Подключено: $ssid" || notify "Не удалось подключиться: $ssid"
+    exit 0
+fi
+
+# Защищённая неизвестная сеть → запросить пароль.
+sec="$(nmcli --terse --fields SSID,SECURITY device wifi list 2>/dev/null \
+        | awk -F: -v s="$ssid" '{x=$1; gsub(/\\:/,":",x)} x==s{print $2; exit}')"
+if [ -n "$sec" ] && [ "$sec" != "--" ]; then
+    pass="$(ask_pw "Пароль · $ssid")"
+    [ -z "$pass" ] && exit 0
+    nmcli device wifi connect "$ssid" password "$pass" >/dev/null 2>&1 \
+        && notify "Подключено: $ssid" || notify "Не удалось подключиться: $ssid"
+else
+    nmcli device wifi connect "$ssid" >/dev/null 2>&1 \
+        && notify "Подключено: $ssid" || notify "Не удалось подключиться: $ssid"
+fi

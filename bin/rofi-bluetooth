@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# rofi-bluetooth — меню Bluetooth на bluetoothctl + rofi (тема menu-list.rasi).
+set -uo pipefail
+
+theme="$HOME/.config/rofi/menu-list.rasi"
+menu()   { rofi -dmenu -i -theme "$theme"; }
+notify() { command -v notify-send >/dev/null 2>&1 && notify-send -a Bluetooth "$@"; }
+
+power_on() { bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; }
+
+# Меню одного устройства.
+device_menu() {
+    local mac="$1" name="$2" conn sel
+    bluetoothctl info "$mac" | grep -q "Connected: yes" \
+        && conn="󰂲  Отключить" || conn="󰂱  Подключить"
+    sel="$(printf '%s\n󰆴  Удалить\n󰌍  Назад' "$conn" | menu)"
+    case "$sel" in
+        "󰂱  Подключить") bluetoothctl connect "$mac"    >/dev/null 2>&1 && notify "Подключено: $name" ;;
+        "󰂲  Отключить")  bluetoothctl disconnect "$mac" >/dev/null 2>&1 && notify "Отключено: $name" ;;
+        "󰆴  Удалить")    bluetoothctl remove "$mac"     >/dev/null 2>&1; main ;;
+        "󰌍  Назад")      main ;;
+    esac
+}
+
+main() {
+    # Bluetooth выключен → единственное действие: включить (со снятием rfkill).
+    if ! power_on; then
+        if [ -n "$(printf '󰂯  Включить Bluetooth' | menu)" ]; then
+            rfkill unblock bluetooth >/dev/null 2>&1
+            sleep 1
+            bluetoothctl power on >/dev/null 2>&1
+            main
+        fi
+        exit 0
+    fi
+
+    local -A DEV
+    local items="" mac name icon disp chosen entry
+    while IFS=$'\t' read -r mac name; do
+        [ -z "$mac" ] && continue
+        bluetoothctl info "$mac" | grep -q "Connected: yes" && icon="󰂱" || icon="󰂯"
+        disp="$icon  $name"
+        DEV["$disp"]="$mac"$'\t'"$name"
+        items+="$disp"$'\n'
+    done < <(bluetoothctl devices 2>/dev/null | awk '/^Device/{printf "%s\t%s\n", $2, substr($0, index($0,$3))}')
+
+    items+="󰂰  Сканировать"$'\n'"󰂲  Выключить Bluetooth"
+
+    chosen="$(printf '%s' "$items" | menu)"
+    [ -z "$chosen" ] && exit 0
+
+    case "$chosen" in
+        "󰂰  Сканировать")
+            notify "Сканирование…"
+            bluetoothctl --timeout 6 scan on >/dev/null 2>&1
+            main ;;
+        "󰂲  Выключить Bluetooth")
+            bluetoothctl power off >/dev/null 2>&1 ;;
+        *)
+            entry="${DEV[$chosen]:-}"
+            [ -z "$entry" ] && exit 0
+            device_menu "${entry%%$'\t'*}" "${entry#*$'\t'}" ;;
+    esac
+}
+
+systemctl is-active --quiet bluetooth 2>/dev/null \
+    || { notify "Служба bluetooth не запущена"; exit 1; }
+
+main

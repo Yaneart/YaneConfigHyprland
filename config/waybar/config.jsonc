@@ -100,7 +100,7 @@
         ]
     },
     "bluetooth": {
-        "on-click": "blueman-manager",
+        "on-click": "$HOME/.local/bin/rofi-bluetooth",
         "format": "bluetooth {icon}",
         "format-icons": {
             "enabled": "",
@@ -111,7 +111,7 @@
 
     "network": {
         "interface": "wlp3s0",
-        "on-click": "nm-connection-editor",
+        "on-click": "$HOME/.local/bin/rofi-wifi",
         "format": "{ifname}",
         "format-wifi": "{essid} ",
         "format-ethernet": "{ipaddr}/{cidr} 󰊗",
@@ -141,8 +141,8 @@
         "icon-size": 21,
         "spacing": 10,
         "icons": {
-            "blueman": "bluetooth",
-            "TelegramDesktop": "$HOME/.local/share/icons/hicolor/16x16/apps/telegram.png"
+            "TelegramDesktop": "/home/yaneart/.config/waybar/icons/telegram-white.svg",
+            "Happ": "/home/yaneart/.config/waybar/icons/happ-label.svg"
         }
     },
     "mpris": {
@@ -160,14 +160,15 @@
         "dynamic-order": ["title", "artist"],
         "dynamic-len": 28,
         "dynamic-separator": "  ·  ",
-        "tooltip-format": "{title}\n{artist}\n{album}",
+        "tooltip": false,
         "max-length": 42,
-        "interval": 5,
-        "on-click": "eww open --toggle music",
-        "on-click-right": "playerctl -p spotify play-pause",
-        "on-click-middle": "spotify-launcher",
-        "on-scroll-up": "playerctl -p spotify next",
-        "on-scroll-down": "playerctl -p spotify previous"
+        // без interval: модуль слушает mpris-события и обновляет
+        // название мгновенно (interval=5 заставлял опрашивать раз в 5с)
+        "on-click": "playerctl -p spotify play-pause",
+        "on-click-right": "playerctl -p spotify next",
+        "on-click-middle": "playerctl -p spotify previous",
+        "on-scroll-up": "playerctl -p spotify volume 0.02+",
+        "on-scroll-down": "playerctl -p spotify volume 0.02-"
     },
     "cava": {
         "framerate": 30,

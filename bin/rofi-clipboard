@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# rofi-clipboard — история буфера обмена (cliphist) в rofi (тема menu-list.rasi).
+# Выбор пункта → копирует его обратно в буфер. Пустой ввод → выход.
+set -uo pipefail
+
+theme="$HOME/.config/rofi/menu-list.rasi"
+
+chosen="$(cliphist list 2>/dev/null | rofi -dmenu -i -theme "$theme")"
+[ -z "$chosen" ] && exit 0
+
+printf '%s' "$chosen" | cliphist decode | wl-copy

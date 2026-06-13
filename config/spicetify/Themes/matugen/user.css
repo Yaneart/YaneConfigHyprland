@@ -1,0 +1,189 @@
+/* ============================================================
+ * yane minimal — персональная минималистичная тема Spotify.
+ * Цвета приходят из color.ini (генерит matugen), здесь только
+ * слой дизайна на var(--spice-*) — файл статичный, переживает
+ * смену обоев. Селекторы выверены по живому DOM Spotify 1.2.92
+ * (классы main-nowPlayingView-*, data-testid, Root__*).
+ * ============================================================ */
+
+/* ---------- ПРАВАЯ ПАНЕЛЬ: только обложка + очередь ---------- */
+.main-nowPlayingView-section:has(.main-nowPlayingView-aboutArtist),
+.main-nowPlayingView-section:has(.main-nowPlayingView-artistOnTour),
+.main-nowPlayingView-section:has(.main-nowPlayingView-credits),
+.main-nowPlayingView-section:has(.main-nowPlayingView-musicVideo),
+.main-nowPlayingView-aboutArtist,
+.main-nowPlayingView-artistOnTour,
+.main-nowPlayingView-credits,
+.main-nowPlayingView-musicVideo {
+  display: none !important;
+}
+
+/* canvas/видео вместо обложек — статичные обложки минималистичнее */
+[data-testid="track-visual-enhancement"] video,
+[data-testid="minimized-track-visual-enhancement"] {
+  display: none !important;
+}
+
+/* ---------- НИЖНИЙ БАР: плавающая капсула ---------- */
+[data-testid="now-playing-bar"] {
+  margin: 0 8px 8px;
+  border-radius: 14px;
+  background: var(--spice-player) !important;
+  border: 1px solid rgba(var(--spice-rgb-button), .14);
+}
+
+/* ---------- АКЦЕНТЫ ---------- */
+/* прогресс и громкость */
+.x-progressBar-fillColor {
+  background-color: var(--spice-button) !important;
+}
+[data-testid="progress-bar-handle"] {
+  background-color: var(--spice-button) !important;
+}
+[data-testid="progress-bar-background"] {
+  background-color: rgba(var(--spice-rgb-text), .14) !important;
+}
+
+/* play/pause — акцентный круг (видимый фон несёт внутренний span
+   encore-кнопки; класс с версионным префиксом, поэтому [class*=]) */
+[data-testid="control-button-playpause"],
+[data-testid="control-button-playpause"] [class*="button-primary__inner"] {
+  background-color: var(--spice-button) !important;
+  color: var(--spice-main) !important;
+}
+
+/* активная иконка навигации */
+.main-globalNav-navLinkActive,
+.main-globalNav-navLink[aria-current="page"] {
+  color: var(--spice-button) !important;
+}
+
+/* поиск: акцентная рамка при фокусе */
+[data-testid="topbar"] input:focus {
+  box-shadow: inset 0 0 0 1.5px var(--spice-button) !important;
+}
+
+/* ховер строк трек-листа — лёгкая акцентная подложка */
+div[role="row"] > div:hover {
+  background-color: rgba(var(--spice-rgb-button), .07);
+}
+
+/* карточки */
+.main-card-card { border-radius: 10px; }
+.main-card-card:hover {
+  background-color: rgba(var(--spice-rgb-button), .08) !important;
+}
+
+/* скроллбары: тонкие, полупрозрачный акцент */
+.os-scrollbar-handle {
+  background-color: rgba(var(--spice-rgb-button), .35) !important;
+}
+.os-scrollbar { --os-size: 8px; }
+
+/* ---------- ЧИСТЫЙ ТОПБАР ---------- */
+[data-testid="topbar"] {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ---------- УБРАТЬ ЛИШНЕЕ ---------- */
+/* кнопка миниплеера (pip) */
+[data-testid="pip-toggle-button"] { display: none !important; }
+
+/* ============================================================
+ * v2 — радикальный минимал (2026-06-13)
+ * ============================================================ */
+
+/* грид: тонкая колонка под сайдбар, правая авто (0 когда скрыта) */
+.Root__top-container { grid-template-columns: 14px 1fr auto !important; }
+
+/* левый сайдбар: спрятан в полоску 14px, выезжает по наведению
+   (transform — GPU-композитинг, без reflow) */
+.Root__nav-bar {
+  width: 72px !important;
+  transform: translateX(-58px);
+  transition: transform .22s ease;
+  position: relative; z-index: 60;
+  border-radius: 0 12px 12px 0;
+}
+.Root__nav-bar:hover,
+.Root__nav-bar:focus-within { transform: translateX(0); }
+
+/* правая панель Now Playing View — долой; очередь (кнопка в баре)
+   рендерится другой панелью и остаётся доступной */
+.Root__right-sidebar:has(.main-nowPlayingView-panel) { display: none !important; }
+
+/* глобальная навигация: только назад/вперёд, home, поиск, аватар */
+button[aria-label="What's New"],
+button[aria-label="Listening activity"],
+button[aria-label="Browse"] { display: none !important; }
+
+/* главная: без фильтр-чипсов и серых описаний карточек.
+   Контейнер чипсов скрыть целиком — это sticky-полоса с extracted-
+   цветом (красная полоса при скролле), её фон не из нашей палитры */
+#main-view [class*="legacy-chip"] { display: none !important; }
+#main-view [class*="filterChipsSection"] { display: none !important; }
+#main-view .main-card-cardMetadataWrapper [class*="text-subdued"] { display: none !important; }
+
+/* ---------- страницы плейлистов/альбомов ---------- */
+/* шапка: вместо извлечённого с обложки цвета — палитра обоев
+   (инлайновый --background-base перебивается !important-правилом) */
+.main-entityHeader-backgroundColor {
+  background: linear-gradient(180deg, rgba(var(--spice-rgb-button), .16) 0%, var(--spice-main) 100%) !important;
+  background-color: var(--spice-main) !important;
+}
+.playlist-playlist-actionBarBackground-background,
+.main-actionBarBackground-background {
+  background: var(--spice-main) !important;
+  --background-base: var(--spice-main) !important;
+}
+.main-topBar-background,
+.main-home-homeHeader {
+  background: var(--spice-main) !important;
+  --background-base: var(--spice-main) !important;
+}
+
+/* компактная шапка: маленькая обложка, заголовок 42px, без
+   описания и плашки "Public Playlist". headerText по умолчанию
+   резервирует ~275px с заголовком, прижатым вниз — обнуляем */
+.main-entityHeader-container {
+  min-height: 0 !important;
+  height: auto !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+.main-entityHeader-headerText {
+  justify-content: center !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+.main-entityHeader-contentWrapper {
+  min-height: 0 !important;
+  height: auto !important;
+  align-items: center !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+.main-entityHeader-titleInner h1,
+h1.encore-text-headline-large {
+  font-size: clamp(48px, 5.5vw, 88px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em;
+}
+.main-entityHeader-title { margin-bottom: 6px; }
+.main-entityHeader-headerText [class*="body-small"] { font-size: 15px !important; }
+.main-entityHeader-image,
+[data-testid="playlist-image"] {
+  width: 168px !important; height: 168px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4) !important;
+}
+.main-entityHeader-imageContainer { width: 168px !important; height: 168px !important; margin-right: 8px; }
+.playlist-playlist-playlistDescription { display: none !important; }
+.main-entityHeader-pretitle { display: none !important; }
+
+/* колонка "Date added" — прочь, грид строк без неё */
+[role="gridcell"][aria-colindex="4"],
+[role="columnheader"][aria-colindex="4"] { display: none !important; }
+div[role="row"] > div[class] { grid-template-columns: 16px 6fr 4fr minmax(120px,1fr) !important; }

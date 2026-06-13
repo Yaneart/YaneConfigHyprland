@@ -19,9 +19,9 @@ for arg in "$@"; do
 done
 
 # Конфиги, которые будут установлены в ~/.config
-CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal eww
+CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal
              spicetify fastfetch btop waypaper yazi nvim gtk-3.0 gtk-4.0
-             qt5ct qt6ct)
+             qt5ct qt6ct autostart)
 
 msg()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
 ask()  { if [[ -n "$NOCONFIRM" ]]; then echo "$1 [auto-yes]"; return 0; fi
@@ -75,6 +75,7 @@ for d in "${CONFIG_DIRS[@]}"; do
   [[ -e "$HOME/.config/$d" ]] && cp -a "$HOME/.config/$d" "$BACKUP_DIR/"
 done
 [[ -f "$HOME/.config/starship.toml" ]] && cp "$HOME/.config/starship.toml" "$BACKUP_DIR/"
+[[ -f "$HOME/.config/spotify-launcher.conf" ]] && cp "$HOME/.config/spotify-launcher.conf" "$BACKUP_DIR/"
 
 # ── 3. Установка конфигов ────────────────────────────────────────────────
 msg "Копирую конфиги в ~/.config"
@@ -84,11 +85,18 @@ for d in "${CONFIG_DIRS[@]}"; do
   cp -a "$REPO_DIR/config/$d" "$HOME/.config/"
 done
 cp "$REPO_DIR/config/starship.toml" "$HOME/.config/"
+cp "$REPO_DIR/config/spotify-launcher.conf" "$HOME/.config/"
 
 msg "Копирую скрипты в ~/.local/bin"
 mkdir -p "$HOME/.local/bin"
 cp -a "$REPO_DIR/bin/." "$HOME/.local/bin/"
 chmod +x "$HOME/.local/bin/"*
+
+# .desktop-оверрайды (spotify-launcher с --skip-update, чтобы запуск из rofi
+# не тормозил на проверке обновлений)
+msg "Копирую .desktop-оверрайды в ~/.local/share/applications"
+mkdir -p "$HOME/.local/share/applications"
+cp -a "$REPO_DIR/applications/." "$HOME/.local/share/applications/"
 
 msg "Копирую обои в ~/.config/wallpapers"
 mkdir -p "$HOME/.config/wallpapers"

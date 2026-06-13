@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+// Плавная живая перекраска работающего Spotify под новый color.ini —
+// без перезапуска клиента. Вызывается из matugen post_hook после того,
+// как spicetify refresh обновил файлы темы (для следующих запусков).
+//
+// Механика: читает ~/.config/spicetify/Themes/matugen/color.ini,
+// через CDP (порт 9222, флаг в spotify-launcher.conf) выставляет
+// --spice-* переменные на <html> — мгновенно, без fade.
+
+const fs = require("fs");
+const os = require("os");
+
+const INI = `${os.homedir()}/.config/spicetify/Themes/matugen/color.ini`;
+const PORT = 9222;
+
+function parseIni(path) {
+  const colors = {};
+  for (const line of fs.readFileSync(path, "utf8").split("\n")) {
+    const m = line.match(/^\s*([a-z-]+)\s*=\s*([0-9a-fA-F]{6})\s*$/);
+    if (m) colors[m[1]] = m[2];
+  }
+  return colors;
+}
+
+async function pageTarget() {
+  const res = await fetch(`http://127.0.0.1:${PORT}/json/list`);
+  const page = (await res.json()).find(
+    (t) => t.type === "page" && !/^devtools/.test(t.url) && !/login/.test(t.url)
+  );
+  if (!page) throw new Error("xpui page not found");
+  return page.webSocketDebuggerUrl;
+}
+
+function cdp(wsUrl) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(wsUrl);
+    let id = 0;
+    const pending = new Map();
+    ws.onopen = () =>
+      resolve({
+        send: (method, params = {}) =>
+          new Promise((res, rej) => {
+            const mid = ++id;
+            pending.set(mid, { res, rej });
+            ws.send(JSON.stringify({ id: mid, method, params }));
+          }),
+        close: () => ws.close(),
+      });
+    ws.onerror = () => reject(new Error("CDP connect failed"));
+    ws.onmessage = (m) => {
+      const msg = JSON.parse(m.data);
+      if (msg.id && pending.has(msg.id)) {
+        const { res, rej } = pending.get(msg.id);
+        pending.delete(msg.id);
+        msg.error ? rej(new Error(msg.error.message)) : res(msg.result);
+      }
+    };
+  });
+}
+
+(async () => {
+  const colors = parseIni(INI);
+  if (!colors.button) throw new Error("color.ini не распарсился");
+
+  const sets = Object.entries(colors)
+    .map(([k, hex]) => {
+      const r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+      return (
+        `d.style.setProperty("--spice-${k}", "#${hex}");` +
+        `d.style.setProperty("--spice-rgb-${k}", "${r},${g},${b}");`
+      );
+    })
+    .join("");
+
+  const js = `(()=>{
+    const d = document.documentElement;
+    /* без fade — мгновенная смена (плавный переход на всём дереве
+       элементов заметно лагал на iGPU) */
+    ${sets}
+    return "recolored";
+  })()`;
+
+  const c = await cdp(await pageTarget());
+  try {
+    const r = await c.send("Runtime.evaluate", { expression: js, returnByValue: true });
+    if (r.exceptionDetails) throw new Error(r.exceptionDetails.text || "JS error");
+    console.log(r.result.value);
+  } finally {
+    c.close();
+  }
+})().catch((e) => {
+  // Spotify не запущен или без debug-порта — не страшно, цвета
+  // подхватятся из обновлённых файлов при следующем запуске.
+  console.error("spotify-recolor:", e.message);
+  process.exit(0);
+});
