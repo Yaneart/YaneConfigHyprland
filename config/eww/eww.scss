@@ -1,0 +1,186 @@
+@import "colors.scss";
+
+// NB: only ASCII here. Cyrillic in /* */ comments makes grass emit
+// `@charset "UTF-8";`, which GTK's CSS parser rejects -> all styles dropped.
+// Use // line comments (stripped at compile) to stay safe.
+
+// window must be transparent, otherwise the opaque GTK window bg fills the
+// rounded .dash corners and the widget looks rectangular.
+window {
+  background-color: transparent;
+}
+// fullscreen overlay backdrop (catches outside clicks); must stay transparent
+.overlay {
+  background-color: transparent;
+}
+
+.dash {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  background-color: $surface;
+  border-radius: 36px;
+  padding: 28px 30px;
+  margin: 10px;
+  min-width: 350px;
+}
+
+// hero: time + date
+.hero {
+  margin: 4px 2px 6px 2px;
+}
+.hero-time {
+  font-size: 56px;
+  font-weight: 800;
+  color: $on_surface;
+}
+.hero-date {
+  font-size: 14px;
+  color: $primary;
+}
+
+// generic card
+.card {
+  background-color: $surface_container_high;
+  border-radius: 24px;
+  padding: 18px 20px;
+}
+
+// weather
+.weather-icon {
+  font-size: 50px;
+  color: $primary;
+}
+.weather-temp {
+  font-size: 28px;
+  font-weight: 700;
+  color: $on_surface;
+}
+.weather-desc {
+  font-size: 14px;
+  color: $on_surface_variant;
+}
+.weather-feels {
+  font-size: 11px;
+  color: $outline;
+  margin-top: 3px;
+}
+
+// battery popup (own window, top-right)
+.bat-pop {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  background-color: $surface_container_high;
+  border-radius: 30px;
+  padding: 24px 26px;
+  margin: 10px;
+  min-width: 290px;
+}
+.battery-icon {
+  font-size: 50px;
+  color: $primary;
+}
+.battery-icon.low {
+  color: $error;
+}
+.battery-pct {
+  font-size: 28px;
+  font-weight: 700;
+  color: $on_surface;
+}
+.battery-status {
+  font-size: 14px;
+  color: $on_surface_variant;
+}
+.bat-stats {
+  margin-top: -2px;
+}
+.battery-time {
+  font-size: 11px;
+  color: $outline;
+}
+.battery-watt {
+  font-size: 11px;
+  font-weight: 700;
+  color: $primary;
+}
+.battery-bar trough {
+  background-color: $surface_container_highest;
+  border-radius: 10px;
+  min-height: 8px;
+}
+.battery-bar progress {
+  background-color: $primary;
+  border-radius: 10px;
+  min-height: 8px;
+}
+.battery-bar.low progress {
+  background-color: $error;
+}
+.bat-cells {
+  margin-top: 2px;
+}
+.cell-name {
+  font-size: 12px;
+  color: $on_surface_variant;
+}
+.cell-pct {
+  font-size: 12px;
+  color: $on_surface;
+}
+
+// power-mode toggle button
+.mode-btn {
+  background-color: $surface_container_highest;
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
+.mode-btn:hover {
+  background-color: $secondary_container;
+}
+.mode-icon {
+  font-size: 18px;
+  color: $primary;
+}
+.mode-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: $on_surface;
+}
+.mode-chevron {
+  font-size: 14px;
+  color: $on_surface_variant;
+}
+
+// calendar
+.cal-card {
+  padding: 14px 16px 16px 16px;
+}
+.cal-month {
+  font-size: 15px;
+  font-weight: 700;
+  color: $primary;
+  margin-bottom: 10px;
+}
+.cal-wd {
+  font-size: 12px;
+  font-weight: 700;
+  color: $on_surface_variant;
+  margin-bottom: 4px;
+}
+.cal-day {
+  font-size: 13px;
+  color: $on_surface;
+  padding: 6px 0;
+  margin: 1px 2px;
+}
+.cal-day.weekend {
+  color: $tertiary;
+}
+.cal-day.dim {
+  color: $outline_variant;
+}
+.cal-day.today {
+  color: $on_primary;
+  background-color: $primary;
+  border-radius: 12px;
+  font-weight: 800;
+}

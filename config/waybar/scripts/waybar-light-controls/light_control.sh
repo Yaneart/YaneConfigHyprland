@@ -25,3 +25,4 @@ echo "$light" > "$CONFIG"
 
 
 hyprctl hyprsunset gamma "$light" > /dev/null 2>&1
+pkill -RTMIN+9 waybar   # обновить custom/light в waybar по сигналу

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Тоггл eww-дашборда (клик по часам в waybar). Оверлей: клик мимо/Esc закрывают.
+# Анимация открытия — eww revealer (reveal_dash=true после open).
+set -uo pipefail
+
+eww daemon >/dev/null 2>&1 || true
+
+if eww active-windows 2>/dev/null | grep -q 'dashboard'; then
+  exec "$HOME/.local/bin/eww-close-popups"
+fi
+
+# закрыть попап батареи мгновенно, если открыт
+eww update reveal_bat=false bat_open=false >/dev/null 2>&1 || true
+eww close battery >/dev/null 2>&1 || true
+
+# открыть дашборд и проявить карточку
+eww update dash_open=true reveal_dash=false >/dev/null 2>&1 || true
+eww open dashboard >/dev/null 2>&1 || true
+sleep 0.03
+eww update reveal_dash=true >/dev/null 2>&1 || true

@@ -3,10 +3,6 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("XDG_MENU_PREFIX", "arch-")
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 
--- KVM / software rendering fallback from the original config.
-hl.env("WLR_NO_HARDWARE_CURSORS", "1")
-hl.env("WLR_RENDERER_ALLOW_SOFTWARE", "1")
-
 hl.config({
   input = {
     kb_layout = "us,ru",

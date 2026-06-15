@@ -25,3 +25,4 @@ echo "$temperature" > "$CONFIG"
 
 echo "$temperature"
 hyprctl hyprsunset temperature "$temperature" > /dev/null 2>&1
+pkill -RTMIN+8 waybar   # обновить custom/temperature в waybar по сигналу

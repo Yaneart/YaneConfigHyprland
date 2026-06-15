@@ -32,6 +32,7 @@
         "interval": 30,
         "tooltip-format": "{timeTo}\n{power:0.1f} W",
         "format": "{capacity}% {icon}",
+        "on-click": "$HOME/.local/bin/eww-battery-popup",
         "format-icons": [
             "",
             "",
@@ -42,26 +43,8 @@
         "format-charging": "{capacity}% {icon} ",
     }, "clock": {
         "format": "{:%H:%M}  ",
-        "format-alt": "{:%A, %B %d, %Y (%R)}  ",
-        "tooltip-format": "<tt><small>{calendar}</small></tt>",
-        "calendar": {
-                    "mode"          : "year",
-                    "mode-mon-col"  : 3,
-                    "weeks-pos"     : "right",
-                    "on-scroll"     : 1,
-                    "format": {
-                              "months":     "<span color='#ffead3'><b>{}</b></span>",
-                              "days":       "<span color='#ecc6d9'><b>{}</b></span>",
-                              "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
-                              "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
-                              "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
-                              }
-                    },
-        "actions":  {
-                    "on-click-right": "mode",
-                    "on-scroll-up": "shift_up",
-                    "on-scroll-down": "shift_down"
-                    }
+        "tooltip": false,
+        "on-click": "$HOME/.local/bin/eww-dashboard"
     },
     "hyprland/workspaces": {
         "format": "{name}",
@@ -218,7 +201,7 @@
     },
     "custom/temperature":{
         "exec": "bash ~/.config/waybar/scripts/waybar-light-controls/show_temperature.sh",
-        "interval": 2,
+        "signal": 8,
         "format": "󰔄 {}",
         "tooltip": false,
         "on-scroll-up": "bash ~/.config/waybar/scripts/waybar-light-controls/temperature_control.sh up",
@@ -227,7 +210,7 @@
 
 "custom/light":{
         "exec": "bash ~/.config/waybar/scripts/waybar-light-controls/show_light.sh",
-        "interval": 2,
+        "signal": 9,
         "format": "󰃟 {}",
         "tooltip": false,
         "on-scroll-up": "bash ~/.config/waybar/scripts/waybar-light-controls/light_control.sh up",

@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Режимы питания через intel_pstate EPP + governor (как power-profiles-daemon).
+#   get   -> JSON {"mode":"Balanced","icon":"..."} (чтение sysfs, без root)
+#   cycle -> следующий режим (Saver -> Balanced -> Performance -> Saver)
+#            применение пишет в sysfs -> нужен root: sudo -n /usr/local/bin/power-mode-apply
+# Прим.: TLP активен и может переопределять EPP на событиях питания (AC/BAT) —
+# ручной режим живёт до следующего триггера TLP.
+set -uo pipefail
+
+CF=/sys/devices/system/cpu/cpu0/cpufreq
+
+current() {
+  local g e
+  g="$(cat "$CF/scaling_governor" 2>/dev/null)"
+  e="$(cat "$CF/energy_performance_preference" 2>/dev/null)"
+  if [ "$g" = "performance" ]; then echo performance
+  elif [ "$e" = "power" ]; then echo saver
+  else echo balanced; fi
+}
+
+icon_for() { case "$1" in
+  performance) echo "󰓅" ;;   # speedometer
+  balanced)    echo "󰾅" ;;   # gauge
+  saver)       echo "󰌪" ;;   # leaf
+esac }
+
+label_for() { case "$1" in
+  performance) echo "Performance" ;;
+  balanced)    echo "Balanced" ;;
+  saver)       echo "Saver" ;;
+esac }
+
+case "${1:-get}" in
+  get)
+    m="$(current)"
+    printf '{"mode":"%s","icon":"%s"}\n' "$(label_for "$m")" "$(icon_for "$m")"
+    ;;
+  cycle)
+    case "$(current)" in
+      saver)       next=balanced ;;
+      balanced)    next=performance ;;
+      performance) next=saver ;;
+      *)           next=balanced ;;
+    esac
+    if ! sudo -n /usr/local/bin/power-mode-apply "$next" 2>/dev/null; then
+      notify-send "Power mode" "Нужна разовая sudo-настройка (см. инструкцию)" 2>/dev/null || true
+    fi
+    eww update powermode="$("$0" get)" >/dev/null 2>&1 || true
+    ;;
+esac

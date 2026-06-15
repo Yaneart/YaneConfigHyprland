@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Сетка текущего месяца (понедельник-первый) в JSON для eww-дашборда.
+Вывод: {"month":"June 2026","weekdays":[...7...],"weeks":[[{d,cur,today,we}x7]xN]}"""
+import calendar, datetime, json
+
+today = datetime.date.today()
+cal = calendar.Calendar(firstweekday=calendar.MONDAY)
+
+weeks = []
+for week in cal.monthdatescalendar(today.year, today.month):
+    weeks.append([
+        {
+            "d": str(d.day),
+            "cur": d.month == today.month,      # в текущем месяце
+            "today": d == today,
+            "we": d.weekday() >= 5,             # выходной (сб/вс)
+        }
+        for d in week
+    ])
+
+print(json.dumps({
+    "month": today.strftime("%B %Y"),
+    "weekdays": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+    "weeks": weeks,
+}, ensure_ascii=False))

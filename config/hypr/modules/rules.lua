@@ -20,6 +20,14 @@ hl.layer_rule({
   animation = "slide right",
 })
 
+-- eww-попапы (дашборд/батарея) — полноэкранные оверлеи: слой появляется мгновенно
+-- (no_anim), а саму карточку плавно/быстро анимирует eww revealer (crossfade 140ms).
+-- Глобальный "slide" двигал бы поверхность во весь экран — некрасиво.
+hl.layer_rule({
+  match = { namespace = "eww-overlay" },
+  no_anim = true,
+})
+
 hl.window_rule({
   name = "android-studio-helper-float",
   match = {

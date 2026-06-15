@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Погода для eww-дашборда. Берёт wttr.in (j1 JSON), отдаёт компактный JSON:
+#   {"temp":"+18°","feels":"+18°","desc":"Light Rain Shower","icon":"","city":"Saint Petersburg"}
+# Иконка — nerd-font по weatherCode wttr.in. Без сети — отдаёт заглушку.
+set -uo pipefail
+
+CITY="${1:-Saint Petersburg}"
+URL="https://wttr.in/${CITY// /+}?format=j1"
+
+# nerd-font иконки по weatherCode (www.worldweatheronline.com коды, как у wttr.in)
+icon_for() {
+  case "$1" in
+    113) echo "󰖙" ;;                                 # Sunny / Clear
+    116) echo "󰖕" ;;                                 # Partly cloudy
+    119|122) echo "󰖐" ;;                             # Cloudy / Overcast
+    143|248|260) echo "󰖑" ;;                         # Mist / Fog
+    176|263|266|293|296|353) echo "󰖗" ;;            # Light rain/drizzle
+    299|302|305|308|356|359) echo "󰖖" ;;            # Heavy rain / pouring
+    179|182|185|227|230|317|320|323|326|368|371) echo "󰖘" ;;  # Snow
+    200|386|389|392|395) echo "󰖓" ;;                # Thunder
+    *) echo "󰖐" ;;
+  esac
+}
+
+fallback='{"temp":"—","feels":"—","desc":"нет сети","icon":"","city":"'"$CITY"'"}'
+
+raw="$(curl -s --max-time 10 "$URL" 2>/dev/null)" || { echo "$fallback"; exit 0; }
+[ -n "$raw" ] || { echo "$fallback"; exit 0; }
+
+read -r code temp feels desc <<EOF
+$(echo "$raw" | jq -r '.current_condition[0] | "\(.weatherCode)\t\(.temp_C)\t\(.FeelsLikeC)\t\(.weatherDesc[0].value)"' 2>/dev/null)
+EOF
+
+[ -n "${temp:-}" ] && [ "$temp" != "null" ] || { echo "$fallback"; exit 0; }
+
+sign() { case "$1" in -*) echo "$1" ;; *) echo "+$1" ;; esac; }
+
+jq -nc \
+  --arg temp  "$(sign "$temp")°" \
+  --arg feels "$(sign "$feels")°" \
+  --arg desc  "$desc" \
+  --arg icon  "$(icon_for "$code")" \
+  --arg city  "$CITY" \
+  '{temp:$temp, feels:$feels, desc:$desc, icon:$icon, city:$city}'

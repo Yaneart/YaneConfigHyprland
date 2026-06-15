@@ -10,6 +10,9 @@ end
 bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("kitty"))
 bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd(localBin .. "/kitty-dashboard"))
 bind(mainMod .. " + Q", hl.dsp.exec_cmd(localBin .. "/close-window"))
+-- Esc закрывает eww-попапы (дашборд/батарея); non_consuming = клавиша всё равно
+-- проходит в приложения (vim, меню и т.п. не ломаются).
+bind("escape", hl.dsp.exec_cmd(localBin .. "/eww-close-popups"), { non_consuming = true })
 bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(rofiBin .. "/powermenu.sh"))
 bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
@@ -30,6 +33,8 @@ bind(mainMod .. " + H", hl.dsp.exec_cmd("happ"))
 bind(mainMod .. " + P", hl.dsp.exec_cmd("spotify-launcher --skip-update"))
 bind(mainMod .. " + O", hl.dsp.exec_cmd("obs"))
 bind(mainMod .. " + D", hl.dsp.exec_cmd("kitty -e lazydocker"))
+bind(mainMod .. " + Z", hl.dsp.exec_cmd("handy --toggle-transcription"))        -- голосовой ввод: старт/стоп записи
+bind(mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd("handy --toggle-post-process")) -- то же + AI пост-обработка
 bind(mainMod .. " + A", hl.dsp.window.close())
 bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(localBin .. "/killall"))
 
@@ -57,7 +62,8 @@ bind(mainMod .. " + SHIFT + RIGHT", hl.dsp.focus({ workspace = "r+1" }))
 bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 
-bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
+bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })   -- Super+ЛКМ — двигать окно
+bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true }) -- Super+ПКМ — ресайз окна
 
 bind(mainMod .. " + R", hl.dsp.exec_cmd("pkill waybar; waybar &"))
 bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(localBin .. "/theme-restore"))

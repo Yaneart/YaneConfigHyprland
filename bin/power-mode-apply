@@ -1,0 +1,14 @@
+#!/bin/sh
+# Применяет режим питания (governor + EPP) на все CPU. Требует root.
+# Ставится в /usr/local/bin и разрешается через sudoers NOPASSWD (см. README/инструкцию).
+case "$1" in
+  performance) gov=performance; epp=performance ;;
+  balanced)    gov=powersave;   epp=balance_performance ;;
+  saver)       gov=powersave;   epp=power ;;
+  *) echo "usage: power-mode-apply performance|balanced|saver" >&2; exit 1 ;;
+esac
+
+for c in /sys/devices/system/cpu/cpu*/cpufreq; do
+  [ -w "$c/scaling_governor" ] && echo "$gov" > "$c/scaling_governor"
+  [ -w "$c/energy_performance_preference" ] && echo "$epp" > "$c/energy_performance_preference"
+done

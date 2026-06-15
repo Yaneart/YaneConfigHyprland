@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""Рамку активного окна показываем только когда на текущем workspace больше
+одного окна. Слушает socket2 событий Hyprland и переключает general:border_size
+0↔N через socket1 — без socat и без подпроцессов hyprctl.
+
+ВАЖНО: конфиг на Lua, поэтому IPC-команда `keyword` не работает ("non-legacy
+parser"). Опция меняется через `eval hl.config({...})`.
+
+Запускается из autostart. Умирает вместе с сессией Hyprland (сокет закрывается).
+"""
+import json
+import os
+import socket
+
+HIS = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE", "")
+RUN = os.environ.get("XDG_RUNTIME_DIR", "/run/user/%d" % os.getuid())
+BASE = os.path.join(RUN, "hypr", HIS)
+SOCK1 = os.path.join(BASE, ".socket.sock")   # команды
+SOCK2 = os.path.join(BASE, ".socket2.sock")  # события
+
+BORDER_ON = "2"    # рамка при >1 окне (совпадает с дефолтом в layout.lua)
+BORDER_OFF = "0"
+
+# Префиксы событий, после которых число окон на активном ws могло измениться
+TRIGGERS = ("openwindow", "closewindow", "movewindow", "workspace",
+            "focusedmon", "moveworkspace", "changefloatingmode")
+
+_last = None
+
+
+def cmd(text):
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK1)
+    s.sendall(text.encode())
+    data = b""
+    while True:
+        chunk = s.recv(8192)
+        if not chunk:
+            break
+        data += chunk
+    s.close()
+    return data.decode(errors="replace")
+
+
+def apply():
+    global _last
+    try:
+        n = json.loads(cmd("j/activeworkspace")).get("windows", 0)
+    except Exception:
+        return
+    want = BORDER_ON if n > 1 else BORDER_OFF
+    if want != _last:
+        cmd("eval hl.config({ general = { border_size = " + want + " } })")
+        _last = want
+
+
+def main():
+    global _last
+    apply()  # выставить корректно сразу при старте
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK2)
+    buf = b""
+    while True:
+        chunk = s.recv(4096)
+        if not chunk:
+            break
+        buf += chunk
+        while b"\n" in buf:
+            line, buf = buf.split(b"\n", 1)
+            ev = line.decode(errors="replace").split(">>", 1)[0]
+            if ev.startswith("configreloaded"):
+                _last = None   # после reload border_size сброшен конфигом — пересинхрон
+                apply()
+            elif ev.startswith(TRIGGERS):
+                apply()
+
+
+if __name__ == "__main__":
+    main()

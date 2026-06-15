@@ -21,7 +21,7 @@ done
 # Конфиги, которые будут установлены в ~/.config
 CONFIG_DIRS=(hypr waybar kitty cava rofi swaync matugen wallust wal
              spicetify fastfetch btop waypaper yazi nvim gtk-3.0 gtk-4.0
-             qt5ct qt6ct autostart)
+             qt5ct qt6ct autostart eww)
 
 msg()  { printf '\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$1"; }
 ask()  { if [[ -n "$NOCONFIRM" ]]; then echo "$1 [auto-yes]"; return 0; fi

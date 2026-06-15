@@ -1,0 +1,130 @@
+;; ~/.config/eww/eww.yuck — минималистичный дашборд по клику на часы waybar.
+;; Часы+дата (hero), карточка погоды (wttr.in), карточка кастомного календаря.
+;; Цвета из ~/.config/eww/colors.scss (matugen, бесшовный `eww reload`).
+;; Поллинги активны только пока окно открыто (:run-while dash_open) — экономия батареи.
+
+(defvar dash_open false)
+(defvar bat_open false)
+;; reveal-флаги для плавной (и быстрой) анимации карточек через eww revealer
+(defvar reveal_dash false)
+(defvar reveal_bat false)
+
+(defpoll wtime
+  :interval "10s" :run-while dash_open :initial ""
+  "date +'%H:%M'")
+
+(defpoll wdate
+  :interval "30m" :run-while dash_open :initial ""
+  "date +'%A, %-d %B'")
+
+(defpoll weather
+  :interval "15m" :run-while dash_open
+  :initial '{"temp":"…","feels":"…","desc":"загрузка…","icon":"","city":"Saint Petersburg"}'
+  `$HOME/.local/bin/eww-weather 'Saint Petersburg'`)
+
+(defpoll cal
+  :interval "30m" :run-while dash_open
+  :initial '{"month":"","weekdays":["Mo","Tu","We","Th","Fr","Sa","Su"],"weeks":[]}'
+  `$HOME/.local/bin/eww-calendar`)
+
+(defpoll battery
+  :interval "20s" :run-while bat_open
+  :initial '{"percent":0,"status":"…","icon":"󰂑","time":"","watt":"","low":false,"cells":[]}'
+  `$HOME/.local/bin/eww-battery`)
+
+(defpoll powermode
+  :interval "5s" :run-while bat_open
+  :initial '{"mode":"…","icon":"󰓅"}'
+  `$HOME/.local/bin/power-mode get`)
+
+;; --- hero: часы + дата ---
+(defwidget hero []
+  (box :class "hero" :orientation "v" :space-evenly false :halign "center"
+    (label :class "hero-time" :text wtime)
+    (label :class "hero-date" :text wdate)))
+
+;; --- карточка погоды ---
+(defwidget weather_card []
+  (box :class "card weather-card" :orientation "h" :space-evenly false :spacing 16
+    (label :class "weather-icon" :valign "center" :text {weather.icon})
+    (box :orientation "v" :space-evenly false :hexpand true :valign "center" :halign "start"
+      (label :class "weather-temp" :halign "start" :text {weather.temp})
+      (label :class "weather-desc" :halign "start" :limit-width 22 :text {weather.desc})
+      (label :class "weather-feels" :halign "start"
+             :text "feels like ${weather.feels}"))))
+
+;; --- попап батареи (клик по модулю батареи в waybar) ---
+(defwidget battery_popup []
+  (box :class "bat-pop" :orientation "v" :space-evenly false :spacing 14
+    (box :orientation "h" :space-evenly false :spacing 16
+      (label :class {battery.low ? "battery-icon low" : "battery-icon"}
+             :valign "center" :text {battery.icon})
+      (box :orientation "v" :space-evenly false :hexpand true :valign "center" :halign "start"
+        (label :class "battery-pct" :halign "start" :text "${battery.percent}%")
+        (label :class "battery-status" :halign "start" :text {battery.status})))
+    (box :class "bat-stats" :orientation "h" :space-evenly false
+      (label :class "battery-time" :hexpand true :halign "start"
+             :visible {battery.time != ""} :text {battery.time})
+      (label :class "battery-watt" :halign "end"
+             :visible {battery.watt != ""} :text {battery.watt}))
+    (progress :class {battery.low ? "battery-bar low" : "battery-bar"}
+              :orientation "h" :value {battery.percent})
+    (box :class "bat-cells" :orientation "v" :space-evenly false :spacing 6
+      (for c in {battery.cells}
+        (box :orientation "h" :space-evenly false
+          (label :class "cell-name" :hexpand true :halign "start" :text {c.name})
+          (label :class "cell-pct" :halign "end" :text "${c.percent}% · ${c.status}"))))
+    (button :class "mode-btn" :onclick "$HOME/.local/bin/power-mode cycle"
+      (box :orientation "h" :space-evenly false :spacing 10
+        (label :class "mode-icon" :text {powermode.icon})
+        (label :class "mode-name" :hexpand true :halign "start" :text "Mode: ${powermode.mode}")
+        (label :class "mode-chevron" :text "")))))
+
+;; --- карточка календаря (кастомная сетка) ---
+(defwidget cal_card []
+  (box :class "card cal-card" :orientation "v" :space-evenly false
+    (label :class "cal-month" :text {cal.month})
+    (box :class "cal-head" :orientation "h" :space-evenly true
+      (for wd in {cal.weekdays}
+        (label :class "cal-wd" :text wd)))
+    (box :orientation "v" :space-evenly false :spacing 2
+      (for week in {cal.weeks}
+        (box :orientation "h" :space-evenly true
+          (for day in week
+            (label :text {day.d}
+                   :class {day.today ? "cal-day today"
+                           : !day.cur ? "cal-day dim"
+                           : day.we ? "cal-day weekend"
+                           : "cal-day"})))))))
+
+(defwidget dash []
+  (box :class "dash" :orientation "v" :space-evenly false :spacing 16
+    (hero)
+    (weather_card)
+    (cal_card)))
+
+;; Окна — полноэкранные оверлеи: фон (eventbox) ловит клик мимо и закрывает,
+;; внутренний eventbox вокруг карточки поглощает клики (onclick "true").
+;; Закрытие по Esc — non-consuming bind в Hyprland -> eww-close-popups.
+
+(defwindow dashboard
+  :monitor 0
+  :namespace "eww-overlay"
+  :geometry (geometry :width "100%" :height "100%" :anchor "top left")
+  :stacking "overlay"
+  :focusable false
+  (eventbox :class "overlay" :onclick "$HOME/.local/bin/eww-close-popups"
+    (box :halign "start" :valign "start" :space-evenly false
+      (revealer :transition "crossfade" :duration "140ms" :reveal reveal_dash
+        (eventbox :onclick "true" (dash))))))
+
+(defwindow battery
+  :monitor 0
+  :namespace "eww-overlay"
+  :geometry (geometry :width "100%" :height "100%" :anchor "top left")
+  :stacking "overlay"
+  :focusable false
+  (eventbox :class "overlay" :onclick "$HOME/.local/bin/eww-close-popups"
+    (box :halign "end" :valign "start" :space-evenly false
+      (revealer :transition "crossfade" :duration "140ms" :reveal reveal_bat
+        (eventbox :onclick "true" (battery_popup))))))

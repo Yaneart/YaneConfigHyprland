@@ -1,13 +1,25 @@
+-- Градиентная обводка активного окна под matugen-палитру: primary → tertiary
+-- (акцентный → второй акцент, перелив под углом 45°). Перекрашивается сама при
+-- смене обоев, т.к. Colors берётся из generated_colors.lua. Формат градиента в
+-- Lua-API Hyprland — таблица {colors={...}, angle=N} (см. HL.Gradient в стабах).
+local active_gradient = {
+  colors = {
+    Colors.primary or "rgba(b3c5ffff)",
+    Colors.tertiary or "rgba(e2bbdcff)",
+  },
+  angle = 45,
+}
+
 hl.config({
   general = {
     gaps_in = 8,
     gaps_out = 16,
-    border_size = 0,
-    resize_on_border = false,
-    extend_border_grab_area = 50,
+    border_size = 2,
+    resize_on_border = true,       -- тянуть край окна для ресайза
+    extend_border_grab_area = 15,  -- невидимая зона захвата вокруг тонкой рамки
     layout = "dwindle",
     col = {
-      active_border = Colors.primary or "rgba(8aadf4ff)",
+      active_border = active_gradient,
       inactive_border = Colors.background_75 or "rgba(1e1e2ebf)",
     },
   },

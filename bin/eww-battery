@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Агрегат батарей (T480: BAT0+BAT1) -> JSON для eww-дашборда.
+Вывод: {"percent":69,"status":"On battery","icon":"󰁿","time":"4h 36m left","low":false}"""
+import glob, json, os
+
+def read(path, default=0):
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return default
+
+def num(path):
+    try:
+        return int(read(path, 0))
+    except (ValueError, TypeError):
+        return 0
+
+bats = sorted(glob.glob("/sys/class/power_supply/BAT*"))
+
+e_now = e_full = p_now = 0
+statuses = []
+cells = []
+for b in bats:
+    # энергия (µWh) либо заряд (µAh) — берём что есть
+    en = num(f"{b}/energy_now") or num(f"{b}/charge_now")
+    ef = num(f"{b}/energy_full") or num(f"{b}/charge_full")
+    pw = num(f"{b}/power_now") or num(f"{b}/current_now")
+    e_now += en
+    e_full += ef
+    p_now += pw
+    st = read(f"{b}/status", "Unknown")
+    statuses.append(st)
+    cap = num(f"{b}/capacity")
+    cells.append({"name": os.path.basename(b), "percent": cap, "status": st})
+
+percent = round(e_now / e_full * 100) if e_full else 0
+percent = max(0, min(100, percent))
+
+charging = any(s == "Charging" for s in statuses)
+discharging = any(s == "Discharging" for s in statuses)
+
+# статус (англ, в стиле "feels like")
+if charging:
+    status = "Charging"
+elif discharging:
+    status = "On battery"
+elif percent >= 99:
+    status = "Full"
+else:
+    status = "Plugged in"
+
+# время (часы:минуты) по суммарной мощности
+time = ""
+if p_now > 0:
+    if discharging:
+        hrs = e_now / p_now
+        time = f"{int(hrs)}h {round((hrs % 1) * 60):02d}m left"
+    elif charging:
+        hrs = (e_full - e_now) / p_now
+        time = f"{int(hrs)}h {round((hrs % 1) * 60):02d}m to full"
+
+# иконка (Material Design nerd battery)
+if charging:
+    icon = "󰂄"
+else:
+    levels = ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+    icon = levels[min(10, percent // 10)]
+
+watt = f"{p_now / 1e6:.1f} W" if p_now > 0 else ""
+
+print(json.dumps({
+    "percent": percent,
+    "status": status,
+    "icon": icon,
+    "time": time,
+    "watt": watt,
+    "low": (not charging) and percent <= 20,
+    "cells": cells,
+}, ensure_ascii=False))

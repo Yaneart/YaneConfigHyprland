@@ -1,6 +1,46 @@
 #!/usr/bin/env bash
+# Дашборд: kitty + fastfetch. Чтобы вывод не превращался в кашу при сужении
+# окна (когда рядом открывают второе окно и тайлинг ужимает дашборд), fastfetch
+# перерисовывается на SIGWINCH — каждый раз, когда меняется ширина терминала.
 set -euo pipefail
 
 FASTFETCH_CONFIG="$HOME/.config/fastfetch/config.jsonc"
 
-kitty --title "System Dashboard" sh -lc "fastfetch --config '$FASTFETCH_CONFIG'; exec \$SHELL"
+# Временный rcfile для интерактивного bash: грузит обычный ~/.bashrc, ставит
+# trap на WINCH и рисует fastfetch заново при смене ширины. Файл самоудаляется
+# после загрузки (функции/trap уже в памяти шелла, файл больше не нужен).
+RC="$(mktemp --tmpdir kitty-dashboard.XXXXXX.bash)"
+cat >"$RC" <<EOF
+[ -f "\$HOME/.bashrc" ] && source "\$HOME/.bashrc"
+__dash_cfg="$FASTFETCH_CONFIG"
+__dash_cols=0
+# Раскладка подбирается по ширине окна (пересчёт на каждой перерисовке):
+#   >=122 кол — лого слева + меню справа (нужно ~122 кол, как на весь экран);
+#    >=64 кол — лого сверху, инфа во всю ширину (пол-экрана при тайлинге);
+#     <64 кол — сам ASCII-арт (60 кол) уже не влезает и ломается, поэтому
+#               лого убираем совсем и показываем только инфу.
+__dash_draw(){
+    clear
+    local c="\${COLUMNS:-0}"
+    if [ "\$c" -ge 122 ]; then
+        fastfetch --config "\$__dash_cfg"
+    elif [ "\$c" -ge 64 ]; then
+        fastfetch --config "\$__dash_cfg" --logo-position top
+    else
+        fastfetch --config "\$__dash_cfg" --logo none
+    fi
+}
+__dash_winch(){
+    if [ "\${COLUMNS:-0}" != "\$__dash_cols" ]; then
+        __dash_cols="\${COLUMNS:-0}"
+        __dash_draw
+    fi
+}
+shopt -s checkwinsize
+trap __dash_winch WINCH
+__dash_cols="\${COLUMNS:-0}"
+__dash_draw
+rm -f "$RC"
+EOF
+
+exec kitty --title "System Dashboard" -- bash --rcfile "$RC" -i

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Тоггл eww-попапа батареи (клик по модулю батареи в waybar). Оверлей: клик мимо/Esc закрывают.
+# Анимация открытия — eww revealer (reveal_bat=true после open).
+set -uo pipefail
+
+eww daemon >/dev/null 2>&1 || true
+
+if eww active-windows 2>/dev/null | grep -q 'battery'; then
+  exec "$HOME/.local/bin/eww-close-popups"
+fi
+
+# закрыть дашборд мгновенно, если открыт
+eww update reveal_dash=false dash_open=false >/dev/null 2>&1 || true
+eww close dashboard >/dev/null 2>&1 || true
+
+# открыть попап батареи и проявить карточку
+eww update bat_open=true reveal_bat=false >/dev/null 2>&1 || true
+eww open battery >/dev/null 2>&1 || true
+sleep 0.03
+eww update reveal_bat=true >/dev/null 2>&1 || true
