@@ -7,8 +7,8 @@ wallust
 # GUI для выбора обоев
 waypaper
 
-# Тема экрана входа SDDM
-sddm-silent-theme
+# Тема экрана входа SDDM (Qt6, видео-фон + перекраска под matugen)
+sddm-astronaut-theme
 
 # Темизация Spotify
 spicetify-cli

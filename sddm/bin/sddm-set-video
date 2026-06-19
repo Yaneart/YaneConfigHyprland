@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Usage (run as your user, NOT with sudo):  sddm-set-video /path/to/frog.mp4
+set -euo pipefail
+src="${1:?usage: sddm-set-video /path/to/video.mp4}"
+[ -f "$src" ] || { echo "no such file: $src" >&2; exit 1; }
+THEME=/usr/share/sddm/themes/sddm-astronaut-theme
+TPL=$HOME/.config/matugen/templates/sddm-astronaut.conf
+sudo install -m644 "$src" "$THEME/Backgrounds/frog.mp4"
+tmp=$(mktemp --suffix=.png)
+if command -v ffmpeg >/dev/null 2>&1; then
+  ffmpeg -y -i "$src" -frames:v 1 "$tmp" >/dev/null 2>&1 || true
+  [ -s "$tmp" ] && sudo install -m644 "$tmp" "$THEME/Backgrounds/frog.png"
+fi
+rm -f "$tmp"
+sed -i 's|^Background=.*|Background="Backgrounds/frog.mp4"|' "$TPL"
+sed -i 's|^BackgroundPlaceholder=.*|BackgroundPlaceholder="Backgrounds/frog.png"|' "$TPL"
+WP=$(cat "$HOME/.local/state/theme/current_wallpaper" 2>/dev/null || true)
+[ -f "$WP" ] && matugen image "$WP" --prefer darkness >/dev/null 2>&1 || true
+echo "Video wired. Reboot (or restart sddm) to see it."

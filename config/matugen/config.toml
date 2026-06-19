@@ -40,6 +40,14 @@ input_path = '~/.config/matugen/templates/kitty-colors.conf'
 output_path = '~/.config/kitty/colors/colors.conf'
 
 
+# SDDM (sddm-astronaut-theme). matugen writes a user-owned copy here; the
+# post_hook syncs it into the root-owned theme dir via a NOPASSWD helper.
+[templates.sddm]
+input_path = '~/.config/matugen/templates/sddm-astronaut.conf'
+output_path = '~/.config/matugen/generated/sddm-astronaut.conf'
+post_hook = 'command -v sddm-sync-colors >/dev/null 2>&1 && sudo -n sddm-sync-colors >/dev/null 2>&1 || true'
+
+
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'
 output_path = '~/.config/rofi/colors/colors-matugen.rasi'

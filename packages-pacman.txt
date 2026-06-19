@@ -63,7 +63,7 @@ thunar
 # Дисплей-менеджер
 sddm
 
-# Qt-темизация + библиотеки для SDDM-темы winter (видео-фон)
+# Qt-темизация + библиотеки для SDDM-темы sddm-astronaut-theme (Qt6, видео-фон)
 qt5ct
 qt6ct
 qt6-5compat

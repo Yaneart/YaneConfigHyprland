@@ -121,11 +121,35 @@ if ! grep -q 'starship init bash' "$HOME/.bashrc" 2>/dev/null; then
   printf '\neval "$(starship init bash)"\n' >> "$HOME/.bashrc"
 fi
 
-# ── 7. SDDM: тема экрана входа ───────────────────────────────────────────
-if ask "Установить тему SDDM (winter, видео-фон)?"; then
-  sudo cp -a "$REPO_DIR/sddm/themes/winter" /usr/share/sddm/themes/
-  sudo mkdir -p /etc/sddm.conf.d
-  sudo cp "$REPO_DIR/sddm/theme.conf" /etc/sddm.conf.d/theme.conf
+# ── 7. SDDM: тема экрана входа (sddm-astronaut-theme + перекраска matugen) ─
+# Сама тема ставится из AUR (см. packages-aur.txt). Здесь — системная обвязка:
+# helper-синхронизация цветов matugen → root-овая папка темы, правило sudoers
+# (для post_hook matugen без пароля), переключение темы на matugen-конфиг.
+if ask "Настроить экран входа SDDM (sddm-astronaut-theme + matugen)?"; then
+  THEME=/usr/share/sddm/themes/sddm-astronaut-theme
+  if [[ ! -d "$THEME" ]]; then
+    msg "ВНИМАНИЕ: $THEME не найдена — сначала поставь sddm-astronaut-theme (AUR)"
+  else
+    # helper'ы (sddm-sync-colors хардкодит домашний путь — подставляем текущий $HOME)
+    sed "s|/home/yaneart|$HOME|g" "$REPO_DIR/sddm/bin/sddm-sync-colors" | sudo install -m755 /dev/stdin /usr/local/bin/sddm-sync-colors
+    sudo install -m755 "$REPO_DIR/sddm/bin/sddm-set-video" /usr/local/bin/sddm-set-video
+    # NOPASSWD: matugen post_hook дёргает sddm-sync-colors без пароля
+    echo "$USER ALL=(root) NOPASSWD: /usr/local/bin/sddm-sync-colors" | sudo tee /etc/sudoers.d/sddm-sync-colors >/dev/null
+    sudo chmod 440 /etc/sudoers.d/sddm-sync-colors
+    # тема читает сгенерённый matugen-конфиг
+    sudo sed -i 's|^ConfigFile=.*|ConfigFile=Themes/matugen.conf|' "$THEME/metadata.desktop"
+    # первичная генерация цветов + синхронизация в тему
+    WP=$(cat "$HOME/.local/state/theme/current_wallpaper" 2>/dev/null || true)
+    [[ -f "$WP" ]] || WP=$(ls "$REPO_DIR"/wallpapers/* 2>/dev/null | head -1)
+    [[ -f "$WP" ]] && matugen image "$WP" --prefer darkness >/dev/null 2>&1 || true
+    sudo /usr/local/bin/sddm-sync-colors
+    # выбрать тему (убрать возможный дубль конфига)
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo rm -f /etc/sddm.conf.d/theme.conf
+    sudo cp "$REPO_DIR/sddm/theme.conf" /etc/sddm.conf.d/10-theme.conf
+    msg "Видео-фон (Frog Picnic) не входит в репозиторий — размер/лицензия."
+    msg "Добавить позже:  sddm-set-video ~/путь/frog.mp4"
+  fi
 fi
 
 # ── 8. Сервисы ───────────────────────────────────────────────────────────

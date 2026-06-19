@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""Live audio state (sink + source) -> JSON for the eww volume popup.
+Event-driven: prints once, then re-prints on every pactl sink/source change.
+Output: {"vol":74,"muted":false,"icon":"󰕾","mvol":100,"mmuted":false,"micon":"󰍬","sink":"Built-in Audio"}
+"""
+import json
+import re
+import subprocess
+import sys
+
+
+def get_volume(target):
+    """Return (percent:int, muted:bool) for a wpctl target, or (0, True) on error."""
+    try:
+        out = subprocess.run(
+            ["wpctl", "get-volume", target],
+            capture_output=True, text=True, timeout=2,
+        ).stdout
+    except Exception:
+        return 0, True
+    m = re.search(r"Volume:\s*([0-9.]+)", out)
+    vol = round(float(m.group(1)) * 100) if m else 0
+    return vol, ("MUTED" in out)
+
+
+def sink_icon(vol, muted):
+    if muted or vol == 0:
+        return "󰝟"
+    if vol < 34:
+        return "󰕿"
+    if vol < 67:
+        return "󰖀"
+    return "󰕾"
+
+
+def sink_name():
+    """Human-friendly output name from the default sink's active port.
+    Falls back to the device description (nice for Bluetooth)."""
+    try:
+        default = subprocess.run(
+            ["pactl", "get-default-sink"],
+            capture_output=True, text=True, timeout=2,
+        ).stdout.strip()
+        sinks = subprocess.run(
+            ["pactl", "list", "sinks"],
+            capture_output=True, text=True, timeout=2,
+        ).stdout
+    except Exception:
+        return "Output"
+
+    # isolate the block for the default sink
+    block, cur, keep = [], [], False
+    for line in sinks.splitlines():
+        if line.startswith("Sink #"):
+            if keep:
+                block = cur
+                break
+            cur = []
+        cur.append(line)
+        if f"Name: {default}" in line:
+            keep = True
+    if keep and not block:
+        block = cur
+    text = "\n".join(block)
+
+    port = ""
+    desc = ""
+    for line in block:
+        s = line.strip()
+        if s.startswith("Active Port:"):
+            port = s.split(":", 1)[1].strip().lower()
+        elif s.startswith("Description:"):
+            desc = s.split(":", 1)[1].strip()
+
+    if "bluez" in text.lower():
+        return desc or "Bluetooth"
+    if "headphone" in port or "headset" in port:
+        return "Headphones"
+    if "speaker" in port:
+        return "Speakers"
+    if "lineout" in port or "line-out" in port:
+        return "Line out"
+    if "hdmi" in port:
+        return "HDMI"
+    return desc or "Output"
+
+
+def emit():
+    vol, muted = get_volume("@DEFAULT_AUDIO_SINK@")
+    mvol, mmuted = get_volume("@DEFAULT_AUDIO_SOURCE@")
+    print(json.dumps({
+        "vol": vol,
+        "muted": muted,
+        "icon": sink_icon(vol, muted),
+        "mvol": mvol,
+        "mmuted": mmuted,
+        "micon": "󰍭" if mmuted else "󰍬",
+        "sink": sink_name(),
+    }, ensure_ascii=False), flush=True)
+
+
+def main():
+    emit()
+    try:
+        proc = subprocess.Popen(
+            ["pactl", "subscribe"],
+            stdout=subprocess.PIPE, text=True,
+        )
+    except Exception:
+        return
+    for line in proc.stdout:
+        if "'change'" in line and ("sink" in line or "source" in line):
+            emit()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)

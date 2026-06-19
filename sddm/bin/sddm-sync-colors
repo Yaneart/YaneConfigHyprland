@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Copies matugen-generated colors into the root-owned theme dir.
+src=/home/yaneart/.config/matugen/generated/sddm-astronaut.conf
+dst=/usr/share/sddm/themes/sddm-astronaut-theme/Themes/matugen.conf
+[ -f "$src" ] && install -m644 "$src" "$dst"

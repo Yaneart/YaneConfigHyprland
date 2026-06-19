@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# АВАРИЙНЫЙ выход: безусловно закрывает ВСЕ eww-попапы и сбрасывает флаги.
+# Нужен на случай, если попап-оверлей завис открытым и его полноэкранный
+# eventbox ест клики мыши/скролл по всему экрану (клавиатура при этом жива,
+# т.к. окна :focusable false). В отличие от eww-close-popups здесь НЕТ гарда
+# по active-windows — закрываем грубо и всегда. Повешено на Super+Shift+Escape.
+set -uo pipefail
+
+eww daemon >/dev/null 2>&1 || true
+
+# сбросить reveal/open-флаги (вдруг залипли) и закрыть все известные окна
+eww update reveal_dash=false reveal_bat=false reveal_vol=false \
+           dash_open=false bat_open=false >/dev/null 2>&1 || true
+eww close dashboard battery volume >/dev/null 2>&1 || true
+
+# на всякий случай закрыть вообще всё, что eww считает открытым
+for w in $(eww active-windows 2>/dev/null | cut -d: -f1); do
+  eww close "$w" >/dev/null 2>&1 || true
+done
+
+command -v notify-send >/dev/null 2>&1 && \
+  notify-send -t 2000 "eww" "Попапы аварийно закрыты" || true

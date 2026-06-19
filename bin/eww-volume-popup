@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Тоггл eww-попапа звука (клик по модулю pulseaudio в waybar). Оверлей: клик мимо/Esc закрывают.
+# Анимация открытия — eww revealer (reveal_vol=true после open).
+set -uo pipefail
+
+eww daemon >/dev/null 2>&1 || true
+
+if eww active-windows 2>/dev/null | grep -q 'volume'; then
+  exec "$HOME/.local/bin/eww-close-popups"
+fi
+
+# закрыть прочие попапы мгновенно, если открыты
+eww update reveal_dash=false dash_open=false reveal_bat=false bat_open=false >/dev/null 2>&1 || true
+eww close dashboard battery >/dev/null 2>&1 || true
+
+# открыть попап звука и проявить карточку
+eww update reveal_vol=false >/dev/null 2>&1 || true
+eww open volume >/dev/null 2>&1 || true
+sleep 0.03
+eww update reveal_vol=true >/dev/null 2>&1 || true

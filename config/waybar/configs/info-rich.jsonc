@@ -77,7 +77,7 @@
         },
         "scroll-step": 1,
         "max-volume": 100,
-        "on-click": "pavucontrol",
+        "on-click": "$HOME/.local/bin/eww-volume-popup",
         "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
         "ignored-sinks": [
             "Easy Effects Sink"

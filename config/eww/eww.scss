@@ -150,6 +150,154 @@ window {
   color: $on_surface_variant;
 }
 
+// volume popup (own window, top-right)
+.vol-pop {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  background-color: $surface_container_high;
+  border-radius: 30px;
+  padding: 24px 26px;
+  margin: 10px;
+  min-width: 300px;
+}
+.vol-icon {
+  font-size: 40px;
+  color: $on_primary;
+  background-color: $primary;
+  border-radius: 22px;
+  padding: 6px 14px;
+}
+.vol-icon:hover {
+  background-color: $primary_fixed_dim;
+}
+.vol-icon.muted {
+  color: $on_surface_variant;
+  background-color: $surface_container_highest;
+}
+.vol-pct {
+  font-size: 26px;
+  font-weight: 700;
+  color: $on_surface;
+}
+.vol-sink {
+  font-size: 12px;
+  color: $on_surface_variant;
+}
+
+// scale (slider) parts: trough = track, highlight = filled, slider = knob
+.vol-bar, .mic-bar {
+  margin: 2px 0;
+}
+.vol-bar trough {
+  background-color: $surface_container_highest;
+  border-radius: 12px;
+  min-height: 12px;
+}
+.vol-bar highlight {
+  background-color: $primary;
+  border-radius: 12px;
+  min-height: 12px;
+}
+.vol-bar.muted highlight {
+  background-color: $outline;
+}
+.vol-bar slider {
+  background-color: $on_surface;
+  border-radius: 999px;
+  min-height: 18px;
+  min-width: 18px;
+  margin: -4px;
+}
+.vol-bar slider:hover {
+  background-color: $primary_fixed;
+}
+
+// volume presets
+.vol-presets {
+  margin: 2px 0;
+}
+.preset {
+  font-size: 12px;
+  font-weight: 700;
+  color: $on_surface_variant;
+  background-color: $surface_container_highest;
+  border-radius: 12px;
+  padding: 7px 0;
+}
+.preset:hover {
+  color: $on_primary_container;
+  background-color: $primary_container;
+}
+
+// microphone row
+.mic-row {
+  margin-top: 2px;
+}
+.mic-icon {
+  font-size: 18px;
+  color: $on_secondary_container;
+  background-color: $secondary_container;
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+.mic-icon:hover {
+  background-color: $secondary;
+  color: $on_secondary;
+}
+.mic-icon.muted {
+  color: $error;
+  background-color: $surface_container_highest;
+}
+.mic-bar trough {
+  background-color: $surface_container_highest;
+  border-radius: 10px;
+  min-height: 8px;
+}
+.mic-bar highlight {
+  background-color: $secondary;
+  border-radius: 10px;
+  min-height: 8px;
+}
+.mic-bar.muted highlight {
+  background-color: $outline_variant;
+}
+.mic-bar slider {
+  background-color: $on_surface;
+  border-radius: 999px;
+  min-height: 14px;
+  min-width: 14px;
+  margin: -3px;
+}
+.mic-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: $on_surface_variant;
+  min-width: 34px;
+}
+
+// sound settings button
+.mixer-btn {
+  background-color: $surface_container_highest;
+  border-radius: 14px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
+.mixer-btn:hover {
+  background-color: $secondary_container;
+}
+.mixer-icon {
+  font-size: 16px;
+  color: $primary;
+}
+.mixer-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: $on_surface;
+}
+.mixer-chevron {
+  font-size: 14px;
+  color: $on_surface_variant;
+}
+
 // calendar
 .cal-card {
   padding: 14px 16px 16px 16px;

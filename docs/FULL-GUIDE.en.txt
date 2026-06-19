@@ -389,8 +389,11 @@
   — Env: QT_QPA_PLATFORMTHEME=qt6ct (set in input.lua)
 
   SDDM (login screen)
-  — Theme: winter (video background), set via /etc/sddm.conf.d/theme.conf
-  — In the repo: sddm/ (installed by install.sh)
+  — Theme: sddm-astronaut-theme (Qt6, video background), selected in /etc/sddm.conf.d/10-theme.conf
+  — Colors recolored via matugen: template config/matugen/templates/sddm-astronaut.conf
+    → generated into ~/.config/matugen/generated/ → helper sddm-sync-colors copies it into the theme
+  — Video background is added separately: sddm-set-video ~/path/frog.mp4 (not bundled in the repo)
+  — In the repo: sddm/ + install.sh wiring (helpers, sudoers, theme selection)
 
   Thunar — file manager (Super+E)
   Yazi — terminal file manager (Super+Y)

@@ -390,8 +390,11 @@
   — Env: QT_QPA_PLATFORMTHEME=qt6ct (задаётся в input.lua)
 
   SDDM (экран входа)
-  — Тема: winter (видео-фон), задаётся в /etc/sddm.conf.d/theme.conf
-  — В репозитории: sddm/ (ставится через install.sh)
+  — Тема: sddm-astronaut-theme (Qt6, видео-фон), выбор в /etc/sddm.conf.d/10-theme.conf
+  — Цвета перекрашиваются под matugen: шаблон config/matugen/templates/sddm-astronaut.conf
+    → генерится в ~/.config/matugen/generated/ → helper sddm-sync-colors копирует в тему
+  — Видео-фон подключается отдельно: sddm-set-video ~/путь/frog.mp4 (в репо не входит)
+  — В репозитории: sddm/ + обвязка в install.sh (helper'ы, sudoers, выбор темы)
 
   Thunar — файловый менеджер (Super+E)
   Yazi — файловый менеджер в терминале (Super+Y)

@@ -5,11 +5,11 @@
 # Escape ловится глобально, поэтому сначала одним IPC-вызовом проверяем, открыт ли
 # вообще хоть один попап — иначе выходим, не дёргая eww close и не уходя в sleep.
 case "$(eww active-windows 2>/dev/null)" in
-  *dashboard*|*battery*) ;;   # есть открытый попап — продолжаем закрытие
+  *dashboard*|*battery*|*volume*) ;;   # есть открытый попап — продолжаем закрытие
   *) exit 0 ;;
 esac
 
-eww update reveal_dash=false reveal_bat=false >/dev/null 2>&1
+eww update reveal_dash=false reveal_bat=false reveal_vol=false >/dev/null 2>&1
 sleep 0.16
-eww close dashboard battery >/dev/null 2>&1
+eww close dashboard battery volume >/dev/null 2>&1
 eww update dash_open=false bat_open=false >/dev/null 2>&1

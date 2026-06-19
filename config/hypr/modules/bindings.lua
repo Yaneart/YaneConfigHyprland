@@ -13,6 +13,9 @@ bind(mainMod .. " + Q", hl.dsp.exec_cmd(localBin .. "/close-window"))
 -- Esc закрывает eww-попапы (дашборд/батарея); non_consuming = клавиша всё равно
 -- проходит в приложения (vim, меню и т.п. не ломаются).
 bind("escape", hl.dsp.exec_cmd(localBin .. "/eww-close-popups"), { non_consuming = true })
+-- Аварийный выход, если eww-оверлей завис и ест клики мыши: безусловно убивает
+-- все попапы. Esc выше — мягкое закрытие с гардом; это — грубое, на всякий случай.
+bind(mainMod .. " + SHIFT + ESCAPE", hl.dsp.exec_cmd(localBin .. "/eww-panic"))
 bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(rofiBin .. "/powermenu.sh"))
 bind(mainMod .. " + T", hl.dsp.window.float({ action = "toggle" }))
 bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))

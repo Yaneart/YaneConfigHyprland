@@ -78,7 +78,21 @@ reload_kitty() {
 }
 
 reload_hyprland() {
-  hyprctl reload >/dev/null 2>&1 || true
+  # Обновляем ТОЛЬКО цвета рамок (единственное, что зависит от matugen в
+  # Hyprland — modules/layout.lua: col.active_border = primary→tertiary,
+  # col.inactive_border = background_75) через Lua-API `eval hl.config`,
+  # как это делает border-auto. Полный `hyprctl reload` убран намеренно: он
+  # пере-раскладывал окна (resize → kitty рисует оверлей "N by M cells",
+  # рамки моргают). Правки самого конфига Hyprland подхватывает автоперезагрузкой.
+  local hc="$HOME/.config/hypr/modules/generated_colors.lua"
+  [[ -f "$hc" ]] || return 0
+  local rx='s/.*"(rgba\([0-9a-fA-F]+\))".*/\1/'
+  local prim tert inact
+  prim=$(grep -E "^[[:space:]]*primary[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
+  tert=$(grep -E "^[[:space:]]*tertiary[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
+  inact=$(grep -E "^[[:space:]]*background_75[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
+  [[ -n "$prim" && -n "$tert" && -n "$inact" ]] || return 0
+  hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"$prim\", \"$tert\" }, angle = 45 }, inactive_border = \"$inact\" } } })" >/dev/null 2>&1 || true
 }
 
 if ! $colors_only; then
