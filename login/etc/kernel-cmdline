@@ -1,0 +1,4 @@
+# РЕФЕРЕНС, не копировать дословно: root=/resume= машинно-специфичны (свои PARTUUID).
+# Установщик НЕ накатывает этот файл — он доклеивает флаги из kernel-cmdline-login-flags
+# к твоему существующему /etc/kernel/cmdline. Свои значения: blkid / lsblk -o NAME,PARTUUID
+root=PARTUUID=<ROOT_PARTUUID> zswap.enabled=0 rw rootfstype=ext4 resume=PARTUUID=<RESUME_PARTUUID> resume_offset=<RESUME_OFFSET> quiet splash rd.udev.log_level=3 vt.global_cursor_default=0 loglevel=3 i915.fastboot=1

@@ -199,3 +199,6 @@ echo "  • Старые конфиги: $BACKUP_DIR"
 echo "  • Войди в сессию Hyprland (через SDDM) — тема подтянется автоматически."
 echo "  • Смена обоев + темы: Super+W, случайная: Super+Alt+W"
 echo "  • Стили Waybar: Super+Shift+W"
+echo
+echo "  Опционально (ОТДЕЛЬНО, трогает загрузку — читай login/README.md!):"
+echo "  • Бесшовный вход без SDDM (Plymouth+автологин+hyprlock): login/install-login.sh"

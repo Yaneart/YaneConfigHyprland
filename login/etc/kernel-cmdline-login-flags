@@ -1,0 +1,1 @@
+quiet splash rd.udev.log_level=3 vt.global_cursor_default=0 loglevel=3 i915.fastboot=1
