@@ -24,7 +24,14 @@ bind(mainMod .. " + ALT + H", hl.dsp.window.swap({ direction = "l" }))
 bind(mainMod .. " + ALT + J", hl.dsp.window.swap({ direction = "d" }))
 bind(mainMod .. " + ALT + K", hl.dsp.window.swap({ direction = "u" }))
 bind(mainMod .. " + ALT + L", hl.dsp.window.swap({ direction = "r" }))
-bind(mainMod .. " + F1", hl.dsp.exec_cmd("hyprctl layers > /tmp/hypr_layers.txt"))
+-- Медиа-ряд на Super+F1..F6 (как на раскладке ThinkPad)
+bind(mainMod .. " + F1", hl.dsp.exec_cmd("pamixer -t"), { repeating = false })                       -- полный мут звука
+bind(mainMod .. " + F2", hl.dsp.exec_cmd("pamixer -d 5"), { repeating = true })                      -- тише
+bind(mainMod .. " + F3", hl.dsp.exec_cmd("pamixer -i 5"), { repeating = true })                      -- громче
+bind(mainMod .. " + F4", hl.dsp.exec_cmd("pamixer --default-source -t"), { repeating = false })      -- мут микрофона
+bind(mainMod .. " + F5", hl.dsp.exec_cmd("brightnessctl -n1 set 5%-"), { repeating = true })         -- яркость − (не уходит в чёрный)
+bind(mainMod .. " + F6", hl.dsp.exec_cmd("brightnessctl set +5%"), { repeating = true })             -- яркость +
+bind(mainMod .. " + SHIFT + F1", hl.dsp.exec_cmd("hyprctl layers > /tmp/hypr_layers.txt"))           -- дебаг: дамп слоёв (был на Super+F1)
 
 bind(mainMod .. " + C", hl.dsp.exec_cmd("Telegram"))
 bind(mainMod .. " + Y", hl.dsp.exec_cmd("kitty --single-instance -e yazi"))
@@ -87,4 +94,4 @@ bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pamixer -i 5"), { locked = true, r
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pamixer -d 5"), { locked = true, repeating = true })
 bind("XF86AudioMute", hl.dsp.exec_cmd("pamixer -t"), { locked = true, repeating = true })
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +5%"), { locked = true, repeating = true })
-bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { locked = true, repeating = true })
+bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -n1 set 5%-"), { locked = true, repeating = true })
