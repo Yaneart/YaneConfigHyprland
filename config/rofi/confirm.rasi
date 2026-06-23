@@ -6,7 +6,7 @@ window {
     width:            420px;
     height:           150px;
     border-radius:    28px;
-    background-color: @surface-container-50;
+    background-color: @surface-container;
 }
 
 mainbox {
@@ -43,7 +43,7 @@ listview {
 element {
     padding:          0px;
     border-radius:    999px;
-    background-color: @surface-container-highest-75;
+    background-color: @surface-container-high;
     text-color:       @on-surface-variant;
     orientation:      horizontal;
 }
@@ -57,7 +57,7 @@ element-text {
     font:             "JetBrainsMono Nerd Font 15";
 }
 
-element normal.normal   { background-color: @surface-container-highest-75; text-color: @on-surface-variant; }
+element normal.normal   { background-color: @surface-container-high; text-color: @on-surface-variant; }
 element selected.normal {
     background-color: @primary-container-75;
     text-color:       @on-primary-container;

@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -6,21 +5,37 @@ theme="$HOME/.config/rofi/wallset.rasi"
 WALL_DIR="$HOME/.config/wallpapers"
 CWD="$(pwd)"
 
-IFS=$'\n'
 cd "$WALL_DIR" || exit
 
-chosen=$(
+# Список файлов-обоев (отсортирован)
+mapfile -t files < <(
   find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) \
-    -printf '%P\n' \
-    | sort \
-    | while read -r file; do
-        printf '%s\0icon\x1f%s\n' "$file" "$file"
-      done \
-    | rofi -dmenu -p "Select Wallpaper" -theme "$theme"
+    -printf '%P\n' | sort
 )
 
-if [ -n "$chosen" ]; then
-    "$HOME/.local/bin/theme-apply" "$WALL_DIR/$chosen"
+# Красивое имя из файла: убрать расширение, _/- -> пробел, Каждое Слово С Заглавной
+pretty() {
+  local n="${1%.*}"
+  n="${n//_/ }"
+  n="${n//-/ }"
+  sed -E 's/\b(.)/\u\1/g' <<<"$n"
+}
+
+# Меню: плитка-превью (icon = сам файл) + красивое имя под ней
+chosen_name=$(
+  for file in "${files[@]}"; do
+    printf '%s\0icon\x1f%s\n' "$(pretty "$file")" "$WALL_DIR/$file"
+  done | rofi -dmenu -p "Select Wallpaper" -theme "$theme"
+)
+
+# Обратный маппинг красивого имени -> реальный файл
+if [ -n "$chosen_name" ]; then
+  for file in "${files[@]}"; do
+    if [ "$(pretty "$file")" = "$chosen_name" ]; then
+      "$HOME/.local/bin/theme-apply" "$WALL_DIR/$file"
+      break
+    fi
+  done
 fi
 
 cd "$CWD" || exit

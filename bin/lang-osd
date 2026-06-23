@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+# lang-osd — показывает крупную полупрозрачную надпись текущей раскладки
+# (EN/RU) по центру экрана при её смене. Слушает событие activelayout из
+# Hyprland socket2 и дёргает eww-окно `langosd` (reveal_lang/lang_text).
+#
+# Окно langosd держим открытым постоянно (revealer свёрнут → 0 размера, кликам
+# не мешает); на смену раскладки просто включаем reveal на ~1.1с.
+import os, socket, subprocess, threading, time
+
+HIS = os.environ.get("HYPRLAND_INSTANCE_SIGNATURE", "")
+RUN = os.environ.get("XDG_RUNTIME_DIR", "/run/user/%d" % os.getuid())
+SOCK2 = os.path.join(RUN, "hypr", HIS, ".socket2.sock")
+
+SHOW_SECONDS = 1.1
+
+# Сопоставление имени xkb-раскладки -> короткая метка
+def label_for(layout: str) -> str:
+    l = layout.lower()
+    if "rus" in l:
+        return "RU"
+    if "eng" in l or "us" in l or "united" in l:
+        return "EN"
+    # запасной вариант: первые 2 буквы первого слова
+    word = layout.strip().split()[0] if layout.strip() else "??"
+    return word[:2].upper()
+
+_hide_timer = None
+_last_label = None   # чтобы 5 одинаковых событий (по числу устройств) не дёргали eww 5 раз
+
+def eww(*args):
+    try:
+        subprocess.run(["eww", *args], check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except FileNotFoundError:
+        pass
+
+def hide():
+    # плавно убираем (crossfade), затем закрываем окно, чтобы оно не
+    # перехватывало клики мышью, пока висит на весь экран
+    eww("update", "reveal_lang=false")
+    time.sleep(0.25)
+    eww("close", "langosd")
+
+def show(layout: str):
+    global _hide_timer, _last_label
+    label = label_for(layout)
+    if label == _last_label:
+        return  # та же раскладка — дубликат события от другого устройства
+    _last_label = label
+    eww("open", "langosd")  # idempotent
+    eww("update", "lang_text=%s" % label, "reveal_lang=true")
+    if _hide_timer is not None:
+        _hide_timer.cancel()
+    _hide_timer = threading.Timer(SHOW_SECONDS, hide)
+    _hide_timer.daemon = True
+    _hide_timer.start()
+
+def listen():
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK2)
+    buf = b""
+    while True:
+        data = s.recv(8192)
+        if not data:
+            raise ConnectionError("socket2 closed")
+        buf += data
+        while b"\n" in buf:
+            line, buf = buf.split(b"\n", 1)
+            ev = line.decode("utf-8", "replace")
+            # формат: activelayout>>KEYBOARDNAME,LAYOUTNAME
+            if ev.startswith("activelayout>>"):
+                payload = ev.split(">>", 1)[1]
+                layout = payload.split(",", 1)[1] if "," in payload else payload
+                show(layout)
+
+def main():
+    eww("close", "langosd")  # на старте окно закрыто, откроем по первому переключению
+    while True:
+        try:
+            listen()
+        except (FileNotFoundError, ConnectionError, OSError):
+            time.sleep(2)  # Hyprland перезапустился/сокет пропал — переподключаемся
+
+if __name__ == "__main__":
+    main()

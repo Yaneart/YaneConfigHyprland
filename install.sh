@@ -121,6 +121,14 @@ if ! grep -q 'starship init bash' "$HOME/.bashrc" 2>/dev/null; then
   printf '\neval "$(starship init bash)"\n' >> "$HOME/.bashrc"
 fi
 
+# ── 6b. SUDO_ASKPASS: графический ввод пароля для sudo без TTY ────────────
+# rofi-askpass показывает matugen-окно (~/.config/rofi/askpass.rasi). Нужно,
+# чтобы `sudo -A` работал из неинтерактивных оболочек/биндов без терминала.
+if ! grep -q 'SUDO_ASKPASS' "$HOME/.bashrc" 2>/dev/null; then
+  msg "Подключаю SUDO_ASKPASS (rofi-askpass) в ~/.bashrc"
+  printf '\nexport SUDO_ASKPASS="$HOME/.local/bin/rofi-askpass"\n' >> "$HOME/.bashrc"
+fi
+
 # ── 7. SDDM: тема экрана входа (sddm-astronaut-theme + перекраска matugen) ─
 # Сама тема ставится из AUR (см. packages-aur.txt). Здесь — системная обвязка:
 # helper-синхронизация цветов matugen → root-овая папка темы, правило sudoers

@@ -9,6 +9,9 @@
 (defvar reveal_dash false)
 (defvar reveal_bat false)
 (defvar reveal_vol false)
+;; Языковой OSD: текущая раскладка по центру экрана (обновляется lang-osd слушателем)
+(defvar reveal_lang false)
+(defvar lang_text "EN")
 
 ;; Звук: событийный listener (pactl subscribe) -> мгновенные обновления слайдеров.
 (deflisten audio
@@ -186,3 +189,19 @@
     (box :halign "end" :valign "start" :space-evenly false
       (revealer :transition "crossfade" :duration "140ms" :reveal reveal_vol
         (eventbox :onclick "true" (volume_popup))))))
+
+;; Языковой OSD — крупная полупрозрачная надпись раскладки по центру экрана.
+;; Окно компактное (по содержимому), anchor center → почти не перехватывает клики.
+(defwidget lang_osd []
+  (box :class "lang-osd" :halign "center" :valign "center"
+    (label :class "lang-osd-text" :text lang_text)))
+
+(defwindow langosd
+  :monitor 0
+  :namespace "eww-overlay"
+  :geometry (geometry :width "100%" :height "100%" :anchor "top left")
+  :stacking "overlay"
+  :focusable false
+  (box :halign "center" :valign "center" :space-evenly false
+    (revealer :transition "crossfade" :duration "120ms" :reveal reveal_lang
+      (lang_osd))))

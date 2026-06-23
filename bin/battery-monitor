@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# battery-monitor — следит за СУММАРНЫМ зарядом обеих батарей (ThinkPad Power
+# Bridge: BAT0 внутренняя + BAT1 в отсеке) и предупреждает заранее, т.к.
+# upowerd не запущен и штатных уведомлений о низком заряде нет.
+#
+# Пороги (по суммарному %):
+#   20% — мягкое напоминание
+#   15% — предупреждение
+#   10% — критично (urgency=critical)
+#    5% — systemctl hibernate (запись ОЗУ на диск, питание выкл)
+#
+# Запускается из autostart.lua. Резюме после hibernate работает только
+# с пересобранным initramfs (resume-hook + resume= в cmdline) → после ребута.
+set -uo pipefail
+
+INTERVAL=60          # секунд между проверками
+LOW=20
+WARN=15
+CRIT=10
+ACTION=5             # уйти в hibernate
+NOTIFY_ID=9990       # фиксированный id → уведомления заменяют друг друга, а не копятся
+
+last_state=""        # "", low, warn, crit — чтобы не спамить
+
+ac_online() {
+  local ac
+  for ac in /sys/class/power_supply/A{C,DP}*/online; do
+    [ -r "$ac" ] && [ "$(cat "$ac")" = "1" ] && return 0
+  done
+  return 1
+}
+
+battery_percent() {
+  local now=0 full=0 n f b
+  for b in /sys/class/power_supply/BAT*; do
+    if [ -r "$b/energy_now" ] && [ -r "$b/energy_full" ]; then
+      n=$(cat "$b/energy_now"); f=$(cat "$b/energy_full")
+    elif [ -r "$b/charge_now" ] && [ -r "$b/charge_full" ]; then
+      n=$(cat "$b/charge_now"); f=$(cat "$b/charge_full")
+    else
+      continue
+    fi
+    now=$((now + n)); full=$((full + f))
+  done
+  [ "$full" -gt 0 ] || { echo 100; return; }
+  echo $(( now * 100 / full ))
+}
+
+notify() {
+  local urg="$1" title="$2" body="$3"
+  notify-send -a "Батарея" -u "$urg" -r "$NOTIFY_ID" "$title" "$body"
+}
+
+while true; do
+  if ac_online; then
+    last_state=""                       # на зарядке — сбрасываем историю
+  else
+    p=$(battery_percent)
+    if   [ "$p" -le "$ACTION" ]; then
+      notify critical "🪫 Батарея ${p}% — гибернация" "Сохраняю сессию на диск…"
+      sleep 5
+      systemctl hibernate
+      sleep 60                          # после пробуждения не дёргаемся сразу
+    elif [ "$p" -le "$CRIT" ] && [ "$last_state" != "crit" ]; then
+      notify critical "🪫 Критический заряд: ${p}%" "Подключи зарядку! На ${ACTION}% уйду в гибернацию."
+      last_state="crit"
+    elif [ "$p" -le "$WARN" ] && [ "$last_state" != "warn" ] && [ "$last_state" != "crit" ]; then
+      notify critical "⚠️ Батарея ${p}%" "Заряд низкий — подключи питание."
+      last_state="warn"
+    elif [ "$p" -le "$LOW" ] && [ "$last_state" = "" ]; then
+      notify normal "🔋 Батарея ${p}%" "Пора подумать о зарядке."
+      last_state="low"
+    fi
+  fi
+  sleep "$INTERVAL"
+done

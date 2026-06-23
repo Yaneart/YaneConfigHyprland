@@ -2,11 +2,37 @@
 
 configuration { show-icons: true; }
 
-window { width: 1000px; height: 640px; }
+// height: inherit → окно обнимает сетку плиток, без пустого места снизу
+window { width: 1020px; height: inherit; }
 
 entry { placeholder: "Search wallpapers…"; }
 
-listview { lines: 7; spacing: 6px; }
+// Галерея: сетка плиток-превью (icon сверху, имя под ней), а не список
+listview {
+    columns:       3;
+    lines:         3;
+    spacing:       14px;
+    padding:       18px;
+    fixed-height:  true;
+    scrollbar:     false;
+}
 
-element-icon { size: 3.0em; padding: 8px 6px 8px 14px; }
-element-text { padding: 10px 16px 10px 8px; }
+element {
+    orientation:   vertical;
+    padding:       10px;
+    border-radius: 18px;
+    spacing:       0px;
+}
+
+element-icon {
+    size:             150px;
+    horizontal-align: 0.5;
+    border-radius:    14px;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align:   0.5;
+    padding:          10px 4px 2px 4px;
+    font:             "JetBrainsMono Nerd Font 11";
+}

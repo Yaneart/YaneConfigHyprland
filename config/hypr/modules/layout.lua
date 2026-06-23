@@ -38,7 +38,7 @@ hl.config({
       contrast = 0.84,
       noise = 0.007,
       size = 2,
-      passes = 3,
+      passes = 2,
       new_optimizations = true,
     },
     shadow = {
@@ -76,8 +76,8 @@ hl.curve("MySmooth", { type = "bezier", points = { {0.0, 0.984}, {0.288, 1.001} 
 hl.curve("smooth", { type = "bezier", points = { {0.05, 0.82}, {0.28, 0.97} } })
 hl.curve("overshoot", { type = "bezier", points = { {0, 1.6}, {0.28, 1} } })
 
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 4.0, bezier = "MySmooth", style = "slide" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 4.0, bezier = "MySmooth", style = "slide" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 6.0, bezier = "MySmooth", style = "slide" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 6.0, bezier = "MySmooth", style = "slide" })
 hl.animation({ leaf = "windowsMove", enabled = true, speed = 4.0, bezier = "smooth", style = "slide" })
 hl.animation({ leaf = "layers", enabled = true, speed = 8.0, bezier = "MySmooth", style = "slide" })
 hl.animation({ leaf = "layersIn", enabled = true, speed = 4.5, bezier = "MySmooth", style = "slide" })

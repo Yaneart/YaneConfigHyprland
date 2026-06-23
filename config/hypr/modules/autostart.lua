@@ -16,6 +16,9 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("waybar")
   hl.exec_cmd("handy --start-hidden")   -- голосовой ввод (резидент в трее)
   hl.exec_cmd("hypridle")
+  hl.exec_cmd("thunar --daemon")   -- резидентный файл-менеджер → окна (Super+E) открываются мгновенно
+  hl.exec_cmd(localBin .. "/battery-monitor")   -- следит за суммарным зарядом обеих батарей, hibernate на 5%
+  hl.exec_cmd(localBin .. "/lang-osd")   -- OSD раскладки (EN/RU) по центру при переключении языка
   hl.exec_cmd(localBin .. "/border-auto")   -- рамка активного окна только при >1 окне на workspace
   hl.exec_cmd(hyprScripts .. "/hyprsunset_init.sh")
   hl.exec_cmd("setxkbmap -option compose:ralt")

@@ -7,7 +7,7 @@ local function bind(keys, dispatcher, flags)
   hl.bind(keys, dispatcher, flags or {})
 end
 
-bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("kitty"))
+bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("kitty --single-instance"))
 bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd(localBin .. "/kitty-dashboard"))
 bind(mainMod .. " + Q", hl.dsp.exec_cmd(localBin .. "/close-window"))
 -- Esc закрывает eww-попапы (дашборд/батарея); non_consuming = клавиша всё равно
@@ -27,7 +27,7 @@ bind(mainMod .. " + ALT + L", hl.dsp.window.swap({ direction = "r" }))
 bind(mainMod .. " + F1", hl.dsp.exec_cmd("hyprctl layers > /tmp/hypr_layers.txt"))
 
 bind(mainMod .. " + C", hl.dsp.exec_cmd("Telegram"))
-bind(mainMod .. " + Y", hl.dsp.exec_cmd("kitty -e yazi"))
+bind(mainMod .. " + Y", hl.dsp.exec_cmd("kitty --single-instance -e yazi"))
 bind(mainMod .. " + E", hl.dsp.exec_cmd("thunar"))
 bind(mainMod .. " + B", hl.dsp.exec_cmd("firefox"))
 bind(mainMod .. " + V", hl.dsp.exec_cmd("code"))
@@ -35,13 +35,13 @@ bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(localBin .. "/rofi-clipboard"))
 bind(mainMod .. " + H", hl.dsp.exec_cmd("happ"))
 bind(mainMod .. " + P", hl.dsp.exec_cmd("spotify-launcher --skip-update"))
 bind(mainMod .. " + O", hl.dsp.exec_cmd("obs"))
-bind(mainMod .. " + D", hl.dsp.exec_cmd("kitty -e lazydocker"))
+bind(mainMod .. " + D", hl.dsp.exec_cmd("kitty --single-instance -e lazydocker"))
 bind(mainMod .. " + Z", hl.dsp.exec_cmd("handy --toggle-transcription"))        -- голосовой ввод: старт/стоп записи
 bind(mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd("handy --toggle-post-process")) -- то же + AI пост-обработка
 bind(mainMod .. " + A", hl.dsp.window.close())
 bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(localBin .. "/killall"))
 
-bind(mainMod .. " + SPACE", hl.dsp.exec_cmd("pkill rofi || " .. localBin .. "/launcher"))
+bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(localBin .. "/launcher"))
 bind(mainMod .. " + W", hl.dsp.exec_cmd("pkill rofi || " .. localBin .. "/wallset"))
 bind(mainMod .. " + ALT + W", hl.dsp.exec_cmd(localBin .. "/theme-random"))
 bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd("pkill rofi || " .. localBin .. "/waybar-menu"))

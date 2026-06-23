@@ -332,3 +332,15 @@ window {
   border-radius: 12px;
   font-weight: 800;
 }
+
+// Языковой OSD — только крупные, почти прозрачные буквы по центру экрана,
+// без фона и обводки.
+.lang-osd {
+  background-color: transparent;
+}
+.lang-osd-text {
+  font-size: 220px;
+  font-weight: 800;
+  color: transparentize($primary, 0.8);   // акцент темы matugen, почти прозрачный
+  margin-bottom: 102px;                    // компенсация метрик шрифта → глифы ровно по центру
+}

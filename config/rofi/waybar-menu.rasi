@@ -2,7 +2,9 @@
 
 configuration { show-icons: false; }
 
-window { width: 460px; height: 320px; }
+// height: inherit + dynamic listview → окно подгоняется под число пунктов,
+// нет пустого места снизу (как в menu-list.rasi для WiFi/BT)
+window { width: 460px; height: inherit; }
 
 mainbox {
     spacing:  0px;
@@ -11,11 +13,12 @@ mainbox {
 }
 
 listview {
-    lines:         6;
+    lines:         8;
+    dynamic:       true;
+    fixed-height:  false;
     spacing:       4px;
     padding:       10px;
     border-radius: 0px 0px 28px 28px;
-    fixed-height:  false;
 }
 
 element-text {

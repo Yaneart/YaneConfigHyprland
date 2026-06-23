@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# askpass-хелпер для `sudo -A`: показывает rofi-окно с маскированным вводом
+# пароля и печатает его в stdout (sudo читает оттуда). Нужен, чтобы sudo
+# работал в неинтерактивных оболочках без TTY (например, через `!` в Claude
+# Code или из биндов Hyprland). Тема — ~/.config/rofi/askpass.rasi (matugen).
+# Текст-приглашение sudo передаёт первым аргументом.
+rofi -dmenu -password \
+     -no-fixed-num-lines \
+     -theme "$HOME/.config/rofi/askpass.rasi"

@@ -43,4 +43,4 @@ __dash_draw
 rm -f "$RC"
 EOF
 
-exec kitty --title "System Dashboard" -- bash --rcfile "$RC" -i
+exec kitty --single-instance --title "System Dashboard" -- bash --rcfile "$RC" -i

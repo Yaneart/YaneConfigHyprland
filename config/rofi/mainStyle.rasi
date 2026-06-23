@@ -20,7 +20,7 @@ window {
     border:           1px solid;
     border-radius:    28px;
     border-color:     @outline-variant-25;
-    background-color: @surface-container-50;
+    background-color: @surface-container;
     cursor:           "default";
 }
 
@@ -37,7 +37,7 @@ inputbar {
     border:           0px 0px 1px 0px solid;
     border-radius:    28px 28px 0px 0px;
     border-color:     @outline-variant-25;
-    background-color: @surface-container-highest-75;
+    background-color: @surface-container-high;
     children:         [ "textbox-prompt-colon", "entry" ];
 }
 
@@ -68,7 +68,7 @@ message {
     padding:          12px 20px;
     border:           0px 0px 1px 0px solid;
     border-color:     @outline-variant-25;
-    background-color: @surface-container-highest-75;
+    background-color: @surface-container-high;
     text-color:       @primary;
     font:             "JetBrainsMono Nerd Font Bold 14";
 }
@@ -112,12 +112,16 @@ element normal.active { background-color: @primary-container-10; text-color: @on
 element normal.urgent { background-color: @error-container-10;   text-color: @on-error-container;   }
 
 element selected.normal {
-    background-color: @primary-container-75;
+    background-color: @primary-container;
     text-color:       @on-primary-container;
+    border:           2px solid;
+    border-color:     @primary-50;
 }
 element selected.active {
-    background-color: @primary-container-75;
+    background-color: @primary-container;
     text-color:       @on-primary-container;
+    border:           2px solid;
+    border-color:     @primary-50;
 }
 element selected.urgent {
     background-color: @error-container-75;

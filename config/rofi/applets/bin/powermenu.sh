@@ -64,7 +64,7 @@ confirm_exit() {
 confirm_run () {	
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
-        ${1} && ${2} && ${3}
+        ${1} && ${2:-true} && ${3:-true}
     else
         exit
     fi	

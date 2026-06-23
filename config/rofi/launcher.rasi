@@ -1,11 +1,18 @@
 @import "~/.config/rofi/mainStyle.rasi"
 
-configuration { show-icons: true; }
+configuration {
+    show-icons:          true;
+    // только имя приложения, без серого "(generic comment)" — чище и ровнее
+    drun-display-format: "{name}";
+}
 
-window { width: 860px; height: 560px; }
+window { width: 760px; height: 540px; }
 
 prompt { text-color: transparent; }
 entry  { placeholder: "Search applications…"; }
 
-element-icon { size: 2.2em; padding: 8px 4px 8px 14px; }
-element-text { padding: 10px 16px 10px 8px; font: "JetBrainsMono Nerd Font 14"; }
+listview { spacing: 4px; padding: 12px; }
+
+element      { padding: 4px 8px; }
+element-icon { size: 1.7em; padding: 8px 6px 8px 10px; }
+element-text { padding: 10px 14px 10px 6px; font: "JetBrainsMono Nerd Font 14"; }
