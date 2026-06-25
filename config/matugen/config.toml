@@ -1,22 +1,9 @@
-[color_adjustment]
-saturation = -100
-contrast = 0
-
-[config.custom_colors.success]
-color = "#358738"
-blend = true
-
-[config.custom_colors.blue]
-color = "#3f597b"
-blend = true
-
-[config.custom_colors.red]
-color = "#9a4141"
-blend = true
-
-[config.custom_colors.yellow]
-color = "#c0ba17"
-blend = true
+# Палитра целиком выводится из обоев (scheme-content задаётся в theme-apply).
+# Вшитые custom_colors (blue/red/yellow/success) удалены 2026-06-24: они
+# навязывали фиксированные хью независимо от обоев — отсюда брались "фантомные"
+# синий/красный на зелёных обоях. Семантические имена теперь либо мапятся на
+# реальные роли matugen (в шаблонах), либо берутся из wallust (реальные цвета
+# пикселей обоев). См. memory: project_palette_multicolor.
 
 [config.wallpaper]
 command = "hyprpaper"
@@ -27,26 +14,9 @@ arguments = ["img", "--transition-type", "center"]
 input_path = '~/.config/matugen/templates/hyprland-colors.lua'
 output_path = '~/.config/hypr/modules/generated_colors.lua'
 
-[templates.hyprlock]
-input_path = '~/.config/matugen/templates/hyprlock-colors.conf'
-output_path = '~/.config/hypr/hyprlock-colors.conf'
-
-[templates.obs]
-input_path = '~/.config/matugen/templates/obs-theme.ovt'
-output_path = '~/.config/obs-studio/themes/Yami_Matugen.ovt'
-
-[templates.kitty]
-input_path = '~/.config/matugen/templates/kitty-colors.conf'
-output_path = '~/.config/kitty/colors/colors.conf'
-
-
-# SDDM (sddm-astronaut-theme). matugen writes a user-owned copy here; the
-# post_hook syncs it into the root-owned theme dir via a NOPASSWD helper.
-[templates.sddm]
-input_path = '~/.config/matugen/templates/sddm-astronaut.conf'
-output_path = '~/.config/matugen/generated/sddm-astronaut.conf'
-post_hook = 'command -v sddm-sync-colors >/dev/null 2>&1 && sudo -n sddm-sync-colors >/dev/null 2>&1 || true'
-
+# hyprlock, obs, sddm, kitty перенесены на wallust 24.06.2026 (реальные цвета
+# обоев). Post-actions (sddm-sync) перенесены в bin/theme-apply. kitty теперь
+# подключает ~/.cache/wallust/colors-kitty.conf напрямую.
 
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'
@@ -70,14 +40,8 @@ input_path = '~/.config/matugen/templates/colors-swaync.css'
 output_path = '~/.config/swaync/colors-swaync.css'
 
 
-[templates.btop]
-input_path = '~/.config/matugen/templates/btop.theme'
-output_path = '~/.config/btop/themes/matugen.theme'
-
-
-[templates.starship]
-input_path = '~/.config/matugen/templates/starship-colors.toml'
-output_path = '~/.config/starship.toml'
+# btop и starship перенесены на wallust 24.06.2026 (реальные цвета обоев вместо
+# выдуманных matugen-акцентов) — см. wallust.toml [templates] btop/hyprstarship.
 
 # PywalFox bridge (for Zen Browser UI via PywalZen)
 # [templates.pywalfox]
@@ -91,36 +55,15 @@ output_path = '~/.config/starship.toml'
 # } >/dev/null 2>&1 & disown'
 # '''
 
-[templates.pywalfox]
-input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
-output_path = "~/.config/matugen/generated/pywalfox-colors.json"
-post_hook   = '''
-bash -c '
-{
-  if command -v pywalfox >/dev/null 2>&1; then
-    mkdir -p "$HOME/.cache/wal"
-    ln -nfs "$HOME/.config/matugen/generated/pywalfox-colors.json" "$HOME/.cache/wal/colors.json"
-    pywalfox update
-  fi
-} >/dev/null 2>&1 </dev/null & disown
-'
-'''
-# GTK apps
-
-[templates.gtk3]
-input_path = '~/.config/matugen/templates/gtk-colors.css'
-output_path = '~/.config/gtk-3.0/colors.css'
-post_hook = 'gsettings set org.gnome.desktop.interface gtk-theme ""; gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-{{mode}}'
-
-[templates.gtk4]
-input_path = '~/.config/matugen/templates/gtk-colors.css'
-output_path = '~/.config/gtk-4.0/colors.css'
-
-
-[templates.cava]
-input_path  = '~/.config/matugen/templates/cava.conf'
-output_path = '~/.config/cava/config'
-
+# Firefox (pywalfox) перенесён на wallust 24.06.2026 — matugen-вывод был
+# полу-битый (большинство color-слотов = пустые строки). Теперь полный
+# pywal-формат с реальными цветами обоев генерит wallust прямо в
+# ~/.cache/wal/colors.json. Post-action `pywalfox update` — в bin/theme-apply.
+# [templates.pywalfox]
+# input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
+# output_path = "~/.config/matugen/generated/pywalfox-colors.json"
+# GTK apps, cava — перенесены на wallust 24.06.2026 (реальные цвета обоев).
+# gsettings-toggle (перезагрузка GTK-темы) перенесён в bin/theme-apply.
 
 # VSCode — палитра вживляется в settings.json как workbench.colorCustomizations
 # поверх базовой темы. VSCode применяет изменения settings.json вживую, без
@@ -131,24 +74,7 @@ output_path = '~/.config/matugen/generated/vscode-colors.json'
 post_hook   = 'python3 ~/.local/bin/vscode-matugen >/dev/null 2>&1 || true'
 
 
-# Spotify (Spicetify) — перекраска под обои БЕЗ перезапуска клиента:
-# `spicetify refresh` обновляет css/цвета в патче (для следующих запусков),
-# а spotify-recolor через CDP (порт 9222 из spotify-launcher.conf) плавно
-# вживляет новые цвета в работающий Spotify с CSS-переходом ~0.6с.
-[templates.spicetify]
-input_path  = '~/.config/matugen/templates/spicetify-color.ini'
-output_path = '~/.config/spicetify/Themes/matugen/color.ini'
-post_hook   = '''
-bash -c '
-{
-  if command -v spicetify >/dev/null 2>&1; then
-    if pgrep -x spotify >/dev/null 2>&1; then
-      "$HOME/.local/bin/spotify-recolor"   # сперва живая перекраска — мгновенно
-    fi
-    spicetify -q refresh       # потом файлы темы (для следующих запусков)
-  fi
-} >/dev/null 2>&1 </dev/null & disown
-'
-'''
+# Spotify (Spicetify) перенесён на wallust 24.06.2026 (реальные цвета обоев).
+# Перекраска (spotify-recolor + spicetify refresh) перенесена в bin/theme-apply.
 
 

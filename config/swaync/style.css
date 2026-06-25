@@ -7,5 +7,6 @@
 
 
 @import 'colors-swaync.css';
+@import 'colors-wallust.css'; /* override акцентов реальными цветами обоев (wallust) */
 @import 'themes/matugen-nc/notifications.css';
 @import 'themes/matugen-nc/control-center.css';

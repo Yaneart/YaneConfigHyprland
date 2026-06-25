@@ -93,5 +93,14 @@ bind("ALT + Print", hl.dsp.exec_cmd([[grim -g "$(slurp)" - | swappy -f - && noti
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("pamixer -i 5"), { locked = true, repeating = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pamixer -d 5"), { locked = true, repeating = true })
 bind("XF86AudioMute", hl.dsp.exec_cmd("pamixer -t"), { locked = true, repeating = true })
+bind("XF86AudioMicMute", hl.dsp.exec_cmd("pamixer --default-source -t"), { locked = true })   -- аппаратный Fn+F4
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +5%"), { locked = true, repeating = true })
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -n1 set 5%-"), { locked = true, repeating = true })
+
+-- Управление медиаплеером (playerctl). XF86-клавиши — для внешних клавиатур/Fn;
+-- Super+SHIFT+SPACE — play/pause с ноутбучной клавиатуры (на T480 нет отдельных медиа-клавиш).
+bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
+bind(mainMod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("playerctl play-pause"))

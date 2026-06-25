@@ -77,22 +77,54 @@ reload_kitty() {
   pkill -USR1 kitty >/dev/null 2>&1 || true
 }
 
+# Post-actions, перенесённые из matugen post_hook'ов (24.06.2026), когда
+# соответствующие приложения переехали на wallust. Файлы цветов уже записаны
+# wallust'ом к моменту вызова (после `wait`).
+reload_gtk() {
+  # Перетыкаем GTK-тему, чтобы запущенные приложения перечитали colors.css.
+  local mode="dark"
+  gsettings set org.gnome.desktop.interface gtk-theme "" >/dev/null 2>&1 || true
+  gsettings set org.gnome.desktop.interface gtk-theme "adw-gtk3-${mode}" >/dev/null 2>&1 || true
+}
+
+reload_sddm() {
+  command -v sddm-sync-colors >/dev/null 2>&1 && sudo -n sddm-sync-colors >/dev/null 2>&1 || true
+}
+
+reload_firefox() {
+  # Firefox через pywalfox (перенесён с matugen 24.06.2026). wallust уже записал
+  # полный pywal-формат в ~/.cache/wal/colors.json — pywalfox читает его по
+  # умолчанию и отдаёт тему расширению Firefox. matugen-симлинк удалён.
+  command -v pywalfox >/dev/null 2>&1 && pywalfox update >/dev/null 2>&1 || true
+}
+
+reload_spotify() {
+  command -v spicetify >/dev/null 2>&1 || return 0
+  # Живая перекраска работающего Spotify (CDP), затем обновление файлов темы.
+  pgrep -x spotify >/dev/null 2>&1 && "$HOME/.local/bin/spotify-recolor" >/dev/null 2>&1 || true
+  spicetify -q refresh >/dev/null 2>&1 || true
+}
+
 reload_hyprland() {
-  # Обновляем ТОЛЬКО цвета рамок (единственное, что зависит от matugen в
-  # Hyprland — modules/layout.lua: col.active_border = primary→tertiary,
-  # col.inactive_border = background_75) через Lua-API `eval hl.config`,
-  # как это делает border-auto. Полный `hyprctl reload` убран намеренно: он
-  # пере-раскладывал окна (resize → kitty рисует оверлей "N by M cells",
-  # рамки моргают). Правки самого конфига Hyprland подхватывает автоперезагрузкой.
-  local hc="$HOME/.config/hypr/modules/generated_colors.lua"
-  [[ -f "$hc" ]] || return 0
-  local rx='s/.*"(rgba\([0-9a-fA-F]+\))".*/\1/'
-  local prim tert inact
-  prim=$(grep -E "^[[:space:]]*primary[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
-  tert=$(grep -E "^[[:space:]]*tertiary[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
-  inact=$(grep -E "^[[:space:]]*background_75[[:space:]]*=" "$hc" | head -1 | sed -E "$rx") || true
-  [[ -n "$prim" && -n "$tert" && -n "$inact" ]] || return 0
-  hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"$prim\", \"$tert\" }, angle = 45 }, inactive_border = \"$inact\" } } })" >/dev/null 2>&1 || true
+  # Обновляем ТОЛЬКО цвета рамок через Lua-API `eval hl.config` (как border-auto).
+  # Полный `hyprctl reload` убран намеренно: он пере-раскладывал окна (resize →
+  # kitty рисует оверлей "N by M cells", рамки моргают). Правки самого конфига
+  # Hyprland подхватывает автоперезагрузкой.
+  #
+  # active_border = три СОЧНЫХ реальных цвета обоев из wallust (color4/5/6) —
+  # matugen scheme-content приглушённый, поэтому рамку красим из wallust
+  # (синхронно с modules/layout.lua). inactive_border = тёмный фон wallust @0.75.
+  local cs="$HOME/.cache/wallust/colors.sh"
+  [[ -f "$cs" ]] || return 0
+  local color4 color5 color6 background
+  # shellcheck disable=SC1090
+  source "$cs" 2>/dev/null || return 0
+  local h2r  # "#3D8367" → "rgba(3d8367ff)"
+  h2r() { local x="${1#\#}"; printf 'rgba(%s%s)' "${x,,}" "${2:-ff}"; }
+  [[ -n "${color4:-}" && -n "${color5:-}" && -n "${color6:-}" && -n "${background:-}" ]] || return 0
+  local a4 a5 a6 inact
+  a4=$(h2r "$color4"); a5=$(h2r "$color5"); a6=$(h2r "$color6"); inact=$(h2r "$background" bf)
+  hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"$a4\", \"$a5\", \"$a6\" }, angle = 45 }, inactive_border = \"$inact\" } } })" >/dev/null 2>&1 || true
 }
 
 if ! $colors_only; then
@@ -110,12 +142,13 @@ if ! $colors_only; then
   cp "$file" "$LOCK_BACKGROUND"
 fi
 
-# Два генератора: wallust (терминальная палитра kitty + переменные
-# waybar/rofi, ~0.04с) и matugen (Material You для всего остального,
-# ~1.5с). pywal удалён 2026-06-13: его вывод никто не читал, а запись
-# в ~/.cache/wal/colors.json гонялась с matugen-симлинком для pywalfox.
+# Два генератора (24.06.2026): wallust — РЕАЛЬНЫЕ цвета обоев для всех акцентов
+# (kitty/waybar/rofi/swaync/eww/btop/starship/cava/hyprlock/gtk/spicetify/sddm/
+# obs/рамка окна), ~0.04с; matugen (scheme-content) — нейтральная структура
+# (фоны/поверхности/текст) + акцент VSCode через скрипт-своп, ~1.5с. pywal удалён
+# 2026-06-13. Подробнее: memory project_palette_multicolor.
 wallust run "$file" >/dev/null &
-matugen image "$file" --prefer darkness >/dev/null &
+matugen image "$file" --type scheme-content --prefer darkness >/dev/null &
 wait
 
 echo "$file" > "$STATE_FILE"
@@ -124,5 +157,12 @@ reload_waybar &
 reload_swaync &
 reload_kitty &
 reload_hyprland &
+reload_gtk &
+reload_sddm &
 wait
+
+# Spotify-перекраска и Firefox/pywalfox отдельно и детачем — медленные/ходят
+# в native messaging, не блокируем основной поток theme-apply.
+( reload_spotify >/dev/null 2>&1 & disown ) 2>/dev/null || true
+( reload_firefox >/dev/null 2>&1 & disown ) 2>/dev/null || true
 

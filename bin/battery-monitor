@@ -1,26 +1,25 @@
 #!/usr/bin/env bash
-# battery-monitor — следит за СУММАРНЫМ зарядом обеих батарей (ThinkPad Power
-# Bridge: BAT0 внутренняя + BAT1 в отсеке) и предупреждает заранее, т.к.
-# upowerd не запущен и штатных уведомлений о низком заряде нет.
+# battery-monitor — уведомления о низком заряде батареи (ThinkPad Power Bridge:
+# BAT0 внутренняя + BAT1 в отсеке). upowerd не запущен, штатных уведомлений нет.
 #
-# Пороги (по суммарному %):
-#   20% — мягкое напоминание
-#   15% — предупреждение
-#   10% — критично (urgency=critical)
-#    5% — systemctl hibernate (запись ОЗУ на диск, питание выкл)
+# Поведение по запросу пользователя: НИКАКОЙ гибернации и вольтажных страховок —
+# батарея просто разряжается до 0. Только всплывающие напоминания на порогах:
+#   20% — пора подумать о зарядке (обычное)
+#   15% — заряд низкий (внимание)
+#   10% — критично
+#    5% — подключай срочно
 #
-# Запускается из autostart.lua. Резюме после hibernate работает только
-# с пересобранным initramfs (resume-hook + resume= в cmdline) → после ребута.
+# Процент считается по САМОЙ ЗАРЯЖЕННОЙ (живой) батарее, а не по сумме: Power
+# Bridge разряжает батареи по очереди, и подсевшая/мёртвая батарея с нулём, но
+# ненулевым energy_full иначе занижала бы общий %.
+#
+# Запускается из autostart.lua.
 set -uo pipefail
 
 INTERVAL=60          # секунд между проверками
-LOW=20
-WARN=15
-CRIT=10
-ACTION=5             # уйти в hibernate
 NOTIFY_ID=9990       # фиксированный id → уведомления заменяют друг друга, а не копятся
 
-last_state=""        # "", low, warn, crit — чтобы не спамить
+notified=99          # самый низкий уже показанный порог (99 = ничего; сброс на зарядке)
 
 ac_online() {
   local ac
@@ -31,7 +30,9 @@ ac_online() {
 }
 
 battery_percent() {
-  local now=0 full=0 n f b
+  # Процент САМОЙ ЗАРЯЖЕННОЙ батареи (max), чтобы мёртвая/подсевшая батарея
+  # не занижала результат. Нет батарей вовсе → 100 (не паникуем).
+  local n f b pct max=-1
   for b in /sys/class/power_supply/BAT*; do
     if [ -r "$b/energy_now" ] && [ -r "$b/energy_full" ]; then
       n=$(cat "$b/energy_now"); f=$(cat "$b/energy_full")
@@ -40,10 +41,12 @@ battery_percent() {
     else
       continue
     fi
-    now=$((now + n)); full=$((full + f))
+    [ "${f:-0}" -gt 0 ] || continue
+    pct=$(( n * 100 / f ))
+    [ "$pct" -gt "$max" ] && max=$pct
   done
-  [ "$full" -gt 0 ] || { echo 100; return; }
-  echo $(( now * 100 / full ))
+  [ "$max" -lt 0 ] && max=100
+  echo "$max"
 }
 
 notify() {
@@ -53,23 +56,22 @@ notify() {
 
 while true; do
   if ac_online; then
-    last_state=""                       # на зарядке — сбрасываем историю
+    notified=99                          # на зарядке — сбрасываем историю порогов
   else
     p=$(battery_percent)
-    if   [ "$p" -le "$ACTION" ]; then
-      notify critical "🪫 Батарея ${p}% — гибернация" "Сохраняю сессию на диск…"
-      sleep 5
-      systemctl hibernate
-      sleep 60                          # после пробуждения не дёргаемся сразу
-    elif [ "$p" -le "$CRIT" ] && [ "$last_state" != "crit" ]; then
-      notify critical "🪫 Критический заряд: ${p}%" "Подключи зарядку! На ${ACTION}% уйду в гибернацию."
-      last_state="crit"
-    elif [ "$p" -le "$WARN" ] && [ "$last_state" != "warn" ] && [ "$last_state" != "crit" ]; then
+    # уведомляем один раз на каждом пороге по мере снижения (от самого низкого)
+    if   [ "$p" -le 5 ]  && [ "$notified" -gt 5 ];  then
+      notify critical "🪫 Батарея ${p}%" "Подключи зарядку срочно!"
+      notified=5
+    elif [ "$p" -le 10 ] && [ "$notified" -gt 10 ]; then
+      notify critical "🪫 Критический заряд: ${p}%" "Подключи зарядку."
+      notified=10
+    elif [ "$p" -le 15 ] && [ "$notified" -gt 15 ]; then
       notify critical "⚠️ Батарея ${p}%" "Заряд низкий — подключи питание."
-      last_state="warn"
-    elif [ "$p" -le "$LOW" ] && [ "$last_state" = "" ]; then
+      notified=15
+    elif [ "$p" -le 20 ] && [ "$notified" -gt 20 ]; then
       notify normal "🔋 Батарея ${p}%" "Пора подумать о зарядке."
-      last_state="low"
+      notified=20
     fi
   fi
   sleep "$INTERVAL"

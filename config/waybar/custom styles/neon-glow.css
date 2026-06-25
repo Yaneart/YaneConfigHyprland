@@ -10,7 +10,7 @@
 
 window#waybar {
     background-color: alpha(@background, 0.6);
-    color: @color6;
+    color: @primary;
 }
 
 window#waybar.hidden {
@@ -25,12 +25,12 @@ window#waybar.hidden {
 
 tooltip {
     background: @background;
-    border: 1px solid alpha(@color6, 0.6);
+    border: 1px solid alpha(@primary, 0.6);
     border-radius: 8px;
 }
 
 tooltip label {
-    color: @color6;
+    color: @primary;
     padding: 2px 6px;
 }
 
@@ -51,14 +51,14 @@ tooltip label {
 #disk,
 #language {
     background: alpha(@background, 0.7);
-    color: @color6;
-    border: 1px solid alpha(@color6, 0.45);
+    color: @primary;
+    border: 1px solid alpha(@primary, 0.45);
     border-radius: 8px;
     margin: 0 3px;
     padding: 0 8px;
     min-height: 26px;
-    box-shadow: 0 0 6px alpha(@color6, 0.25);
-    text-shadow: 0 0 6px alpha(@color6, 0.5);
+    box-shadow: 0 0 6px alpha(@primary, 0.25);
+    text-shadow: 0 0 6px alpha(@primary, 0.5);
     transition: color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -85,23 +85,23 @@ tooltip label {
 
 #workspaces {
     background: alpha(@background, 0.7);
-    border: 1px solid alpha(@color6, 0.45);
+    border: 1px solid alpha(@primary, 0.45);
     border-radius: 8px;
     padding: 2px 5px;
     margin: 0 4px;
-    box-shadow: 0 0 6px alpha(@color6, 0.25);
+    box-shadow: 0 0 6px alpha(@primary, 0.25);
 }
 
 #workspaces button {
-    color: alpha(@color6, 0.55);
+    color: alpha(@primary, 0.55);
     padding: 0 8px;
     border-radius: 6px;
     transition: color 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
 }
 
 #workspaces button:hover {
-    color: @color6;
-    text-shadow: 0 0 8px @color6;
+    color: @primary;
+    text-shadow: 0 0 8px @primary;
 }
 
 #workspaces button.active {
@@ -118,8 +118,8 @@ tooltip label {
 #network.disconnected,
 #bluetooth.disabled,
 #bluetooth.off {
-    color: alpha(@color6, 0.35);
-    border-color: alpha(@color6, 0.2);
+    color: alpha(@primary, 0.35);
+    border-color: alpha(@primary, 0.2);
     box-shadow: none;
     text-shadow: none;
 }
@@ -138,7 +138,7 @@ tooltip label {
 }
 
 #pulseaudio.muted {
-    color: alpha(@color6, 0.4);
+    color: alpha(@primary, 0.4);
     box-shadow: none;
     text-shadow: none;
 }

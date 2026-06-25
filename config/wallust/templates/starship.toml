@@ -1,0 +1,99 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = '''
+[](primary)$os$username[](fg:primary) [](secondary)$directory[](fg:secondary)$git_branch$git_status$nodejs$rust$golang$php$python$cmd_duration
+$character'''
+
+palette = 'colors'
+
+# Палитра — РЕАЛЬНЫЕ цвета обоев из wallust (color0-15). Перенесён с matugen
+# 24.06.2026: matugen выдумывал акценты (на синих обоях tertiary→розовый).
+# Текст на сегментах — тёмный (background), фон сегмента — цвет обоев.
+[palettes.colors]
+primary = '{{color4}}'
+on_primary = '{{background}}'
+secondary = '{{color5}}'
+on_secondary = '{{background}}'
+tertiary = '{{color6}}'
+on_tertiary = '{{background}}'
+blue = '{{color4}}'
+on_blue = '{{background}}'
+yellow = '{{color3}}'
+on_yellow = '{{background}}'
+success = '{{color2}}'
+on_success = '{{background}}'
+red = '{{color1}}'
+on_red = '{{background}}'
+surface_container = '{{color0}}'
+on_surface = '{{foreground}}'
+err = '{{color1}}'
+
+[os]
+disabled = false
+style = "fg:on_primary bg:primary"
+format = "[$symbol ]($style)"
+
+[os.symbols]
+Arch = "󰣇"
+
+[username]
+show_always = true
+style_user = "fg:on_primary bg:primary"
+style_root = "fg:on_primary bg:primary bold"
+format = "[$user]($style)"
+
+[directory]
+style = "fg:on_secondary bg:secondary"
+format = "[$path]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+symbol = ""
+style = "fg:on_tertiary bg:tertiary"
+format = ' [](fg:tertiary)[$symbol $branch]($style)'
+
+[git_status]
+style = "fg:on_tertiary bg:tertiary"
+format = '[( $all_status$ahead_behind)]($style)[](fg:tertiary)'
+
+# Языки — каждый своим цветом обоев
+[nodejs]
+symbol = ""
+style = "fg:on_success bg:success"
+format = ' [](fg:success)[$symbol ($version)]($style)[](fg:success)'
+
+[rust]
+symbol = ""
+style = "fg:on_red bg:red"
+format = ' [](fg:red)[$symbol ($version)]($style)[](fg:red)'
+
+[golang]
+symbol = ""
+style = "fg:on_blue bg:blue"
+format = ' [](fg:blue)[$symbol ($version)]($style)[](fg:blue)'
+
+[php]
+symbol = ""
+style = "fg:on_secondary bg:secondary"
+format = ' [](fg:secondary)[$symbol ($version)]($style)[](fg:secondary)'
+
+[python]
+symbol = ""
+style = "fg:on_yellow bg:yellow"
+format = ' [](fg:yellow)[$symbol ($version)]($style)[](fg:yellow)'
+
+[cmd_duration]
+min_time = 2000
+style = "fg:on_surface bg:surface_container"
+format = ' [](fg:surface_container)[󱎫 $duration]($style)[](fg:surface_container)'
+
+[character]
+success_symbol = '[❯](bold fg:primary)'
+error_symbol = '[❯](bold fg:err)'

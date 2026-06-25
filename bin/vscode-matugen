@@ -42,12 +42,29 @@ def boost(hex6):
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
 
 
+def wallust_accent():
+    """Читает реальный цвет обоев color4 из ~/.cache/wallust/colors.sh.
+    24.06.2026: акцент VSCode = цвет ОБОЕВ (wallust), а не выдуманный matugen.
+    Нейтральная палитра (фоны/панели/текст) по-прежнему из matugen json."""
+    path = os.path.join(HOME, ".cache/wallust/colors.sh")
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("color4="):
+                    return line.split("=", 1)[1].strip().strip("'\"")
+    except OSError:
+        pass
+    return None
+
+
 def boost_accent(colors):
-    """Накачивает каждое вхождение акцента (включая варианты с альфой #rrggbbAA)."""
+    """Заменяет каждое вхождение акцента (matugen primary) на реальный цвет
+    обоев из wallust, сохраняя суффикс альфы (#rrggbbAA). Если wallust недоступен
+    — откат на «накачку» matugen-primary (boost)."""
     accent = colors.get("focusBorder", "")  # в шаблоне focusBorder == primary
     if len(accent) != 7 or not accent.startswith("#"):
         return colors
-    loud = boost(accent)
+    loud = wallust_accent() or boost(accent)
     a = accent.lower()
     out = {}
     for k, v in colors.items():

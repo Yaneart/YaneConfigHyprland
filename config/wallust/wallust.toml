@@ -19,3 +19,26 @@ kitty = { src='kitty.conf', dst='~/.cache/wallust/colors-kitty.conf'}
 neovim = { src = 'colors_neopywal.vim', dst='~/.cache/wallust/colors_neopywal.vim'}
 rofi = { src = 'rofi-colors.rasi', dst ='~/.config/rofi/colors/colors-wallust.rasi'}
 shell = { src = 'colors.sh', dst = '~/.cache/wallust/colors.sh'}
+hypr = { src = 'hypr-colors.lua', dst = '~/.config/hypr/modules/wallust_colors.lua'}
+# Перенесены с matugen 24.06.2026 — реальные цвета обоев вместо выдуманных.
+hyprstarship = { src = 'starship.toml', dst = '~/.config/starship.toml'}
+btop = { src = 'btop.theme', dst = '~/.config/btop/themes/matugen.theme'}
+# Override-файл swaync: переопределяет ТОЛЬКО акцентные роли поверх matugen.
+# (rofi уже использует существующий rofi-шаблон colors-wallust.rasi — расширен.)
+swayncacc = { src = 'swaync-accents.css', dst = '~/.config/swaync/colors-wallust.css'}
+ewwacc = { src = 'eww-accents.scss', dst = '~/.config/eww/colors-wallust.scss'}
+cava = { src = 'cava.conf', dst = '~/.config/cava/config'}
+# Перенесены с matugen 24.06.2026 — реальные цвета обоев. Post-actions
+# (spotify-recolor, sddm-sync, gsettings-toggle) перенесены в bin/theme-apply.
+hyprlock = { src = 'hyprlock-colors.conf', dst = '~/.config/hypr/hyprlock-colors.conf'}
+spicetifyc = { src = 'spicetify-color.ini', dst = '~/.config/spicetify/Themes/matugen/color.ini'}
+obs = { src = 'obs-theme.ovt', dst = '~/.config/obs-studio/themes/Yami_Matugen.ovt'}
+gtk3acc = { src = 'gtk-colors.css', dst = '~/.config/gtk-3.0/colors.css'}
+gtk4acc = { src = 'gtk-colors.css', dst = '~/.config/gtk-4.0/colors.css'}
+sddmc = { src = 'sddm-astronaut.conf', dst = '~/.config/matugen/generated/sddm-astronaut.conf'}
+# Firefox через pywalfox — перенесён с matugen 24.06.2026: matugen-вывод был
+# полу-битый (color1..9/11/12/14 = пустые строки), Firefox получал неполную
+# палитру. Теперь полный pywal-формат с реальными цветами обоев пишется прямо
+# в ~/.cache/wal/colors.json (pywalfox читает его по умолчанию). Симлинк на
+# matugen-файл удалён. Post-action `pywalfox update` перенесён в bin/theme-apply.
+pywalfox = { src = 'pywalfox-colors.json', dst = '~/.cache/wal/colors.json'}

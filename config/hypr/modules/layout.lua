@@ -1,11 +1,15 @@
--- Градиентная обводка активного окна под matugen-палитру: primary → tertiary
--- (акцентный → второй акцент, перелив под углом 45°). Перекрашивается сама при
--- смене обоев, т.к. Colors берётся из generated_colors.lua. Формат градиента в
--- Lua-API Hyprland — таблица {colors={...}, angle=N} (см. HL.Gradient в стабах).
+-- Градиентная обводка активного окна — три СОЧНЫХ реальных цвета обоев из
+-- wallust (WColors.color4/5/6), перелив под углом 45°. matugen scheme-content
+-- даёт приглушённую палитру, поэтому для рамки берём wallust; фолбэк — роли
+-- matugen (Colors). Перекрашивается сама при смене обоев: WColors из
+-- modules/wallust_colors.lua, Colors из modules/generated_colors.lua.
+-- NB: reload_hyprland в ~/.local/bin/theme-apply дублирует этот список
+-- (читает ~/.cache/wallust/colors.sh) — менять синхронно.
 local active_gradient = {
   colors = {
-    Colors.primary or "rgba(b3c5ffff)",
-    Colors.tertiary or "rgba(e2bbdcff)",
+    WColors.color4 or Colors.primary or "rgba(b3c5ffff)",
+    WColors.color5 or Colors.secondary or "rgba(b4c5ffff)",
+    WColors.color6 or Colors.tertiary or "rgba(e2bbdcff)",
   },
   angle = 45,
 }

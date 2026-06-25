@@ -1,8 +1,16 @@
 # Waybar с встроенным модулем cava (заменяет обычный waybar)
 waybar-cava
 
-# Генерация цветов из обоев (вторая часть цепочки)
+# Генерация цветов из обоев — ОСНОВНОЙ генератор акцентов (реальные цвета
+# пикселей обоев): kitty/waybar/rofi/swaync/eww/btop/starship/cava/hyprlock/
+# gtk/spicetify/sddm/obs/рамка окна + Firefox (pywalfox). matugen = структура.
 wallust
+
+# Темизация Firefox под обои: wallust пишет ~/.cache/wal/colors.json (pywal-
+# формат), pywalfox отдаёт цвета расширению. После установки выполнить раз:
+# `pywalfox install` (регистрирует native-messaging host) + поставить
+# расширение pywalfox в Firefox.
+python-pywalfox
 
 # GUI для выбора обоев
 waypaper

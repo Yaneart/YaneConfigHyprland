@@ -46,7 +46,7 @@ textbox-prompt-colon {
     str:              " ";
     padding:          0 6px 0 0;
     background-color: transparent;
-    text-color:       @primary;
+    text-color:       @tertiary;
     font:             "JetBrainsMono Nerd Font 20";
 }
 
@@ -108,7 +108,7 @@ element {
 }
 
 element normal.normal { background-color: transparent;           text-color: @on-surface-variant;   }
-element normal.active { background-color: @primary-container-10; text-color: @on-primary-container; }
+element normal.active { background-color: @tertiary-container-25; text-color: @on-tertiary-container; }
 element normal.urgent { background-color: @error-container-10;   text-color: @on-error-container;   }
 
 element selected.normal {
@@ -118,10 +118,10 @@ element selected.normal {
     border-color:     @primary-50;
 }
 element selected.active {
-    background-color: @primary-container;
-    text-color:       @on-primary-container;
+    background-color: @tertiary-container;
+    text-color:       @on-tertiary-container;
     border:           2px solid;
-    border-color:     @primary-50;
+    border-color:     @tertiary-50;
 }
 element selected.urgent {
     background-color: @error-container-75;

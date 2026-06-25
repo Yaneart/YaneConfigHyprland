@@ -1,5 +1,14 @@
+/* Акцентные роли rofi — РЕАЛЬНЫЕ цвета обоев из wallust.
+ * Импортируется в mainStyle.rasi/askpass.rasi ПОСЛЕ colors-matugen.rasi,
+ * поэтому перекрывает выдуманные matugen-акценты. Нейтральная структура
+ * (surface/container/on-цвета) остаётся из matugen. 24.06.2026. */
 * {
- 
-    selected:       {{color3}};
-
+    primary:    {{color4}}ff;
+    secondary:  {{color5}}ff;
+    tertiary:   {{color6}}ff;
+    blue:       {{color4}}ff;
+    success:    {{color2}}ff;
+    yellow:     {{color3}}ff;
+    selected:   {{color4}}ff;
+    active:     {{color5}}ff;
 }

@@ -1,18 +1,42 @@
 #!/usr/bin/env bash
+# Lightweight wallpaper restore for login.
+#
+# Цвета (выводы matugen/wallust) уже лежат на диске в ~/.config от прошлого
+# `theme-apply`, и каждое приложение читает их при СВОЁМ старте (waybar →
+# colors.css, swaync → colors-swaync.css, kitty → colors.conf, eww →
+# colors.scss, рамки Hyprland → modules/generated_colors.lua через
+# modules/colors.lua). Поэтому здесь НАМЕРЕННО не запускается полный
+# theme-apply: matugen на логине жрёт ~1.5с CPU в самый загруженный момент
+# старта (одновременно поднимаются waybar/eww/portal/awww) и оттягивает
+# появление рабочего стола, ничего при этом не меняя (обои те же → цвета те
+# же). Полная регенерация нужна только при РЕАЛЬНОЙ смене обоев — это делает
+# theme-apply. См. project_theme_system / project_uwsm_login_delay.
 set -euo pipefail
 
 STATE_FILE="$HOME/.local/state/theme/current_wallpaper"
 FALLBACK="$HOME/.config/background"
 
+file=""
 if [[ -f "$STATE_FILE" ]]; then
-  file="$(<"$STATE_FILE")"
-  if [[ -f "$file" ]]; then
-    exec "$HOME/.local/bin/theme-apply" "$file"
-  fi
+  saved="$(<"$STATE_FILE")"
+  [[ -f "$saved" ]] && file="$saved"
+fi
+[[ -z "$file" && -f "$FALLBACK" ]] && file="$FALLBACK"
+
+if [[ -z "$file" ]]; then
+  notify-send "Theme restore skipped" "No saved wallpaper found"
+  exit 0
 fi
 
-if [[ -f "$FALLBACK" ]]; then
-  exec "$HOME/.local/bin/theme-apply" "$FALLBACK"
+# awww-daemon обычно уже запущен autostart-хуком; подстрахуемся и дождёмся
+# его IPC-сокета вместо слепого sleep.
+if ! pgrep -x awww-daemon >/dev/null 2>&1; then
+  awww-daemon &
 fi
+for _ in $(seq 1 60); do
+  awww query >/dev/null 2>&1 && break
+  sleep 0.05
+done
 
-notify-send "Theme restore skipped" "No saved wallpaper found"
+# Мгновенно, без фейда — на логине нужна скорость, а не анимация.
+awww img "$file" --transition-type none >/dev/null 2>&1 || true
