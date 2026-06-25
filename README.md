@@ -46,8 +46,8 @@ Same setup, different wallpapers — everything recolors automatically:
 **Power menu** (`Super+Shift+M`)
 ![Power menu](screenshots/powermenu.png)
 
-**Spotify** (mpris module in Waybar with click/scroll controls, `Super+P`)
-![Music widget](screenshots/music-widget.png)
+**Spotify** — auto-themed via Spicetify (`Super+P`); the mpris module in Waybar adds click/scroll controls
+![Spotify / Spicetify](screenshots/music-widget.png)
 
 **Yazi file manager**
 ![Yazi](screenshots/yazi.png)

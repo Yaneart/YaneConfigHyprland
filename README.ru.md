@@ -46,8 +46,8 @@
 **Меню питания** (`Super+Shift+M`)
 ![Power menu](screenshots/powermenu.png)
 
-**Spotify** (модуль mpris в Waybar с управлением кликом/скроллом, `Super+P`)
-![Music widget](screenshots/music-widget.png)
+**Spotify** — автоматическая тема через Spicetify (`Super+P`); модуль mpris в Waybar добавляет управление кликом/скроллом
+![Spotify / Spicetify](screenshots/music-widget.png)
 
 **Файловый менеджер Yazi**
 ![Yazi](screenshots/yazi.png)
